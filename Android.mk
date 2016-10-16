@@ -48,7 +48,7 @@ LOCAL_AAPT_FLAGS := \
     --auto-add-overlay \
     --extra-packages android.support.v7.recyclerview \
 
-LOCAL_PACKAGE_NAME := Launcher3
+LOCAL_PACKAGE_NAME := Luna
 LOCAL_CERTIFICATE := platform
 LOCAL_OVERRIDES_PACKAGES := Home Launcher2
 
