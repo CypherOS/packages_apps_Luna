@@ -337,6 +337,8 @@ public class Launcher extends BaseActivity
     public ViewGroupFocusHelper mFocusHandler;
     private boolean mRotationEnabled = false;
 
+    private LauncherTab mLauncherTab;
+
     @Thunk void setOrientation() {
         if (mRotationEnabled) {
             unlockScreenOrientation(true);
@@ -453,6 +455,8 @@ public class Launcher extends BaseActivity
         // For handling default keys
         mDefaultKeySsb = new SpannableStringBuilder();
         Selection.setSelection(mDefaultKeySsb, 0);
+
+        mLauncherTab = new LauncherTab(this);
 
         mRotationEnabled = getResources().getBoolean(R.bool.allow_rotation);
         // In case we are on a device with locked rotation, we should look at preferences to check
@@ -1050,6 +1054,8 @@ public class Launcher extends BaseActivity
         if (shouldShowDiscoveryBounce()) {
             mAllAppsController.showDiscoveryBounce();
         }
+        mLauncherTab.getClient().onResume();
+
         if (mLauncherCallbacks != null) {
             mLauncherCallbacks.onResume();
         }
@@ -1071,6 +1077,8 @@ public class Launcher extends BaseActivity
         if (mWorkspace.getCustomContentCallbacks() != null) {
             mWorkspace.getCustomContentCallbacks().onHide();
         }
+
+        mLauncherTab.getClient().onPause();
 
         if (mLauncherCallbacks != null) {
             mLauncherCallbacks.onPause();
@@ -1580,6 +1588,8 @@ public class Launcher extends BaseActivity
         super.onAttachedToWindow();
 
         FirstFrameAnimatorHelper.initializeDrawListener(getWindow().getDecorView());
+        mLauncherTab.getClient().onAttachedToWindow();
+
         if (mLauncherCallbacks != null) {
             mLauncherCallbacks.onAttachedToWindow();
         }
@@ -1588,6 +1598,8 @@ public class Launcher extends BaseActivity
     @Override
     public void onDetachedFromWindow() {
         super.onDetachedFromWindow();
+
+        mLauncherTab.getClient().onDetachedFromWindow();
 
         if (mLauncherCallbacks != null) {
             mLauncherCallbacks.onDetachedFromWindow();
@@ -1749,6 +1761,8 @@ public class Launcher extends BaseActivity
                 mWidgetsView.scrollToTop();
             }
 
+            mLauncherTab.getClient().hideOverlay(true);
+
             if (mLauncherCallbacks != null) {
                 mLauncherCallbacks.onHomeIntent();
             }
@@ -1857,7 +1871,7 @@ public class Launcher extends BaseActivity
         WallpaperColorInfo.getInstance(this).setOnThemeChangeListener(null);
 
         LauncherAnimUtils.onDestroyActivity();
-
+		mLauncherTab.getClient().onDestroy();
         clearPendingBinds();
 
         if (mLauncherCallbacks != null) {
