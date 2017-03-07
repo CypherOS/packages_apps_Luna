@@ -23,10 +23,21 @@
         android:persistent="true"/>
 
     <SwitchPreference
-            android:key="pref_allowRotation"
-            android:title="@string/allow_rotation_title"
-            android:defaultValue="@bool/allow_rotation"
-            android:persistent="true"
-    />
+        android:key="pref_allowRotation"
+        android:title="@string/allow_rotation_title"
+        android:defaultValue="@bool/allow_rotation"
+        android:persistent="true" />
+		
+	<ListPreference
+        android:key="pref_numRows"
+        android:title="@string/row_num_title"
+        android:entryValues="@array/numRowsValues"
+        android:entries="@array/numRowsTexts"/>
+			
+	<ListPreference
+        android:key="pref_numCols"
+        android:title="@string/column_num_title"
+        android:entries="@array/numColsTexts"
+        android:entryValues="@array/numColsValues"/>
 
 </PreferenceScreen>
