@@ -59,4 +59,11 @@
 	<!-- QSB Widget -->
     <color name="qsb_connector">#fff2f2f2</color>
     <color name="qsb_background">#ffffffff</color>
+
+    <color name="settings_action_bar_color">#ff263238</color>
+    <color name="settings_status_bar_color">#ff21272b</color>
+    <color name="launcher_accent_color">#ff2196f3</color>
+    <color name="icon_settings_background">#ff313131</color>
+    <color name="icon_settings_text">#ffafafaf</color>
+>>>>>>> aa02105d6... Launcher3: support changing icons and app label
 </resources>
