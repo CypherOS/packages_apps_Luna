@@ -126,7 +126,7 @@ public class LauncherClient {
 
     private void removeClient(boolean removeAppConnection) {
         mDestroyed = true;
-        mActivity.unbindService(mServiceConnection);
+        mActivity.getApplicationContext().unbindService(mServiceConnection);
         mActivity.unregisterReceiver(mUpdateReceiver);
 
         if (mCurrentCallbacks != null) {
