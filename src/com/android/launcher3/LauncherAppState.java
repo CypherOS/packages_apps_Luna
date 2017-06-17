@@ -54,6 +54,7 @@ public class LauncherAppState {
     private static LauncherAppState INSTANCE;
 
     private InvariantDeviceProfile mInvariantDeviceProfile;
+	private Launcher mLauncher;
 
     public static LauncherAppState getInstance() {
         if (INSTANCE == null) {
@@ -153,6 +154,23 @@ public class LauncherAppState {
     public void reloadWorkspace() {
         mModel.resetLoadedState(false, true);
         mModel.startLoaderFromBackground();
+    }
+
+    public void reloadAll(boolean showWorkspace) {
+        mModel.resetLoadedState(true, true);
+        mModel.startLoaderFromBackground();
+        mInvariantDeviceProfile.customizationHook(getContext());
+        mLauncher.runOnUiThread(
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        mLauncher.getHotseat();
+                    }
+                }
+        );
+        if(showWorkspace){
+            mLauncher.showWorkspace(true);
+        }
     }
 
     LauncherModel setLauncher(Launcher launcher) {
