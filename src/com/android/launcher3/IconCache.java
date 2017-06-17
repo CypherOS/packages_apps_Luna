@@ -38,13 +38,14 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
+import android.os.UserHandle;
 import android.os.SystemClock;
 import android.text.TextUtils;
 import android.util.Log;
 
 import com.android.launcher3.compat.LauncherActivityInfoCompat;
 import com.android.launcher3.compat.LauncherAppsCompat;
-import com.android.launcher3.compat.UserHandleCompat;
+import com.android.launcher3.compat.UserHandle;
 import com.android.launcher3.compat.UserManagerCompat;
 import com.android.launcher3.config.FeatureFlags;
 import com.android.launcher3.model.PackageItemInfo;
@@ -85,7 +86,7 @@ public class IconCache {
         public boolean isLowResIcon;
     }
 
-    private final HashMap<UserHandleCompat, Bitmap> mDefaultIcons = new HashMap<>();
+    private final HashMap<UserHandle, Bitmap> mDefaultIcons = new HashMap<>();
     @Thunk final MainThreadExecutor mMainThreadExecutor = new MainThreadExecutor();
 
     private final Context mContext;
@@ -184,7 +185,7 @@ public class IconCache {
         return getFullResDefaultActivityIcon();
     }
 
-    private Bitmap makeDefaultIcon(UserHandleCompat user) {
+    private Bitmap makeDefaultIcon(UserHandle user) {
         Drawable unbadged = getFullResDefaultActivityIcon();
         return Utilities.createBadgedIconBitmap(unbadged, user, mContext);
     }
@@ -192,14 +193,14 @@ public class IconCache {
     /**
      * Remove any records for the supplied ComponentName.
      */
-    public synchronized void remove(ComponentName componentName, UserHandleCompat user) {
+    public synchronized void remove(ComponentName componentName, UserHandle user) {
         mCache.remove(new ComponentKey(componentName, user));
     }
 
     /**
      * Remove any records for the supplied package name from memory.
      */
-    private void removeFromMemCacheLocked(String packageName, UserHandleCompat user) {
+    private void removeFromMemCacheLocked(String packageName, UserHandle user) {
         HashSet<ComponentKey> forDeletion = new HashSet<ComponentKey>();
         for (ComponentKey key: mCache.keySet()) {
             if (key.componentName.getPackageName().equals(packageName)
@@ -215,7 +216,7 @@ public class IconCache {
     /**
      * Updates the entries related to the given package in memory and persistent DB.
      */
-    public synchronized void updateIconsForPkg(String packageName, UserHandleCompat user) {
+    public synchronized void updateIconsForPkg(String packageName, UserHandle user) {
         removeIconsForPkg(packageName, user);
         try {
             PackageInfo info = mPackageManager.getPackageInfo(packageName,
@@ -233,7 +234,7 @@ public class IconCache {
     /**
      * Removes the entries related to the given package in memory and persistent DB.
      */
-    public synchronized void removeIconsForPkg(String packageName, UserHandleCompat user) {
+    public synchronized void removeIconsForPkg(String packageName, UserHandle user) {
         removeFromMemCacheLocked(packageName, user);
         long userSerial = mUserManager.getSerialNumberForUser(user);
         mIconDb.delete(
@@ -246,7 +247,7 @@ public class IconCache {
         mWorkerHandler.removeCallbacksAndMessages(ICON_UPDATE_TOKEN);
 
         mIconProvider.updateSystemStateString();
-        for (UserHandleCompat user : mUserManager.getUserProfiles()) {
+        for (UserHandle user : mUserManager.getUserProfiles()) {
             // Query for the set of apps
             final List<LauncherActivityInfoCompat> apps = mLauncherApps.getActivityList(null, user);
             // Fail if we don't have any apps
@@ -257,7 +258,7 @@ public class IconCache {
 
             // Update icon cache. This happens in segments and {@link #onPackageIconsUpdated}
             // is called by the icon cache when the job is complete.
-            updateDBIcons(user, apps, UserHandleCompat.myUserHandle().equals(user)
+            updateDBIcons(user, apps, UserHandle.myUserHandle().equals(user)
                     ? ignorePackagesForMainUser : Collections.<String>emptySet());
         }
     }
@@ -267,7 +268,7 @@ public class IconCache {
      * the DB and are updated.
      * @return The set of packages for which icons have updated.
      */
-    private void updateDBIcons(UserHandleCompat user, List<LauncherActivityInfoCompat> apps,
+    private void updateDBIcons(UserHandle user, List<LauncherActivityInfoCompat> apps,
             Set<String> ignorePackages) {
         long userSerial = mUserManager.getSerialNumberForUser(user);
         PackageManager pm = mContext.getPackageManager();
@@ -432,8 +433,12 @@ public class IconCache {
         return new IconLoadRequest(request, mWorkerHandler);
     }
 
-    private Bitmap getNonNullIcon(CacheEntry entry, UserHandleCompat user) {
-        return entry.icon == null ? getDefaultIcon(user) : entry.icon;
+    private Bitmap getNonNullIcon(CacheEntry entry, UserHandle user, boolean notificationBadge) {
+        Bitmap b = entry.icon == null ? getDefaultIcon(user) : entry.icon;
+        if(notificationBadge) {
+            return Utilities.addNotificationBadgeToIcon(b);
+        }
+        return b;
     }
 
     /**
@@ -441,14 +446,15 @@ public class IconCache {
      */
     public synchronized void getTitleAndIcon(AppInfo application,
             LauncherActivityInfoCompat info, boolean useLowResIcon) {
-        UserHandleCompat user = info == null ? application.user : info.getUser();
+        UserHandle user = info == null ? application.user : info.getUser();
         CacheEntry entry = cacheLocked(application.componentName, info, user,
                 false, useLowResIcon);
         application.title = Utilities.trim(entry.title);
         application.contentDescription = entry.contentDescription;
         IconPack iconPack = IconPackProvider.loadAndGetIconPack(mContext);
         Drawable icon = iconPack == null ? null : iconPack.getIcon(application.componentName);
-        application.iconBitmap = icon == null ? getNonNullIcon(entry, user) : Utilities.createIconBitmap(icon, mContext);
+        boolean hasNotifications = NotificationListener.hasNotifications(application.componentName.getPackageName());
+        application.iconBitmap = icon == null ? getNonNullIcon(entry, user, hasNotifications) : Utilities.createIconBitmap(icon, mContext, hasNotifications);
         application.usingLowResIcon = entry.isLowResIcon;
     }
 
@@ -463,7 +469,8 @@ public class IconCache {
             application.contentDescription = entry.contentDescription;
             IconPack iconPack = IconPackProvider.loadAndGetIconPack(mContext);
             Drawable icon = iconPack == null ? null : iconPack.getIcon(application.componentName);
-            application.iconBitmap = icon == null ? entry.icon : Utilities.createIconBitmap(icon, mContext);
+            boolean hasNotifications = NotificationListener.hasNotifications(application.componentName.getPackageName());
+            application.iconBitmap = icon == null ? entry.icon : Utilities.createIconBitmap(icon, mContext, hasNotifications);
             application.usingLowResIcon = entry.isLowResIcon;
         }
     }
@@ -471,7 +478,7 @@ public class IconCache {
     /**
      * Returns a high res icon for the given intent and user
      */
-    public synchronized Bitmap getIcon(Intent intent, UserHandleCompat user) {
+    public synchronized Bitmap getIcon(Intent intent, UserHandle user) {
         ComponentName component = intent.getComponent();
         // null info means not installed, but if we have a component from the intent then
         // we should still look in the cache for restored app icons.
@@ -489,7 +496,7 @@ public class IconCache {
      * corresponding activity is not found, it reverts to the package icon.
      */
     public synchronized void getTitleAndIcon(ShortcutInfo shortcutInfo, Intent intent,
-            UserHandleCompat user, boolean useLowResIcon) {
+            UserHandle user, boolean useLowResIcon) {
         ComponentName component = intent.getComponent();
         // null info means not installed, but if we have a component from the intent then
         // we should still look in the cache for restored app icons.
@@ -510,11 +517,12 @@ public class IconCache {
      */
     public synchronized void getTitleAndIcon(
             ShortcutInfo shortcutInfo, ComponentName component, LauncherActivityInfoCompat info,
-            UserHandleCompat user, boolean usePkgIcon, boolean useLowResIcon) {
+            UserHandle user, boolean usePkgIcon, boolean useLowResIcon) {
         CacheEntry entry = cacheLocked(component, info, user, usePkgIcon, useLowResIcon);
         IconPack iconPack = IconPackProvider.loadAndGetIconPack(mContext);
         Drawable icon = iconPack == null ? null : iconPack.getIcon(component);
-        Bitmap iBitmap = icon == null ? getNonNullIcon(entry, user) : Utilities.createIconBitmap(icon, mContext);
+        boolean hasNotifications = NotificationListener.hasNotifications(component.getPackageName());
+        Bitmap iBitmap = icon == null ? getNonNullIcon(entry, user, hasNotifications) : Utilities.createIconBitmap(icon, mContext, hasNotifications);
         shortcutInfo.setIcon(iBitmap);
         shortcutInfo.title = Utilities.trim(entry.title);
         shortcutInfo.contentDescription = entry.contentDescription;
@@ -531,18 +539,19 @@ public class IconCache {
                 infoInOut.packageName, infoInOut.user, useLowResIcon);
         infoInOut.title = Utilities.trim(entry.title);
         infoInOut.contentDescription = entry.contentDescription;
-        infoInOut.iconBitmap = getNonNullIcon(entry, infoInOut.user);
+        boolean hasNotifications = NotificationListener.hasNotifications(infoInOut.packageName);
+        infoInOut.iconBitmap = getNonNullIcon(entry, infoInOut.user, hasNotifications);
         infoInOut.usingLowResIcon = entry.isLowResIcon;
     }
 
-    public synchronized Bitmap getDefaultIcon(UserHandleCompat user) {
+    public synchronized Bitmap getDefaultIcon(UserHandle user) {
         if (!mDefaultIcons.containsKey(user)) {
             mDefaultIcons.put(user, makeDefaultIcon(user));
         }
         return mDefaultIcons.get(user);
     }
 
-    public boolean isDefaultIcon(Bitmap icon, UserHandleCompat user) {
+    public boolean isDefaultIcon(Bitmap icon, UserHandle user) {
         return mDefaultIcons.get(user) == icon;
     }
 
@@ -551,7 +560,7 @@ public class IconCache {
      * This method is not thread safe, it must be called from a synchronized method.
      */
     private CacheEntry cacheLocked(ComponentName componentName, LauncherActivityInfoCompat info,
-            UserHandleCompat user, boolean usePackageIcon, boolean useLowResIcon) {
+            UserHandle user, boolean usePackageIcon, boolean useLowResIcon) {
         ComponentKey cacheKey = new ComponentKey(componentName, user);
         CacheEntry entry = mCache.get(cacheKey);
         if (entry == null || (entry.isLowResIcon && !useLowResIcon)) {
@@ -596,7 +605,7 @@ public class IconCache {
      * Adds a default package entry in the cache. This entry is not persisted and will be removed
      * when the cache is flushed.
      */
-    public synchronized void cachePackageInstallInfo(String packageName, UserHandleCompat user,
+    public synchronized void cachePackageInstallInfo(String packageName, UserHandle user,
             Bitmap icon, CharSequence title) {
         removeFromMemCacheLocked(packageName, user);
 
@@ -616,7 +625,7 @@ public class IconCache {
         }
     }
 
-    private static ComponentKey getPackageKey(String packageName, UserHandleCompat user) {
+    private static ComponentKey getPackageKey(String packageName, UserHandle user) {
         ComponentName cn = new ComponentName(packageName, packageName + EMPTY_CLASS_NAME);
         return new ComponentKey(cn, user);
     }
@@ -625,7 +634,7 @@ public class IconCache {
      * Gets an entry for the package, which can be used as a fallback entry for various components.
      * This method is not thread safe, it must be called from a synchronized method.
      */
-    private CacheEntry getEntryForPackageLocked(String packageName, UserHandleCompat user,
+    private CacheEntry getEntryForPackageLocked(String packageName, UserHandle user,
             boolean useLowResIcon) {
         ComponentKey cacheKey = getPackageKey(packageName, user);
         CacheEntry entry = mCache.get(cacheKey);
@@ -637,7 +646,7 @@ public class IconCache {
             // Check the DB first.
             if (!getEntryFromDB(cacheKey, entry, useLowResIcon)) {
                 try {
-                    int flags = UserHandleCompat.myUserHandle().equals(user) ? 0 :
+                    int flags = UserHandle.myUserHandle().equals(user) ? 0 :
                         PackageManager.GET_UNINSTALLED_PACKAGES;
                     PackageInfo info = mPackageManager.getPackageInfo(packageName, flags);
                     ApplicationInfo appInfo = info.applicationInfo;
