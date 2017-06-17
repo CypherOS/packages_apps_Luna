@@ -23,10 +23,30 @@
         android:persistent="true"/>
 
     <SwitchPreference
-            android:key="pref_allowRotation"
-            android:title="@string/allow_rotation_title"
-            android:defaultValue="@bool/allow_rotation"
-            android:persistent="true"
-    />
+        android:key="pref_allowRotation"
+        android:title="@string/allow_rotation_title"
+        android:defaultValue="@bool/allow_rotation"
+        android:persistent="true" />
+		
+	<PreferenceCategory android:key="pref_homscreen_category"
+	    android:title="Homescreen" />
+		
+	<ListPreference
+        android:key="pref_numRows"
+        android:title="@string/num_hotseat_title"
+        android:entryValues="@array/numHotseatIconsValues"
+        android:entries="@array/numHotseatIconsTexts"/>
+		
+	<ListPreference
+        android:key="pref_numRows"
+        android:title="@string/num_row_title"
+        android:entryValues="@array/numRowsValues"
+        android:entries="@array/numRowsTexts"/>
+			
+	<ListPreference
+        android:key="pref_numCols"
+        android:title="@string/num_column_title"
+        android:entries="@array/numColsTexts"
+        android:entryValues="@array/numColsValues"/>
 
 </PreferenceScreen>

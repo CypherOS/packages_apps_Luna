@@ -266,4 +266,9 @@
 	<!-- Icon Pack -->
     <string name="icon_pack">Icon Pack</string>
     <string name="icon_pack_summary">Select an icon Pack</string>
+	
+	<!-- Hotseat/Rows/Columns -->
+	<string name="num_hotseat_title">Hotseat icons</string>
+	<string name="num_row_title">Rows</string>
+    <string name="num_column_title">Columns</string>
 </resources>
