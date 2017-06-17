@@ -154,6 +154,11 @@ public class LauncherAppState {
         mModel.resetLoadedState(false, true);
         mModel.startLoaderFromBackground();
     }
+	
+	public void reloadAllApps() {
+        mModel.resetLoadedState(true, false);
+        mModel.startLoaderFromBackground();
+    }
 
     LauncherModel setLauncher(Launcher launcher) {
         sLauncherProvider.get().setLauncherProviderChangeListener(launcher);
