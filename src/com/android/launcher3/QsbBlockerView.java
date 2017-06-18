@@ -31,10 +31,15 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.RemoteViews;
 
+import com.android.launcher3.pixelui.OnGsaListener;
+import com.android.launcher3.pixelui.GoogleSearchApp;
+import com.android.launcher3.pixelui.WeatherListener;
+import com.android.launcher3.pixelui.ShadowHostView;
+
 /**
  * A simple view used to show the region blocked by QSB during drag and drop.
  */
-public class QsbBlockerView extends FrameLayout implements Workspace.OnStateChangeListener, SuperOnGsaListener {
+public class QsbBlockerView extends FrameLayout implements Workspace.OnStateChangeListener, OnGsaListener {
     public static final Property<QsbBlockerView, Integer> QSB_BLOCKER_VIEW_ALPHA = new QsbBlockerViewAlpha(Integer.TYPE, "bgAlpha");
     private final Paint mBgPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private int mState = 0;
@@ -53,7 +58,7 @@ public class QsbBlockerView extends FrameLayout implements Workspace.OnStateChan
         Workspace workspace = Launcher.getLauncher(getContext()).getWorkspace();
         workspace.setOnStateChangeListener(this);
         prepareStateChange(workspace.getState(), null);
-        SuperGoogleSearchApp gsa = SuperWeatherListener.aS(getContext()).getGoogleSearchAppAndAddListener(this);
+        GoogleSearchApp gsa = WeatherListener.aS(getContext()).getGoogleSearchAppAndAddListener(this);
         if (gsa != null) {
             onGsa(gsa.mRemoteViews);
         }
@@ -73,7 +78,7 @@ public class QsbBlockerView extends FrameLayout implements Workspace.OnStateChan
 
     @Override
     protected void onDetachedFromWindow() {
-        SuperWeatherListener.aS(getContext()).removeListener(this);
+        WeatherListener.aS(getContext()).removeListener(this);
         super.onDetachedFromWindow();
     }
 
@@ -103,7 +108,7 @@ public class QsbBlockerView extends FrameLayout implements Workspace.OnStateChan
         View oldView = mView;
         int oldState = mState;
 
-        mView = SuperShadowHostView.getView(views, this, mView);
+        mView = ShadowHostView.getView(views, this, mView);
         mState = 2;
         if (mView == null) {
             mState = 1;

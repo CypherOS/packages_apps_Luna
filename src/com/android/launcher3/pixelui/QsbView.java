@@ -1,4 +1,20 @@
-package com.android.launcher3;
+/*
+ * Copyright (C) 2008 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.android.launcher3.pixelui;
 
 import android.animation.ArgbEvaluator;
 import android.animation.ObjectAnimator;
@@ -17,9 +33,11 @@ import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Interpolator;
 import android.widget.FrameLayout;
 
+import com.android.launcher3.Launcher;
+import com.android.launcher3.R;
 import com.android.launcher3.util.PackageManagerHelper;
 
-public abstract class SuperQsb //b
+public abstract class QsbView //b
         extends FrameLayout
         implements View.OnClickListener
 {
@@ -38,7 +56,7 @@ public abstract class SuperQsb //b
 
     protected abstract int getQsbView(boolean withMic);
 
-    public SuperQsb(Context paramContext, AttributeSet paramAttributeSet, int paramInt)
+    public QsbView(Context paramContext, AttributeSet paramAttributeSet, int paramInt)
     {
         super(paramContext, paramAttributeSet, paramInt);
         mLauncher = Launcher.getLauncher(paramContext);
@@ -191,7 +209,7 @@ public abstract class SuperQsb //b
         try {
             getContext().startActivity(new Intent(str).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK).setPackage("com.google.android.googlequicksearchbox"));
         } catch (ActivityNotFoundException e) {
-            Log.e("SuperQsb", "ActivityNotFound");
+            Log.e("QsbView", "ActivityNotFound");
         }
     }
 
@@ -208,9 +226,9 @@ public abstract class SuperQsb //b
     }
 
     final class FastTextSearchReceiver extends BroadcastReceiver {
-        final SuperQsb cq;
+        final QsbView cq;
 
-        FastTextSearchReceiver(SuperQsb qsbView) {
+        FastTextSearchReceiver(QsbView qsbView) {
             cq = qsbView;
         }
 
@@ -218,7 +236,7 @@ public abstract class SuperQsb //b
         public void onReceive(Context context, Intent intent) {
             if (getResultCode() == 0) {
                 //Animation not allowed, start the normal search bar
-                cq.startQsbActivity(SuperQsb.TEXT_ASSIST);
+                cq.startQsbActivity(QsbView.TEXT_ASSIST);
             } else {
                 cq.loadWindowFocus();
             }

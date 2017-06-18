@@ -1,4 +1,20 @@
-package com.android.launcher3;
+/*
+ * Copyright (C) 2008 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.android.launcher3.pixelui;
 
 import android.content.Context;
 import android.content.Intent;
@@ -7,24 +23,30 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 
+import com.android.launcher3.DeviceProfile;
+import com.android.launcher3.Launcher;
+import com.android.launcher3.R;
+import com.android.launcher3.Utilities;
 import com.android.launcher3.util.TransformingTouchDelegate;
 
-public class SuperGContainerView extends SuperQsb
+public class GContainerView extends QsbView
 {
     private static final Rect sTempRect = new Rect();
     private final TransformingTouchDelegate mTouchDelegate; //bY
+	
+	private Launcher mLauncher;
 
-    public SuperGContainerView(Context paramContext)
+    public GContainerView(Context paramContext)
     {
         this(paramContext, null);
     }
 
-    public SuperGContainerView(Context paramContext, AttributeSet paramAttributeSet)
+    public GContainerView(Context paramContext, AttributeSet paramAttributeSet)
     {
         this(paramContext, paramAttributeSet, 0);
     }
 
-    public SuperGContainerView(Context paramContext, AttributeSet paramAttributeSet, int paramInt)
+    public GContainerView(Context paramContext, AttributeSet paramAttributeSet, int paramInt)
     {
         super(paramContext, paramAttributeSet, paramInt);
         if (mLauncher.useVerticalBarLayout()) {

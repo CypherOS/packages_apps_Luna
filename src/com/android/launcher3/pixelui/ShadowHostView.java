@@ -1,4 +1,20 @@
-package com.android.launcher3;
+/*
+ * Copyright (C) 2008 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.android.launcher3.pixelui;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -16,7 +32,9 @@ import android.widget.FrameLayout;
 import android.widget.RemoteViews;
 import android.widget.TextView;
 
-public class SuperShadowHostView
+import com.android.launcher3.R;
+
+public class ShadowHostView
         extends FrameLayout
 {
     private static final int cf = 38;
@@ -30,15 +48,15 @@ public class SuperShadowHostView
     private final Paint mPaint;
     private View mView;
 
-    public SuperShadowHostView(Context context) {
+    public ShadowHostView(Context context) {
         this(context, null);
     }
 
-    public SuperShadowHostView(Context context, AttributeSet attributeSet) {
+    public ShadowHostView(Context context, AttributeSet attributeSet) {
         this(context, attributeSet, 0);
     }
 
-    public SuperShadowHostView(Context context, AttributeSet attributeSet, int i) {
+    public ShadowHostView(Context context, AttributeSet attributeSet, int i) {
         super(context, attributeSet, i);
         mCanvas = new Canvas();
         mPaint = new Paint(3);
@@ -72,9 +90,9 @@ public class SuperShadowHostView
             this.mPaint.setMaskFilter(null);
             final float n4 = this.mView.getLeft() - this.cl;
             final float n5 = this.mView.getTop() - this.cl;
-            this.mPaint.setAlpha(SuperShadowHostView.cf);
+            this.mPaint.setAlpha(ShadowHostView.cf);
             canvas.drawBitmap(this.ck, n4, n5, this.mPaint);
-            this.mPaint.setAlpha(SuperShadowHostView.cg);
+            this.mPaint.setAlpha(ShadowHostView.cg);
             canvas.drawBitmap(this.ck, n4, n5 + this.cj, this.mPaint);
         }
     }
@@ -82,12 +100,12 @@ public class SuperShadowHostView
         if (remoteViews == null) {
             return null;
         }
-        SuperShadowHostView shadowHostView;
-        if (view instanceof SuperShadowHostView) {
-            shadowHostView = (SuperShadowHostView) view;
+        ShadowHostView shadowHostView;
+        if (view instanceof ShadowHostView) {
+            shadowHostView = (ShadowHostView) view;
         }
         else {
-            shadowHostView = (SuperShadowHostView) LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.shadow_host_view, viewGroup, false);
+            shadowHostView = (ShadowHostView) LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.shadow_host_view, viewGroup, false);
         }
         if (!shadowHostView.applyView(remoteViews)) {
             shadowHostView = null;
