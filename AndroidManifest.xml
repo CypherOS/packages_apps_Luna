@@ -118,7 +118,7 @@
             android:writePermission="com.android.launcher3.permission.WRITE_SETTINGS"
             android:readPermission="com.android.launcher3.permission.READ_SETTINGS" />
 
-        <receiver android:name="com.android.launcher3.SuperWeatherUpdateReceiver" android:permission="android.permission.CAPTURE_AUDIO_HOTWORD">
+        <receiver android:name="com.android.launcher3.pixelui.WeatherUpdateReceiver" android:permission="android.permission.CAPTURE_AUDIO_HOTWORD">
             <intent-filter>
                 <action android:name="com.google.android.apps.nexuslauncher.updateweather"/>
             </intent-filter>
