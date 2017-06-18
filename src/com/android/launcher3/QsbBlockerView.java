@@ -31,10 +31,15 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.RemoteViews;
 
+import com.android.launcher3.pixelui.OnGsaListener;
+import com.android.launcher3.pixelui.GoogleSearchApp;
+import com.android.launcher3.pixelui.WeatherListener;
+import com.android.launcher3.pixelui.ShadowHostView;
+
 /**
  * A simple view used to show the region blocked by QSB during drag and drop.
  */
-public class QsbBlockerView extends FrameLayout implements Workspace.OnStateChangeListener, SuperOnGsaListener {
+public class QsbBlockerView extends FrameLayout implements Workspace.OnStateChangeListener, OnGsaListener {
     public static final Property<QsbBlockerView, Integer> QSB_BLOCKER_VIEW_ALPHA = new QsbBlockerViewAlpha(Integer.TYPE, "bgAlpha");
     private final Paint mBgPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private int mState = 0;
