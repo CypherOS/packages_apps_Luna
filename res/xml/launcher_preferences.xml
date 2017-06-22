@@ -17,16 +17,22 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
     <com.android.launcher3.preferences.IconPackPreference
-        android:key="pref_iconPackPackage"
-        android:title="@string/icon_pack"
-        android:summary="@string/icon_pack_summary"
-        android:persistent="true"/>
+            android:key="pref_iconPackPackage"
+            android:title="@string/icon_pack"
+            android:summary="@string/icon_pack_summary"
+            android:persistent="true" />
 
     <SwitchPreference
             android:key="pref_allowRotation"
             android:title="@string/allow_rotation_title"
             android:defaultValue="@bool/allow_rotation"
-            android:persistent="true"
-    />
+            android:persistent="true" />
+			
+	<SwitchPreference
+            android:key="pref_openDrawerByHome"
+            android:title="@string/home_button_launch"
+            android:summary="@string/home_button_launch_summary"
+            android:defaultValue="true"
+            android:persistent="true" />
 
 </PreferenceScreen>
