@@ -16,10 +16,17 @@
 
 package com.android.launcher3.config;
 
+import android.content.Context;
+
+import com.android.launcher3.Utilities;
+
 /**
  * Defines a set of flags used to control various launcher behaviors
  */
 public final class FeatureFlags {
+	
+	private static final String KEY_OPEN_DRAWER_HOME = "pref_openDrawerByHome";
+	
     private FeatureFlags() {}
 
     // Custom flags go below this
@@ -39,4 +46,9 @@ public final class FeatureFlags {
     public static final boolean PULLDOWN_SEARCH = false;
     // When enabled the status bar may show dark icons based on the top of the wallpaper.
     public static final boolean LIGHT_STATUS_BAR = false;
+	
+	public static boolean openDrawerByHome(Context context) {
+        boolean enabled = Utilities.getPrefs(context).getBoolean(KEY_OPEN_DRAWER_HOME, true);
+        return enabled;
+    }
 }

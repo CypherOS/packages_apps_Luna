@@ -266,4 +266,8 @@
 	<!-- Icon Pack -->
     <string name="icon_pack">Icon Pack</string>
     <string name="icon_pack_summary">Select an icon Pack</string>
+	
+	<!-- Quick launch -->
+    <string name="home_button_launch">Quick launch</string>
+    <string name="home_button_launch_summary">Open the app drawer while on the homescreen by pressing the home button</string>
 </resources>

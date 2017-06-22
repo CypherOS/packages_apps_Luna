@@ -1861,7 +1861,11 @@ public class Launcher extends Activity
             // If we are already on home, then just animate back to the workspace,
             // otherwise, just wait until onResume to set the state back to Workspace
             if (alreadyOnHome) {
-                showWorkspace(true);
+                if (!FeatureFlags.openDrawerByHome(this) || mState != State.WORKSPACE || mWorkspace.getCurrentPage() != 0 || mOverviewPanel.getVisibility() == View.VISIBLE) {
+                    showWorkspace(true);
+                } else {
+                    showAppsView(true, false);
+                }
             } else {
                 mOnResumeState = State.WORKSPACE;
             }
