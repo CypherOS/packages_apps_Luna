@@ -94,10 +94,10 @@ public class IconPackPreference extends Preference {
                     IconPackInfo packInfo = packages.get(item);
                     setIcon(packInfo.icon);
                     setSummary(packInfo.label);
-					app.reloadAllApps();
+					app.reloadPreferences();
                 } else {
                     setNone();
-					app.reloadAllApps();
+					app.reloadPreferences();
                 }
             }
         });

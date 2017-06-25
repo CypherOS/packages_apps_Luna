@@ -155,7 +155,7 @@ public class LauncherAppState {
         mModel.startLoaderFromBackground();
     }
 	
-	public void reloadAllApps() {
+	public void reloadPreferences() {
         mModel.resetLoadedState(true, true);
         mModel.startLoaderFromBackground();
     }

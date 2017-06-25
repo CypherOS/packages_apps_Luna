@@ -81,6 +81,10 @@ public class SettingsActivity extends Activity {
                 mRotationLockObserver = null;
             }
             super.onDestroy();
+			LauncherAppState app = LauncherAppState.getInstance();
+            if (app != null) {
+                app.reloadPreferences();
+            }
         }
     }
 
