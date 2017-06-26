@@ -76,8 +76,11 @@
      should be targeting. Can be empty. -->
     <array name="launch_broadcast_targets" translatable="false"></array>
 
-    <!-- Name of an icon provider class. -->
-    <string name="icon_provider_class" translatable="false">com.android.launcher3.SuperDynamicIconProvider</string>
+    <!-- Name of an icon provider classes -->
+    <string-array name="config_iconProviderClass">
+        <item>com.android.launcher3.CustomIconProvider</item>
+		<item>com.android.launcher3.SuperDynamicIconProvider</item>
+    </string-array>
 
     <!-- Package name of the default wallpaper picker. -->
     <string name="wallpaper_picker_package" translatable="false">com.google.android.apps.wallpaper</string>
