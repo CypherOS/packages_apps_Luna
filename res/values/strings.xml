@@ -258,8 +258,22 @@
 
     <!-- Accessibility description for the shortcuts menu shown for an app. -->
     <string name="shortcuts_menu_description"><xliff:g id="number_of_shortcuts" example="3">%1$d</xliff:g> shortcuts for <xliff:g id="app_name" example="Messenger">%2$s</xliff:g></string>
-
+	
     <!-- Pixel -->
     <string name="label_search">Search</string>
     <string name="week_day_format">%1$s, %2$s</string>
+
+    <!-- Icon Pack: Preference -->
+	<string name="icon_pack_title">Icon Pack</string>
+    <string name="icon_pack_default">Default</string>
+	<!-- Icon Pack: Edit Dialog -->
+    <string name="edit_drop_target_label">Edit</string>
+    <string name="edit_app">Edit</string>
+    <string name="reset">Reset</string>
+	<string name="save">Save</string>
+	<!-- Icon Pack: Icon Chooser -->
+	<string name="icon_chooser_title">Choose an icon</string>
+	<string name="icon_chooser_similar">Similar</string>
+    <string name="icon_chooser_all">All</string>
+    <string name="loading">Loading, please wait</string>
 </resources>
