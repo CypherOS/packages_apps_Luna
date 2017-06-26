@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Copyright (C) 2015 Google Inc.
+<!--
+     Copyright (C) 2017 Paranoid Android
 
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
@@ -13,19 +14,6 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-
-    <Preference
-            android:key="pref_iconPacks"
-            android:title="@string/icon_pack_title"
-            android:icon="@drawable/icon_pack" />
-
-    <SwitchPreference
-            android:key="pref_allowRotation"
-            android:title="@string/allow_rotation_title"
-            android:defaultValue="@bool/allow_rotation"
-            android:persistent="true"
-    />
-
-</PreferenceScreen>
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="?android:colorControlHighlight">
+</ripple>
