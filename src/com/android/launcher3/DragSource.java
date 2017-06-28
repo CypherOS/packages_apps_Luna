@@ -26,10 +26,10 @@ import com.android.launcher3.logging.UserEventDispatcher.LaunchSourceProvider;
  */
 public interface DragSource extends LaunchSourceProvider {
 
-    /**
-     * @return whether items dragged from this source supports
-     */
-    boolean supportsFlingToDelete();
+//    /**
+//     * @return whether items dragged from this source supports
+//     */
+//    boolean supportsFlingToDelete();
 
     /**
      * @return whether items dragged from this source supports 'App Info'
@@ -47,12 +47,12 @@ public interface DragSource extends LaunchSourceProvider {
      */
     float getIntrinsicIconScaleFactor();
 
-    /**
-     * A callback specifically made back to the source after an item from this source has been flung
-     * to be deleted on a DropTarget.  In such a situation, this method will be called after
-     * onDropCompleted, and more importantly, after the fling animation has completed.
-     */
-    void onFlingToDeleteCompleted();
+//    /**
+//     * A callback specifically made back to the source after an item from this source has been flung
+//     * to be deleted on a DropTarget.  In such a situation, this method will be called after
+//     * onDropCompleted, and more importantly, after the fling animation has completed.
+//     */
+//    void onFlingToDeleteCompleted();
 
     /**
      * A callback made back to the source after an item from this source has been dropped on a

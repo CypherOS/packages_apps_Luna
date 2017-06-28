@@ -261,6 +261,11 @@
 
     <!-- Pixel -->
     <string name="label_search">Search</string>
+
+    <string name="shortcuts_menu_with_notifications_description">%1$d shortcuts and %2$d notifications for %3$s</string>
+    <string name="notifications_header">Notifications</string>
+    <string name="widgets_bottom_sheet_title">%1$s widgets</string>
+
     <string name="week_day_format">%1$s, %2$s</string>
 
     <!-- Icon Pack: Preference -->

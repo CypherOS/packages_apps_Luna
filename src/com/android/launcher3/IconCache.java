@@ -22,6 +22,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.ApplicationInfo;
+import android.content.pm.LauncherActivityInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
@@ -185,6 +186,10 @@ public class IconCache {
         }
 
         return getFullResDefaultActivityIcon();
+    }
+
+    public Drawable getFullResIcon(LauncherActivityInfo info) {
+        return info.getIcon(mIconDpi);
     }
 
     private Bitmap makeDefaultIcon(UserHandleCompat user) {
@@ -479,7 +484,8 @@ public class IconCache {
     }
 
     private Bitmap getNonNullIcon(CacheEntry entry, UserHandleCompat user) {
-        return entry.icon == null ? getDefaultIcon(user) : entry.icon;
+        Bitmap b = entry.icon == null ? getDefaultIcon(user) : entry.icon;
+        return b;
     }
 
     /**

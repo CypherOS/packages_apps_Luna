@@ -18,6 +18,7 @@ package com.android.launcher3.folder;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.animation.ValueAnimator.AnimatorUpdateListener;
 import android.content.Context;
@@ -25,6 +26,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.Point;
 import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.graphics.Region;
@@ -32,6 +34,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Parcelable;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
+import android.util.Property;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -45,6 +48,8 @@ import android.widget.TextView;
 import com.android.launcher3.Alarm;
 import com.android.launcher3.AppInfo;
 import com.android.launcher3.BubbleTextView;
+import com.android.launcher3.badge.BadgeRenderer;
+import com.android.launcher3.badge.FolderBadgeInfo;
 import com.android.launcher3.CellLayout;
 import com.android.launcher3.CheckLongPressHelper;
 import com.android.launcher3.DeviceProfile;
@@ -77,8 +82,18 @@ import java.util.ArrayList;
  * An icon that can appear on in the workspace representing an {@link Folder}.
  */
 public class FolderIcon extends FrameLayout implements FolderListener {
-    @Thunk Launcher mLauncher;
-    @Thunk Folder mFolder;
+    private static final Property BADGE_SCALE_PROPERTY = new C04281(Float.TYPE, "badgeScale");
+    private FolderBadgeInfo mBadgeInfo = new FolderBadgeInfo();
+    private BadgeRenderer mBadgeRenderer;
+    private float mBadgeScale;
+    private Rect mTempBounds = new Rect();
+    private Point mTempSpaceForBadgeOffset = new Point();
+
+
+    @Thunk
+    Launcher mLauncher;
+    @Thunk
+    Folder mFolder;
     private FolderInfo mInfo;
     @Thunk static boolean sStaticValuesDirty = true;
 
@@ -173,6 +188,7 @@ public class FolderIcon extends FrameLayout implements FolderListener {
         icon.setOnClickListener(launcher);
         icon.mInfo = folderInfo;
         icon.mLauncher = launcher;
+        icon.mBadgeRenderer = launcher.getDeviceProfile().mBadgeRenderer;
         icon.setContentDescription(launcher.getString(R.string.folder_name_format, folderInfo.title));
         Folder folder = Folder.fromXml(launcher);
         folder.setDragController(launcher.getDragController());
@@ -384,6 +400,22 @@ public class FolderIcon extends FrameLayout implements FolderListener {
         computePreviewDrawingParams(d.getIntrinsicWidth(), getMeasuredWidth());
     }
 
+
+    public void setBadgeInfo(FolderBadgeInfo folderBadgeInfo) {
+        updateBadgeScale(this.mBadgeInfo.hasBadge(), folderBadgeInfo.hasBadge());
+        this.mBadgeInfo = folderBadgeInfo;
+    }
+
+    private void updateBadgeScale(boolean z, boolean z2) {
+        float f = z2 ? 1.0f : 0.0f;
+        if (z == z2 || !isShown()) {
+            this.mBadgeScale = f;
+            invalidate();
+            return;
+        }
+        ObjectAnimator.ofFloat(this, BADGE_SCALE_PROPERTY, new float[]{f}).start();
+    }
+
     static class PreviewItemDrawingParams {
         PreviewItemDrawingParams(float transX, float transY, float scale, float overlayAlpha) {
             this.transX = transX;
@@ -527,6 +559,10 @@ public class FolderIcon extends FrameLayout implements FolderListener {
             mStrokeWidth = Utilities.pxFromDp(1, dm);
 
             invalidate();
+        }
+
+        float getScaleProgress() {
+            return (this.mScale - 1.0f) / 0.25f;
         }
 
         int getRadius() {
@@ -775,6 +811,16 @@ public class FolderIcon extends FrameLayout implements FolderListener {
         if (mPreviewLayoutRule.clipToBackground() && !mBackground.drawingDelegated()) {
             mBackground.drawBackgroundStroke(canvas, mBgPaint);
         }
+
+        if ((this.mBadgeInfo != null && this.mBadgeInfo.hasBadge()) || this.mBadgeScale > 0.0f) {
+            int save = this.mBackground.getOffsetX();
+            int saveLayer = this.mBackground.getOffsetY();
+            int size = (int) (((float) this.mBackground.previewSize) * this.mBackground.mScale);
+            this.mTempBounds.set(save, saveLayer, save + size, size + saveLayer);
+            float max = Math.max(0.0f, this.mBadgeScale - this.mBackground.getScaleProgress());
+            this.mTempSpaceForBadgeOffset.set(getWidth() - this.mTempBounds.right, this.mTempBounds.top);
+            this.mBadgeRenderer.draw(canvas, this.mBadgeInfo, this.mTempBounds, max, this.mTempSpaceForBadgeOffset);
+        }
     }
 
     private Drawable getTopDrawable(TextView v) {
@@ -930,11 +976,17 @@ public class FolderIcon extends FrameLayout implements FolderListener {
     }
 
     public void onAdd(ShortcutInfo item) {
+        boolean hasBadge = this.mBadgeInfo.hasBadge();
+        this.mBadgeInfo.addBadgeInfo(this.mLauncher.getPopupDataProvider().getBadgeInfoForItem(item));
+        updateBadgeScale(hasBadge, this.mBadgeInfo.hasBadge());
         invalidate();
         requestLayout();
     }
 
     public void onRemove(ShortcutInfo item) {
+        boolean hasBadge = this.mBadgeInfo.hasBadge();
+        this.mBadgeInfo.subtractBadgeInfo(this.mLauncher.getPopupDataProvider().getBadgeInfoForItem(item));
+        updateBadgeScale(hasBadge, this.mBadgeInfo.hasBadge());
         invalidate();
         requestLayout();
     }
@@ -998,5 +1050,22 @@ public class FolderIcon extends FrameLayout implements FolderListener {
 
         public int numItems();
         public boolean clipToBackground();
+    }
+
+    static final class C04281 extends Property<FolderIcon, Float> {
+        C04281(Class cls, String str) {
+            super(cls, str);
+        }
+
+        @Override
+        public Float get(FolderIcon folderIcon) {
+            return Float.valueOf(folderIcon.mBadgeScale);
+        }
+
+        @Override
+        public void set(FolderIcon folderIcon, Float f) {
+            folderIcon.mBadgeScale = f.floatValue();
+            folderIcon.invalidate();
+        }
     }
 }

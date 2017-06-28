@@ -16,8 +16,6 @@
 
 package com.android.launcher3.shortcuts;
 
-import android.animation.Animator;
-import android.animation.ValueAnimator;
 import android.content.Context;
 import android.graphics.Point;
 import android.graphics.Rect;
@@ -26,229 +24,89 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.widget.FrameLayout;
 
-import com.android.launcher3.IconCache;
+import com.android.launcher3.BubbleTextView;
 import com.android.launcher3.Launcher;
-import com.android.launcher3.LauncherAppState;
-import com.android.launcher3.LogAccelerateInterpolator;
 import com.android.launcher3.R;
 import com.android.launcher3.ShortcutInfo;
 import com.android.launcher3.Utilities;
-import com.android.launcher3.shortcuts.DeepShortcutsContainer.UnbadgedShortcutInfo;
-import com.android.launcher3.util.PillRevealOutlineProvider;
-import com.android.launcher3.util.PillWidthRevealOutlineProvider;
 
-/**
- * A {@link android.widget.FrameLayout} that contains a {@link DeepShortcutView}.
- * This lets us animate the DeepShortcutView (icon and text) separately from the background.
- */
-public class DeepShortcutView extends FrameLayout implements ValueAnimator.AnimatorUpdateListener {
-
+public class DeepShortcutView extends FrameLayout {
     private static final Point sTempPoint = new Point();
-
-    private final Rect mPillRect;
-
-    private DeepShortcutTextView mBubbleText;
+    private BubbleTextView mBubbleText;
+    private ShortcutInfoCompat mDetail;
     private View mIconView;
-    private float mOpenAnimationProgress;
-
-    private UnbadgedShortcutInfo mInfo;
+    private ShortcutInfo mInfo;
+    private final Rect mPillRect;
 
     public DeepShortcutView(Context context) {
         this(context, null, 0);
     }
 
-    public DeepShortcutView(Context context, AttributeSet attrs) {
-        this(context, attrs, 0);
+    public DeepShortcutView(Context context, AttributeSet attributeSet) {
+        this(context, attributeSet, 0);
     }
 
-    public DeepShortcutView(Context context, AttributeSet attrs, int defStyle) {
-        super(context, attrs, defStyle);
-
-        mPillRect = new Rect();
+    public DeepShortcutView(Context context, AttributeSet attributeSet, int i) {
+        super(context, attributeSet, i);
+        this.mPillRect = new Rect();
     }
 
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
-        mIconView = findViewById(R.id.deep_shortcut_icon);
-        mBubbleText = (DeepShortcutTextView) findViewById(R.id.deep_shortcut);
+        this.mBubbleText = (BubbleTextView) findViewById(R.id.bubble_text);
+        this.mIconView = findViewById(R.id.icon);
     }
 
-    public DeepShortcutTextView getBubbleText() {
-        return mBubbleText;
+    public BubbleTextView getBubbleText() {
+        return this.mBubbleText;
     }
 
-    public void setWillDrawIcon(boolean willDraw) {
-        mIconView.setVisibility(willDraw ? View.VISIBLE : View.INVISIBLE);
+    public void setWillDrawIcon(boolean z) {
+        this.mIconView.setVisibility(z ? VISIBLE : INVISIBLE);
     }
 
-    public boolean willDrawIcon() {
-        return mIconView.getVisibility() == View.VISIBLE;
-    }
-
-    @Override
-    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-        mPillRect.set(0, 0, getMeasuredWidth(), getMeasuredHeight());
-    }
-
-    /** package private **/
-    void applyShortcutInfo(UnbadgedShortcutInfo info, DeepShortcutsContainer container) {
-        mInfo = info;
-        IconCache cache = LauncherAppState.getInstance().getIconCache();
-        mBubbleText.applyFromShortcutInfo(info, cache);
-        mIconView.setBackground(mBubbleText.getIcon());
-
-        // Use the long label as long as it exists and fits.
-        CharSequence longLabel = info.mDetail.getLongLabel();
-        int availableWidth = mBubbleText.getWidth() - mBubbleText.getTotalPaddingLeft()
-                - mBubbleText.getTotalPaddingRight();
-        boolean usingLongLabel = !TextUtils.isEmpty(longLabel)
-                && mBubbleText.getPaint().measureText(longLabel.toString()) <= availableWidth;
-        mBubbleText.setText(usingLongLabel ? longLabel : info.mDetail.getShortLabel());
-
-        // TODO: Add the click handler to this view directly and not the child view.
-        mBubbleText.setOnClickListener(Launcher.getLauncher(getContext()));
-        mBubbleText.setOnLongClickListener(container);
-        mBubbleText.setOnTouchListener(container);
-    }
-
-    /**
-     * Returns the shortcut info that is suitable to be added on the homescreen
-     */
-    public ShortcutInfo getFinalInfo() {
-        ShortcutInfo badged = new ShortcutInfo(mInfo);
-        // Queue an update task on the worker thread. This ensures that the badged
-        // shortcut eventually gets its icon updated.
-        Launcher.getLauncher(getContext()).getModel().updateShortcutInfo(mInfo.mDetail, badged);
-        return badged;
-    }
-
-    public View getIconView() {
-        return mIconView;
-    }
-
-    /**
-     * Creates an animator to play when the shortcut container is being opened.
-     */
-    public Animator createOpenAnimation(boolean isContainerAboveIcon, boolean pivotLeft) {
-        Point center = getIconCenter();
-        ValueAnimator openAnimator =  new ZoomRevealOutlineProvider(center.x, center.y,
-                mPillRect, this, mIconView, isContainerAboveIcon, pivotLeft)
-                        .createRevealAnimator(this, false);
-        mOpenAnimationProgress = 0f;
-        openAnimator.addUpdateListener(this);
-        return openAnimator;
-    }
-
-    @Override
-    public void onAnimationUpdate(ValueAnimator valueAnimator) {
-        mOpenAnimationProgress = valueAnimator.getAnimatedFraction();
-    }
-
-    public boolean isOpenOrOpening() {
-        return mOpenAnimationProgress > 0;
-    }
-
-    /**
-     * Creates an animator to play when the shortcut container is being closed.
-     */
-    public Animator createCloseAnimation(boolean isContainerAboveIcon, boolean pivotLeft,
-            long duration) {
-        Point center = getIconCenter();
-        ValueAnimator closeAnimator =  new ZoomRevealOutlineProvider(center.x, center.y,
-                mPillRect, this, mIconView, isContainerAboveIcon, pivotLeft)
-                        .createRevealAnimator(this, true);
-        // Scale down the duration and interpolator according to the progress
-        // that the open animation was at when the close started.
-        closeAnimator.setDuration((long) (duration * mOpenAnimationProgress));
-        closeAnimator.setInterpolator(new CloseInterpolator(mOpenAnimationProgress));
-        return closeAnimator;
-    }
-
-    /**
-     * Creates an animator which clips the container to form a circle around the icon.
-     */
-    public Animator collapseToIcon() {
-        int halfHeight = getMeasuredHeight() / 2;
-        int iconCenterX = getIconCenter().x;
-        return new PillWidthRevealOutlineProvider(mPillRect,
-                iconCenterX - halfHeight, iconCenterX + halfHeight)
-                        .createRevealAnimator(this, true);
-    }
-
-    /**
-     * Returns the position of the center of the icon relative to the container.
-     */
     public Point getIconCenter() {
-        sTempPoint.y = sTempPoint.x = getMeasuredHeight() / 2;
+        Point point = sTempPoint;
+        int measuredHeight = getMeasuredHeight() / 2;
+        sTempPoint.x = measuredHeight;
+        point.y = measuredHeight;
         if (Utilities.isRtl(getResources())) {
             sTempPoint.x = getMeasuredWidth() - sTempPoint.x;
         }
         return sTempPoint;
     }
 
-    /**
-     * Extension of {@link PillRevealOutlineProvider} which scales the icon based on the height.
-     */
-    private static class ZoomRevealOutlineProvider extends PillRevealOutlineProvider {
-
-        private final View mTranslateView;
-        private final View mZoomView;
-
-        private final float mFullHeight;
-        private final float mTranslateYMultiplier;
-
-        private final boolean mPivotLeft;
-        private final float mTranslateX;
-
-        public ZoomRevealOutlineProvider(int x, int y, Rect pillRect,
-                View translateView, View zoomView, boolean isContainerAboveIcon, boolean pivotLeft) {
-            super(x, y, pillRect);
-            mTranslateView = translateView;
-            mZoomView = zoomView;
-            mFullHeight = pillRect.height();
-
-            mTranslateYMultiplier = isContainerAboveIcon ? 0.5f : -0.5f;
-
-            mPivotLeft = pivotLeft;
-            mTranslateX = pivotLeft ? pillRect.height() / 2 : pillRect.right - pillRect.height() / 2;
-        }
-
-        @Override
-        public void setProgress(float progress) {
-            super.setProgress(progress);
-
-            mZoomView.setScaleX(progress);
-            mZoomView.setScaleY(progress);
-
-            float height = mOutline.height();
-            mTranslateView.setTranslationY(mTranslateYMultiplier * (mFullHeight - height));
-
-            float pivotX = mPivotLeft ? (mOutline.left + height / 2) : (mOutline.right - height / 2);
-            mTranslateView.setTranslationX(mTranslateX - pivotX);
-        }
+    @Override
+    protected void onMeasure(int i, int i2) {
+        super.onMeasure(i, i2);
+        this.mPillRect.set(0, 0, getMeasuredWidth(), getMeasuredHeight());
     }
 
-    /**
-     * An interpolator that reverses the current open animation progress.
-     */
-    private static class CloseInterpolator extends LogAccelerateInterpolator {
-        private float mStartProgress;
-        private float mRemainingProgress;
-
-        /**
-         * @param openAnimationProgress The progress that the open interpolator ended at.
-         */
-        public CloseInterpolator(float openAnimationProgress) {
-            super(100, 0);
-            mStartProgress = 1f - openAnimationProgress;
-            mRemainingProgress = openAnimationProgress;
+    public void applyShortcutInfo(ShortcutInfo shortcutInfo, ShortcutInfoCompat shortcutInfoCompat, ShortcutsItemView shortcutsItemView) {
+        Object obj = null;
+        this.mInfo = shortcutInfo;
+        this.mDetail = shortcutInfoCompat;
+        this.mBubbleText.applyFromShortcutInfo(shortcutInfo);
+        this.mIconView.setBackground(this.mBubbleText.getIcon());
+        CharSequence longLabel = this.mDetail.getLongLabel();
+        int width = (this.mBubbleText.getWidth() - this.mBubbleText.getTotalPaddingLeft()) - this.mBubbleText.getTotalPaddingRight();
+        if (!TextUtils.isEmpty(longLabel) && this.mBubbleText.getPaint().measureText(longLabel.toString()) <= ((float) width)) {
+            obj = 1;
         }
+        this.mBubbleText.setText(obj != null ? longLabel : this.mDetail.getShortLabel());
+        this.mBubbleText.setOnClickListener(Launcher.getLauncher(getContext()));
+        this.mBubbleText.setOnLongClickListener(shortcutsItemView);
+        this.mBubbleText.setOnTouchListener(shortcutsItemView);
+    }
 
-        @Override
-        public float getInterpolation(float v) {
-            return mStartProgress + super.getInterpolation(v) * mRemainingProgress;
-        }
+    public ShortcutInfo getFinalInfo() {
+        ShortcutInfo shortcutInfo = new ShortcutInfo(this.mInfo);
+        Launcher.getLauncher(getContext()).getModel().updateAndBindShortcutInfo(shortcutInfo, this.mDetail);
+        return shortcutInfo;
+    }
+
+    public View getIconView() {
+        return this.mIconView;
     }
 }
