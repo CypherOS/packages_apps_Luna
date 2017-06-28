@@ -74,6 +74,7 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 import java.util.concurrent.Executor;
@@ -364,7 +365,6 @@ public final class Utilities {
             canvas.restore();
             icon.setBounds(sOldBounds);
             canvas.setBitmap(null);
-
             return bitmap;
         }
     }
@@ -887,6 +887,10 @@ public final class Utilities {
         return c == null || c.isEmpty();
     }
 
+    public static boolean isAtLeastO() {
+        return Build.VERSION.SDK_INT >= 26;
+    }
+
     /**
      * An extension of {@link BitmapDrawable} which returns the bitmap pixel size as intrinsic size.
      * This allows the badging to be done based on the action bitmap size rather than
@@ -925,5 +929,11 @@ public final class Utilities {
             event.getText().add(text);
             accessibilityManager.sendAccessibilityEvent(event);
         }
+    }
+
+    public static <T> HashSet<T> singletonHashSet(T obj) {
+        HashSet<T> hashSet = new HashSet<>(1);
+        hashSet.add(obj);
+        return hashSet;
     }
 }
