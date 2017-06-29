@@ -262,4 +262,8 @@
     <!-- Pixel -->
     <string name="label_search">Search</string>
     <string name="week_day_format">%1$s, %2$s</string>
+	
+	<!-- Predictive apps -->
+	<string name="predictive_apps_title">Predictive apps</string>
+ 	<string name="predictive_apps_title_summary">Display recently used applications inside the app drawer</string>
 </resources>
