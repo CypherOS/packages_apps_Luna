@@ -31,6 +31,7 @@ import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
+import android.preference.SwitchPreference;
 import android.provider.Settings;
 import android.provider.Settings.System;
 
@@ -55,16 +56,22 @@ public class SettingsActivity extends Activity {
 
         private String mDefaultIconPack;
         private SystemDisplayRotationLockObserver mRotationLockObserver;
+		private SwitchPreference mPredictiveApps;
 
         private IconsHandler mIconsHandler;
         private PackageManager mPackageManager;
         private Preference mIconPack;
+		
+		private LauncherAppState mAppState = new LauncherAppState.getInstanceNoCreate();
 
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
             getPreferenceManager().setSharedPreferencesName(LauncherFiles.SHARED_PREFERENCES_KEY);
             addPreferencesFromResource(R.xml.launcher_preferences);
+			
+			PreferenceManager.getDefaultSharedPreferences(getActivity())
+                    .registerOnSharedPreferenceChangeListener(this);
 
             PreferenceManager.getDefaultSharedPreferences(getActivity())
                     .registerOnSharedPreferenceChangeListener(this);
@@ -93,6 +100,7 @@ public class SettingsActivity extends Activity {
                 mRotationLockObserver.onChange(true);
                 rotationPref.setDefaultValue(Utilities.getAllowRotationDefaultValue(getActivity()));
             }
+			mPredictiveApps = (SwitchPreference) findPreference(Utilities.KEY_ENABLE_PREDICTIVE_APPS);
             reloadIconPackSummary();
         }
 
@@ -104,7 +112,7 @@ public class SettingsActivity extends Activity {
 
         @Override
         public void onDestroy() {
-            PreferenceManager.getDefaultSharedPreferences(getActivity())
+			PreferenceManager.getDefaultSharedPreferences(getActivity())
                     .unregisterOnSharedPreferenceChangeListener(this);
             if (mRotationLockObserver != null) {
                 getActivity().getContentResolver().unregisterContentObserver(mRotationLockObserver);
@@ -112,13 +120,19 @@ public class SettingsActivity extends Activity {
             }
             super.onDestroy();
         }
-
+		
         @Override
         public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen, Preference pref) {
             if (pref == mIconPack) {
                 mIconsHandler.showDialog(getActivity());
                 return true;
-            }
+            } else if (pref == mPredictiveApps) {
+                boolean predict = ((SwitchPreference)pref).isChecked();
+                Utilities.getPrefs(getActivity()).edit().putBoolean(
+                        Utilities.KEY_ENABLE_PREDICTIVE_APPS, predict ? true : false).commit();
+				mAppState.reloadLuna();
+				return true;
+			}
             return false;
         }
 
