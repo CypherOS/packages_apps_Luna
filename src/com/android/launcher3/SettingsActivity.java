@@ -18,11 +18,14 @@ package com.android.launcher3;
 
 import android.app.Activity;
 import android.content.ContentResolver;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.database.ContentObserver;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
+import android.preference.SwitchPreference;
 import android.provider.Settings;
 import android.provider.Settings.System;
 
@@ -43,9 +46,10 @@ public class SettingsActivity extends Activity {
     /**
      * This fragment shows the launcher preferences.
      */
-    public static class LauncherSettingsFragment extends PreferenceFragment {
+    public static class LauncherSettingsFragment extends PreferenceFragment implements OnSharedPreferenceChangeListener {
 
         private SystemDisplayRotationLockObserver mRotationLockObserver;
+		private SwitchPreference mPredictiveApps;
 
         @Override
         public void onCreate(Bundle savedInstanceState) {
@@ -72,15 +76,39 @@ public class SettingsActivity extends Activity {
                 mRotationLockObserver.onChange(true);
                 rotationPref.setDefaultValue(Utilities.getAllowRotationDefaultValue(getActivity()));
             }
+			
+			mPredictiveApps = (SwitchPreference) findPreference(Utilities.KEY_ENABLE_PREDICTIVE_APPS);
         }
 
         @Override
         public void onDestroy() {
+			PreferenceManager.getDefaultSharedPreferences(getActivity())
+                    .unregisterOnSharedPreferenceChangeListener(this);
             if (mRotationLockObserver != null) {
                 getActivity().getContentResolver().unregisterContentObserver(mRotationLockObserver);
                 mRotationLockObserver = null;
             }
             super.onDestroy();
+        }
+		
+		@Override
+        public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen, Preference pref) {
+            if (pref == mPredictiveApps) {
+                boolean predict = Utilities.getPrefs(getActivity()).getBoolean(
+                        Utilities.KEY_ENABLE_PREDICTIVE_APPS, true);
+                Utilities.getPrefs(getActivity()).edit().putBoolean(
+                        Utilities.KEY_ENABLE_PREDICTIVE_APPS, !state).commit();
+                return true;
+            }
+            return false;
+        }
+		
+		@Override
+        public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+            LauncherAppState app = LauncherAppState.getInstance();
+            if (app != null) {
+                app.reloadPreferences();
+            }
         }
     }
 
