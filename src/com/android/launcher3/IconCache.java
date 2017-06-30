@@ -433,8 +433,12 @@ public class IconCache {
         return new IconLoadRequest(request, mWorkerHandler);
     }
 
-    private Bitmap getNonNullIcon(CacheEntry entry, UserHandleCompat user) {
-        return entry.icon == null ? getDefaultIcon(user) : entry.icon;
+    private Bitmap getNonNullIcon(CacheEntry entry, UserHandleCompat user, boolean notificationBadge) {
+        Bitmap bitmap = entry.icon == null ? getDefaultIcon(user) : entry.icon;
+        if(notificationBadge) {
+            return Utilities.attachNotificationBadge(bitmap);
+        }
+        return bitmap;
     }
 
     /**
@@ -447,7 +451,8 @@ public class IconCache {
                 false, useLowResIcon);
         application.title = Utilities.trim(entry.title);
         application.contentDescription = entry.contentDescription;
-        application.iconBitmap = getNonNullIcon(entry, user);
+        boolean hasNotifications = NotificationListener.hasNotifications(application.componentName.getPackageName());
+        application.iconBitmap = null ? getNonNullIcon(entry, user, hasNotifications) : Utilities.createIconBitmap(icon, mContext, hasNotifications);
         application.usingLowResIcon = entry.isLowResIcon;
     }
 
@@ -460,7 +465,8 @@ public class IconCache {
         if (entry.icon != null && !isDefaultIcon(entry.icon, application.user)) {
             application.title = Utilities.trim(entry.title);
             application.contentDescription = entry.contentDescription;
-            application.iconBitmap = entry.icon;
+            boolean hasNotifications = NotificationListener.hasNotifications(application.componentName.getPackageName());
+            application.iconBitmap = null ? entry.icon : Utilities.createIconBitmap(icon, mContext, hasNotifications);
             application.usingLowResIcon = entry.isLowResIcon;
         }
     }
@@ -509,7 +515,9 @@ public class IconCache {
             ShortcutInfo shortcutInfo, ComponentName component, LauncherActivityInfoCompat info,
             UserHandleCompat user, boolean usePkgIcon, boolean useLowResIcon) {
         CacheEntry entry = cacheLocked(component, info, user, usePkgIcon, useLowResIcon);
-        shortcutInfo.setIcon(getNonNullIcon(entry, user));
+		boolean hasNotifications = NotificationListener.hasNotifications(component.getPackageName());
+        Bitmap iBitmap = null ? getNonNullIcon(entry, user, hasNotifications) : Utilities.createIconBitmap(icon, mContext, hasNotifications);
+        shortcutInfo.setIcon(iBitmap);
         shortcutInfo.title = Utilities.trim(entry.title);
         shortcutInfo.contentDescription = entry.contentDescription;
         shortcutInfo.usingFallbackIcon = isDefaultIcon(entry.icon, user);
@@ -525,7 +533,8 @@ public class IconCache {
                 infoInOut.packageName, infoInOut.user, useLowResIcon);
         infoInOut.title = Utilities.trim(entry.title);
         infoInOut.contentDescription = entry.contentDescription;
-        infoInOut.iconBitmap = getNonNullIcon(entry, infoInOut.user);
+        boolean hasNotifications = NotificationListener.hasNotifications(infoInOut.packageName);
+        infoInOut.iconBitmap = getNonNullIcon(entry, infoInOut.user, hasNotifications);
         infoInOut.usingLowResIcon = entry.isLowResIcon;
     }
 
