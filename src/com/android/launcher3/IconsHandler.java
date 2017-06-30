@@ -106,6 +106,15 @@ public class IconsHandler {
         loadAvailableIconPacks();
         loadIconPack(iconPack, false);
     }
+	
+	private static IconPack getIconPack(String packageName) {
+        return mIconPacks.get(packageName);
+    }
+	
+	public static IconPack quickLoadIconPack(Context context) {
+	    loadIconPack(packageName, true);
+		return getIconPack(packageName);
+	}
 
     private void loadIconPack(String packageName, boolean fallback) {
         mIconPackPackageName = packageName;
