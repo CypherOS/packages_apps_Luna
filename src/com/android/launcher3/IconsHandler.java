@@ -95,7 +95,7 @@ public class IconsHandler {
     private boolean mDialogShowing;
     private float mFactor = 1.0f;
 
-    public IconsHandler(Context context) {
+    public static IconsHandler loadAndGetIconPack(Context context) {
         mContext = context;
         mPackageManager = context.getPackageManager();
 

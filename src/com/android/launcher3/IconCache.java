@@ -477,8 +477,12 @@ public class IconCache {
         return new IconLoadRequest(request, mWorkerHandler);
     }
 
-    private Bitmap getNonNullIcon(CacheEntry entry, UserHandleCompat user) {
-        return entry.icon == null ? getDefaultIcon(user) : entry.icon;
+    private Bitmap getNonNullIcon(CacheEntry entry, UserHandleCompat user, boolean notificationBadge) {
+        Bitmap bitmap = entry.icon == null ? getDefaultIcon(user) : entry.icon;
+        if(notificationBadge) {
+            return Utilities.attachNotificationBadge(bitmap);
+        }
+        return bitmap;
     }
 
     /**
@@ -489,9 +493,12 @@ public class IconCache {
         UserHandleCompat user = info == null ? application.user : info.getUser();
         CacheEntry entry = cacheLocked(application.componentName, info, user,
                 false, useLowResIcon);
+		IconsHandler iconHandler = IconsHandler.loadAndGetIconPack(mContext);
+        Drawable icon = iconHandler == null ? null : iconHandler.getIcon(application.componentName);
         application.title = Utilities.trim(entry.title);
         application.contentDescription = entry.contentDescription;
-        application.iconBitmap = getNonNullIcon(entry, user);
+        boolean hasNotifications = NotificationListener.hasNotifications(application.componentName.getPackageName());
+        application.iconBitmap = icon == null ? getNonNullIcon(entry, user, hasNotifications) : Utilities.createIconBitmap(icon, mContext, hasNotifications);
         application.usingLowResIcon = entry.isLowResIcon;
     }
 
@@ -501,10 +508,13 @@ public class IconCache {
     public synchronized void updateTitleAndIcon(AppInfo application) {
         CacheEntry entry = cacheLocked(application.componentName, null, application.user,
                 false, application.usingLowResIcon);
+		IconsHandler iconHandler = IconsHandler.loadAndGetIconPack(mContext);
+        Drawable icon = iconHandler == null ? null : iconHandler.getIcon(application.componentName);
         if (entry.icon != null && !isDefaultIcon(entry.icon, application.user)) {
             application.title = Utilities.trim(entry.title);
             application.contentDescription = entry.contentDescription;
-            application.iconBitmap = entry.icon;
+            boolean hasNotifications = NotificationListener.hasNotifications(application.componentName.getPackageName());
+            application.iconBitmap = icon == null ? entry.icon : Utilities.createIconBitmap(icon, mContext, hasNotifications);
             application.usingLowResIcon = entry.isLowResIcon;
         }
     }
@@ -553,7 +563,11 @@ public class IconCache {
             ShortcutInfo shortcutInfo, ComponentName component, LauncherActivityInfoCompat info,
             UserHandleCompat user, boolean usePkgIcon, boolean useLowResIcon) {
         CacheEntry entry = cacheLocked(component, info, user, usePkgIcon, useLowResIcon);
-        shortcutInfo.setIcon(getNonNullIcon(entry, user));
+		IconsHandler iconHandler = IconsHandler.loadAndGetIconPack(mContext);
+        Drawable icon = iconHandler == null ? null : iconHandler.getIcon(application.componentName);
+		boolean hasNotifications = NotificationListener.hasNotifications(component.getPackageName());
+        Bitmap iBitmap = icon == null ? getNonNullIcon(entry, user, hasNotifications) : Utilities.createIconBitmap(icon, mContext, hasNotifications);
+        shortcutInfo.setIcon(iBitmap);
         shortcutInfo.title = Utilities.trim(entry.title);
         shortcutInfo.contentDescription = entry.contentDescription;
         shortcutInfo.usingFallbackIcon = isDefaultIcon(entry.icon, user);
@@ -569,7 +583,8 @@ public class IconCache {
                 infoInOut.packageName, infoInOut.user, useLowResIcon);
         infoInOut.title = Utilities.trim(entry.title);
         infoInOut.contentDescription = entry.contentDescription;
-        infoInOut.iconBitmap = getNonNullIcon(entry, infoInOut.user);
+        boolean hasNotifications = NotificationListener.hasNotifications(infoInOut.packageName);
+        infoInOut.iconBitmap = getNonNullIcon(entry, infoInOut.user, hasNotifications);
         infoInOut.usingLowResIcon = entry.isLowResIcon;
     }
 
