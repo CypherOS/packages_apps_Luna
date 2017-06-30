@@ -106,6 +106,22 @@ public class IconsHandler {
         loadAvailableIconPacks();
         loadIconPack(iconPack, false);
     }
+	
+	private static IconPackInfo getIconPack(String packageName) {
+        return mIconPacks.get(packageName);
+    }
+	
+	public static IconPackInfo quickLoadIconPack(Context context) {
+        SharedPreferences prefs = Utilities.getPrefs(context);
+        String packageName = prefs.getString("pref_iconPackPackage", "");
+        if ("".equals(packageName)) {
+            return null;
+        }
+        if (!mIconPacks.containsKey(packageName)) {
+            loadIconPack(packageName, true);
+        }
+        return getIconPack(packageName);
+    }
 
     private void loadIconPack(String packageName, boolean fallback) {
         mIconPackPackageName = packageName;
@@ -499,8 +515,33 @@ public class IconsHandler {
             this.icon = icon;
             this.packageName = packageName;
         }
-    }
+		
+		public Drawable getIcon(LauncherActivityInfoCompat info) {
+            return getIcon(info.getComponentName());
+        }
 
+        public Drawable getIcon(ActivityInfo info) {
+            return getIcon(new ComponentName(info.packageName, info.name));
+        }
+
+        public Drawable getIcon(ComponentName name) {
+            return getDrawable(icon.get(name.toString()));
+        }
+		
+		private Drawable getDrawable(String name) {
+        Resources res;
+        try {
+            res = mContext.getPackageManager().getResourcesForApplication(packageName);
+            int resourceId = res.getIdentifier(name, "drawable", packageName);
+            if (0 != resourceId) {
+                Bitmap b = BitmapFactory.decodeResource(res, resourceId);
+                return new FastBitmapDrawable(b);
+            }
+        } catch (Exception ignored) {
+        }
+        return null;
+    }
+  
     private static class IconAdapter extends BaseAdapter {
         ArrayList<IconPackInfo> mSupportedPackages;
         LayoutInflater mLayoutInflater;
