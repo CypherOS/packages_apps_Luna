@@ -22,6 +22,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
@@ -60,6 +61,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+
+import com.android.launcher3.compat.LauncherActivityInfoCompat;
 
 public class IconsHandler {
 
@@ -187,6 +190,18 @@ public class IconsHandler {
         } catch (Exception e) {
             Log.e(TAG, "Error parsing appfilter.xml " + e);
         }
+    }
+	
+	public Drawable getIcon(LauncherActivityInfoCompat info) {
+        return getIcon(info.getComponentName());
+    }
+
+    public Drawable getIcon(ActivityInfo info) {
+        return getIcon(new ComponentName(info.packageName, info.name));
+    }
+
+    public Drawable getIcon(ComponentName name) {
+        return getAllDrawables(name);
     }
 
     public List<String> getAllDrawables(final String packageName) {
