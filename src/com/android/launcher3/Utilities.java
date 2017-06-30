@@ -191,9 +191,10 @@ public final class Utilities {
             Resources resources = packageManager.getResourcesForApplication(packageName);
             if (resources != null) {
                 final int id = resources.getIdentifier(resourceName, null, null);
+                boolean hasNotifications = NotificationListener.hasNotifications(packageName);
                 return createIconBitmap(
                         resources.getDrawableForDensity(id, LauncherAppState.getInstance()
-                                .getInvariantDeviceProfile().fillResIconDpi), context);
+                                .getInvariantDeviceProfile().fillResIconDpi, null), context, hasNotifications);
             }
         } catch (Exception e) {
             // Icon not found.
@@ -213,7 +214,7 @@ public final class Utilities {
         if (iconBitmapSize == icon.getWidth() && iconBitmapSize == icon.getHeight()) {
             return icon;
         }
-        return createIconBitmap(new BitmapDrawable(context.getResources(), icon), context);
+        return createIconBitmap(new BitmapDrawable(context.getResources(), icon), context, false);
     }
 
     /**
@@ -225,7 +226,7 @@ public final class Utilities {
             Drawable icon, UserHandleCompat user, Context context) {
         float scale = FeatureFlags.LAUNCHER3_DISABLE_ICON_NORMALIZATION ?
                 1 : IconNormalizer.getInstance().getScale(icon, null);
-        Bitmap bitmap = createIconBitmap(icon, context, scale);
+        Bitmap bitmap = createIconBitmap(icon, context, scale, false);
         return badgeIconForUser(bitmap, user, context);
     }
 
@@ -241,7 +242,7 @@ public final class Utilities {
             if (badged instanceof BitmapDrawable) {
                 return ((BitmapDrawable) badged).getBitmap();
             } else {
-                return createIconBitmap(badged, context);
+                return createIconBitmap(badged, context, false);
             }
         } else {
             return icon;
@@ -257,7 +258,7 @@ public final class Utilities {
         float scale = FeatureFlags.LAUNCHER3_DISABLE_ICON_NORMALIZATION ?
                 1 : IconNormalizer.getInstance().getScale(icon, iconBounds);
         scale = Math.min(scale, ShadowGenerator.getScaleForBounds(iconBounds));
-        return createIconBitmap(icon, context, scale);
+        return createIconBitmap(icon, context, scale, false);
     }
 
     /**
@@ -288,14 +289,14 @@ public final class Utilities {
     /**
      * Returns a bitmap suitable for the all apps view.
      */
-    public static Bitmap createIconBitmap(Drawable icon, Context context) {
-        return createIconBitmap(icon, context, 1.0f /* scale */);
+    public static Bitmap createIconBitmap(Drawable icon, Context context, boolean notificationBadge) {
+        return createIconBitmap(icon, context, 1.0f /* scale */, notificationBadge);
     }
 
     /**
      * @param scale the scale to apply before drawing {@param icon} on the canvas
      */
-    public static Bitmap createIconBitmap(Drawable icon, Context context, float scale) {
+    public static Bitmap createIconBitmap(Drawable icon, Context context, float scale, boolean notificationBadge) {
         synchronized (sCanvas) {
             final int iconBitmapSize = getIconBitmapSize();
 
@@ -357,7 +358,9 @@ public final class Utilities {
             canvas.restore();
             icon.setBounds(sOldBounds);
             canvas.setBitmap(null);
-
+            if(notificationBadge) {
+                return addNotificationBadgeToIcon(bitmap);
+            }
             return bitmap;
         }
     }
@@ -918,5 +921,16 @@ public final class Utilities {
             event.getText().add(text);
             accessibilityManager.sendAccessibilityEvent(event);
         }
+    }
+	
+	public static Bitmap attachNotificationBadge(Bitmap icon){
+        Bitmap bitmap = icon.copy(Bitmap.Config.ARGB_8888, true);
+        Canvas canvas = new Canvas(bitmap);
+        Paint badgePaint = new Paint();
+        badgePaint.setStyle(Paint.Style.FILL);
+        badgePaint.setColor(Utilities.getColorAccent(LauncherAppState.getInstance().getContext()));
+        int radius = bitmap.getWidth() / 12;
+        canvas.drawCircle(bitmap.getWidth() - (radius + 15), radius + 15, radius, badgePaint);
+        return bitmap;
     }
 }
