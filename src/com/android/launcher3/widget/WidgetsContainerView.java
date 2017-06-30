@@ -39,6 +39,7 @@ import com.android.launcher3.IconCache;
 import com.android.launcher3.ItemInfo;
 import com.android.launcher3.Launcher;
 import com.android.launcher3.LauncherAppState;
+import com.android.launcher3.NotificationListener;
 import com.android.launcher3.PendingAddItemInfo;
 import com.android.launcher3.R;
 import com.android.launcher3.Utilities;
@@ -241,7 +242,8 @@ public class WidgetsContainerView extends BaseContainerView
         } else {
             PendingAddShortcutInfo createShortcutInfo = (PendingAddShortcutInfo) v.getTag();
             Drawable icon = mIconCache.getFullResIcon(createShortcutInfo.activityInfo);
-            preview = Utilities.createIconBitmap(icon, mLauncher);
+            boolean hasNotifications = NotificationListener.hasNotifications(createShortcutInfo.componentName.getPackageName());
+            preview = Utilities.createIconBitmap(icon, mLauncher, hasNotifications);
             createItemInfo.spanX = createItemInfo.spanY = 1;
             scale = ((float) mLauncher.getDeviceProfile().iconSizePx) / preview.getWidth();
         }

@@ -38,6 +38,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
+import android.util.ArrayMap;
 import android.util.Log;
 import android.util.Pair;
 import android.view.LayoutInflater;
@@ -78,6 +79,8 @@ public class IconsHandler {
     private Map<String, String> mAppFilterDrawables = new HashMap<>();
     private List<Bitmap> mBackImages = new ArrayList<>();
     private List<String> mDrawables = new ArrayList<>();
+	
+	private static Map<String, IconPack> iconPacks = new ArrayMap<>();
 
     private Bitmap mFrontImage;
     private Bitmap mMaskImage;
@@ -106,9 +109,28 @@ public class IconsHandler {
         loadAvailableIconPacks();
         loadIconPack(iconPack, false);
     }
+	
+	private static IconPack getIconPack(String packageName) {
+        return iconPacks.get(packageName);
+    }
 
-    private void loadIconPack(String packageName, boolean fallback) {
+    public static IconPack quickLoadIconPack(Context context) {
+		String packageName = PreferenceManager.getDefaultSharedPreferences(mContext)
+                    .getString(Utilities.KEY_ICON_PACK, "");
+        if ("".equals(packageName)) {
+            return null;
+        }
+        if (!iconPacks.containsKey(packageName)) {
+            loadIconPack(packageName, true);
+        }
+        return getIconPack(packageName);
+    }
+
+    private static void loadIconPack(String packageName, boolean fallback) {
         mIconPackPackageName = packageName;
+		if ("".equals(packageName)) {
+            iconPacks.put("", null);
+        }
         if (!fallback) {
             mAppFilterDrawables.clear();
             mBackImages.clear();
@@ -186,7 +208,10 @@ public class IconsHandler {
             }
         } catch (Exception e) {
             Log.e(TAG, "Error parsing appfilter.xml " + e);
+			iconPacks.put(packageName, null);
+			return;
         }
+		iconPacks.put(packageName, new IconPack(appFilter, context, packageName));
     }
 
     public List<String> getAllDrawables(final String packageName) {
