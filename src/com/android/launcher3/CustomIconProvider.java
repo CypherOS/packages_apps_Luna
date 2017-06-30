@@ -23,8 +23,14 @@ public class CustomIconProvider extends IconProvider
 {
     private BroadcastReceiver mBroadcastReceiver;
     protected PackageManager mPackageManager;
+	
+	private Context mContext;
+    private IconsHandler mIconsHandler;
 
     public CustomIconProvider(Context context) {
+		super();
+        mContext = context;
+        mIconsHandler = IconCache.getIconsHandler(context);
         mBroadcastReceiver = new DynamicIconProviderReceiver(this);
         IntentFilter intentFilter = new IntentFilter("android.intent.action.DATE_CHANGED");
         intentFilter.addAction("android.intent.action.TIME_SET");
@@ -63,6 +69,10 @@ public class CustomIconProvider extends IconProvider
     public Drawable getIcon(final LauncherActivityInfoCompat launcherActivityInfoCompat, int iconDpi) {
         Drawable drawable = null;
         String packageName = launcherActivityInfoCompat.getApplicationInfo().packageName;
+		Bitmap bm = mIconsHandler.getDrawableIconForPackage(info.getComponentName());
+		if (bm == null) {
+            return info.getIcon(iconDpi);
+        }
 
         if (isCalendar(packageName)) {
             try {
@@ -81,7 +91,7 @@ public class CustomIconProvider extends IconProvider
             drawable = super.getIcon(launcherActivityInfoCompat, iconDpi);
         }
 
-        return drawable;
+        return new BitmapDrawable(mContext.getResources(), Utilities.createIconBitmap(bm, mContext));
     }
 
     public String getIconSystemState(String s) {
