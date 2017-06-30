@@ -276,4 +276,7 @@
     <string name="ok">Ok</string>
     <string name="icon_label">Label</string>
     <string name="loading">Loading, please wait</string>
+
+	<!-- Notification Badges -->
+	<string name="notification_badge_service">Notification badge service</string>
 </resources>
