@@ -74,7 +74,7 @@ public class IconsHandler {
         "org.adw.launcher.icons.ACTION_PICK_ICON"
     };
 
-    private Map<String, IconPackInfo> mIconPacks = new HashMap<>();
+    private static Map<String, IconPackInfo> mIconPacks = new HashMap<>();
     private Map<String, String> mAppFilterDrawables = new HashMap<>();
     private List<Bitmap> mBackImages = new ArrayList<>();
     private List<String> mDrawables = new ArrayList<>();
@@ -106,8 +106,24 @@ public class IconsHandler {
         loadAvailableIconPacks();
         loadIconPack(iconPack, false);
     }
+	
+	private static IconPack getIconPack(String packageName) {
+        return mIconPacks.get(packageName);
+    }
+	
+	public static IconPack quickLoadIconPack(Context context) {
+        SharedPreferences prefs = Utilities.getPrefs(context);
+        String packageName = prefs.getString("pref_iconPackPackage", "");
+        if ("".equals(packageName)) {
+            return null;
+        }
+        if (!mIconPacks.containsKey(packageName)) {
+            loadIconPack(packageName, true);
+        }
+        return getIconPack(packageName);
+    }
 
-    private void loadIconPack(String packageName, boolean fallback) {
+    private static void loadIconPack(String packageName, boolean fallback) {
         mIconPackPackageName = packageName;
         if (!fallback) {
             mAppFilterDrawables.clear();
