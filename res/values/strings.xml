@@ -262,7 +262,7 @@
     <!-- Pixel -->
     <string name="label_search">Search</string>
     <string name="week_day_format">%1$s, %2$s</string>
-
+	
     <!-- Icon pack -->
     <string name="default_iconpack_title">Default</string>
     <string name="icons_pack_name">Icon pack</string>
@@ -276,4 +276,7 @@
     <string name="ok">Ok</string>
     <string name="icon_label">Label</string>
     <string name="loading">Loading, please wait</string>
+
+	<!-- Notification Badges -->
+	<string name="notification_badge_service">Notification badge service</string>
 </resources>
