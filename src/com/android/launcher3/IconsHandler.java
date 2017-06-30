@@ -106,6 +106,10 @@ public class IconsHandler {
         loadAvailableIconPacks();
         loadIconPack(iconPack, false);
     }
+	
+	public static quickLoadIconPack(Context context) {
+	    loadIconPack(packageName, true)
+	}
 
     private void loadIconPack(String packageName, boolean fallback) {
         mIconPackPackageName = packageName;
