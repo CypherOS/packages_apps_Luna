@@ -44,7 +44,6 @@ public class LauncherAppState {
     @Thunk final LauncherModel mModel;
     private final IconCache mIconCache;
     private final WidgetPreviewLoader mWidgetCache;
-    private final DeepShortcutManager mDeepShortcutManager;
 
     @Thunk boolean mWallpaperChangedSinceLastCheck;
 
@@ -54,6 +53,7 @@ public class LauncherAppState {
     private static LauncherAppState INSTANCE;
 
     private InvariantDeviceProfile mInvariantDeviceProfile;
+	private Launcher mLauncher;
 
     public static LauncherAppState getInstance() {
         if (INSTANCE == null) {
@@ -98,10 +98,9 @@ public class LauncherAppState {
         mInvariantDeviceProfile = new InvariantDeviceProfile(sContext);
         mIconCache = new IconCache(sContext, mInvariantDeviceProfile);
         mWidgetCache = new WidgetPreviewLoader(sContext, mIconCache);
-        mDeepShortcutManager = new DeepShortcutManager(sContext, new ShortcutCache());
 
         mAppFilter = AppFilter.loadByName(sContext.getString(R.string.app_filter_class));
-        mModel = new LauncherModel(this, mIconCache, mAppFilter, mDeepShortcutManager);
+        mModel = new LauncherModel(this, mIconCache, mAppFilter, DeepShortcutManager.getInstance(getContext()));
 
         LauncherAppsCompat.getInstance(sContext).addOnAppsChangedCallback(mModel);
 
@@ -154,6 +153,14 @@ public class LauncherAppState {
         mModel.resetLoadedState(false, true);
         mModel.startLoaderFromBackground();
     }
+	
+	public void reloadLuna(boolean showWorkspace) {
+        mModel.resetLoadedState(true, true);
+        mModel.startLoaderFromBackground();
+        if (showWorkspace) {
+            mLauncher.showWorkspace(true);
+        }
+    }
 
     LauncherModel setLauncher(Launcher launcher) {
         sLauncherProvider.get().setLauncherProviderChangeListener(launcher);
@@ -173,10 +180,6 @@ public class LauncherAppState {
         return mWidgetCache;
     }
 
-    public DeepShortcutManager getShortcutManager() {
-        return mDeepShortcutManager;
-    }
-
     public boolean hasWallpaperChangedSinceLastCheck() {
         boolean result = mWallpaperChangedSinceLastCheck;
         mWallpaperChangedSinceLastCheck = false;
@@ -185,5 +188,9 @@ public class LauncherAppState {
 
     public InvariantDeviceProfile getInvariantDeviceProfile() {
         return mInvariantDeviceProfile;
+    }
+	
+	public Launcher getLauncher() {
+        return mLauncher;
     }
 }
