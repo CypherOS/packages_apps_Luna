@@ -1,19 +1,17 @@
 package com.android.launcher3.model;
 
-import android.content.ComponentName;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
-
-import com.android.launcher3.InvariantDeviceProfile;
-import com.android.launcher3.LauncherAppState;
-import com.android.launcher3.LauncherAppWidgetProviderInfo;
-import com.android.launcher3.Utilities;
-import com.android.launcher3.compat.AppWidgetManagerCompat;
-import com.android.launcher3.compat.UserHandleCompat;
-import com.android.launcher3.util.ComponentKey;
+import android.os.UserHandle;
+import android.support.annotation.NonNull;
 
 import java.text.Collator;
+
+import com.android.launcher3.InvariantDeviceProfile;
+import com.android.launcher3.LauncherAppWidgetProviderInfo;
+import com.android.launcher3.Utilities;
+import com.android.launcher3.compat.ShortcutConfigActivityInfo;
+import com.android.launcher3.util.ComponentKey;
 
 /**
  * An wrapper over various items displayed in a widget picker,
@@ -22,41 +20,38 @@ import java.text.Collator;
  */
 public class WidgetItem extends ComponentKey implements Comparable<WidgetItem> {
 
-    private static UserHandleCompat sMyUserHandle;
+    private static UserHandle sMyUserHandle;
     private static Collator sCollator;
 
     public final LauncherAppWidgetProviderInfo widgetInfo;
-    public final ActivityInfo activityInfo;
+    public final ShortcutConfigActivityInfo activityInfo;
 
     public final String label;
     public final int spanX, spanY;
 
-    public WidgetItem(LauncherAppWidgetProviderInfo info, AppWidgetManagerCompat widgetManager) {
-        super(info.provider, widgetManager.getUser(info));
-
-        label = Utilities.trim(widgetManager.loadLabel(info));
-        widgetInfo = info;
-        activityInfo = null;
-
-        InvariantDeviceProfile idv = LauncherAppState.getInstance().getInvariantDeviceProfile();
-        spanX = Math.min(info.spanX, idv.numColumns);
-        spanY = Math.min(info.spanY, idv.numRows);
+    public WidgetItem(LauncherAppWidgetProviderInfo launcherAppWidgetProviderInfo, PackageManager packageManager, InvariantDeviceProfile invariantDeviceProfile) {
+        super(launcherAppWidgetProviderInfo.provider, launcherAppWidgetProviderInfo.getProfile());
+        this.label = Utilities.trim(launcherAppWidgetProviderInfo.getLabel(packageManager));
+        this.widgetInfo = launcherAppWidgetProviderInfo;
+        this.activityInfo = null;
+        this.spanX = Math.min(launcherAppWidgetProviderInfo.spanX, invariantDeviceProfile.numColumns);
+        this.spanY = Math.min(launcherAppWidgetProviderInfo.spanY, invariantDeviceProfile.numRows);
     }
 
-    public WidgetItem(ResolveInfo info, PackageManager pm) {
-        super(new ComponentName(info.activityInfo.packageName, info.activityInfo.name),
-                UserHandleCompat.myUserHandle());
-        label = Utilities.trim(info.loadLabel(pm));
-        widgetInfo = null;
-        activityInfo = info.activityInfo;
-        spanX = spanY = 1;
+    public WidgetItem(ShortcutConfigActivityInfo shortcutConfigActivityInfo) {
+        super(shortcutConfigActivityInfo.getComponent(), shortcutConfigActivityInfo.getUser());
+        this.label = Utilities.trim(shortcutConfigActivityInfo.getLabel());
+        this.widgetInfo = null;
+        this.activityInfo = shortcutConfigActivityInfo;
+        this.spanY = 1;
+        this.spanX = 1;
     }
 
     @Override
-    public int compareTo(WidgetItem another) {
+    public int compareTo(@NonNull WidgetItem another) {
         if (sMyUserHandle == null) {
             // Delay these object creation until required.
-            sMyUserHandle = UserHandleCompat.myUserHandle();
+            sMyUserHandle = Utilities.myUserHandle();
             sCollator = Collator.getInstance();
         }
 

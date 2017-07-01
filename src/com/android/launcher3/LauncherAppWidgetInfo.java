@@ -21,8 +21,7 @@ import android.content.ComponentName;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
-
-import com.android.launcher3.compat.UserHandleCompat;
+import android.os.UserHandle;
 
 /**
  * Represents a widget (either instantiated or about to be) in the Launcher.
@@ -113,7 +112,7 @@ public class LauncherAppWidgetInfo extends ItemInfo {
         spanX = -1;
         spanY = -1;
         // We only support app widgets on current user.
-        user = UserHandleCompat.myUserHandle();
+        user = UserHandle.myUserHandle();
         restoreStatus = RESTORE_COMPLETED;
     }
 

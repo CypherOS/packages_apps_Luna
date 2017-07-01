@@ -20,6 +20,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.os.UserHandle;
 import android.util.Log;
 
 import com.android.launcher3.compat.LauncherActivityInfoCompat;
@@ -33,7 +34,7 @@ import java.util.ArrayList;
 /**
  * Represents an app in AllAppsView.
  */
-public class AppInfo extends ItemInfo {
+public class AppInfo extends ItemInfoWithIcon {
 
     /**
      * The intent used to start the application.
@@ -78,13 +79,13 @@ public class AppInfo extends ItemInfo {
     /**
      * Must not hold the Context.
      */
-    public AppInfo(Context context, LauncherActivityInfoCompat info, UserHandleCompat user,
+    public AppInfo(Context context, LauncherActivityInfoCompat info, UserHandle user,
             IconCache iconCache) {
         this(context, info, user, iconCache,
                 UserManagerCompat.getInstance(context).isQuietModeEnabled(user));
     }
 
-    public AppInfo(Context context, LauncherActivityInfoCompat info, UserHandleCompat user,
+    public AppInfo(Context context, LauncherActivityInfoCompat info, UserHandle user,
             IconCache iconCache, boolean quietModeEnabled) {
         this.componentName = info.getComponentName();
         this.container = ItemInfo.NO_ID;
@@ -149,7 +150,7 @@ public class AppInfo extends ItemInfo {
     }
 
     public static Intent makeLaunchIntent(Context context, LauncherActivityInfoCompat info,
-            UserHandleCompat user) {
+            UserHandle user) {
         long serialNumber = UserManagerCompat.getInstance(context).getSerialNumberForUser(user);
         return new Intent(Intent.ACTION_MAIN)
             .addCategory(Intent.CATEGORY_LAUNCHER)
