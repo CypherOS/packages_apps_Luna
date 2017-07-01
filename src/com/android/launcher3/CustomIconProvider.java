@@ -115,7 +115,7 @@ public class CustomIconProvider extends IconProvider
             for (UserHandleCompat userHandleCompat : UserManagerCompat.getInstance(context).getUserProfiles()) {
                 LauncherAppState instance = LauncherAppState.getInstance();
                 instance.getModel().onPackageChanged("com.google.android.calendar", userHandleCompat);
-                List queryForPinnedShortcuts = instance.getShortcutManager().queryForPinnedShortcuts("com.google.android.calendar", userHandleCompat);
+                List queryForPinnedShortcuts = instance.queryForPinnedShortcuts("com.google.android.calendar", userHandleCompat);
                 if (!queryForPinnedShortcuts.isEmpty()) {
                     instance.getModel().updatePinnedShortcuts("com.google.android.calendar", queryForPinnedShortcuts, userHandleCompat);
                 }
