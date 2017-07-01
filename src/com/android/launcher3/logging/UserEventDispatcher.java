@@ -198,7 +198,7 @@ public class UserEventDispatcher {
                 dropTargetAsView);
         event.action.touch = Action.DRAGDROP;
 
-        dragObj.dragSource.fillInLaunchSourceData(null, dragObj.originalDragInfo,
+        dragObj.fillInLaunchSourceData(null, dragObj.originalDragInfo,
                 event.srcTarget[0], event.srcTarget[1]);
 
         if (dropTargetAsView instanceof LaunchSourceProvider) {
