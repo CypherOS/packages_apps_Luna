@@ -21,8 +21,9 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.os.Process;
+import android.os.UserHandle;
 
-import com.android.launcher3.compat.UserHandleCompat;
 import com.android.launcher3.compat.UserManagerCompat;
 
 /**
@@ -108,10 +109,10 @@ public class ItemInfo {
      */
     public CharSequence contentDescription;
 
-    public UserHandleCompat user;
+    public UserHandle user;
 
     public ItemInfo() {
-        user = UserHandleCompat.myUserHandle();
+        user = Process.myUserHandle();
     }
 
     ItemInfo(ItemInfo info) {

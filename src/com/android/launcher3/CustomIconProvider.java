@@ -8,6 +8,7 @@ import android.graphics.drawable.Drawable;
 import com.android.launcher3.compat.LauncherActivityInfoCompat;
 import com.android.launcher3.compat.UserHandleCompat;
 import com.android.launcher3.compat.UserManagerCompat;
+import com.android.launcher3.shortcuts.DeepShortcutManager;
 
 import android.content.res.TypedArray;
 import android.content.res.Resources;
@@ -114,8 +115,9 @@ public class CustomIconProvider extends IconProvider
         public void onReceive(final Context context, final Intent intent) {
             for (UserHandleCompat userHandleCompat : UserManagerCompat.getInstance(context).getUserProfiles()) {
                 LauncherAppState instance = LauncherAppState.getInstance();
+				DeepShortcutManager dsm = DeepShortcutManager.queryForPinnedShortcuts(context, userHandleCompat)
                 instance.getModel().onPackageChanged("com.google.android.calendar", userHandleCompat);
-                List queryForPinnedShortcuts = instance.getShortcutManager().queryForPinnedShortcuts("com.google.android.calendar", userHandleCompat);
+                List queryForPinnedShortcuts = dsm("com.google.android.calendar", userHandleCompat);
                 if (!queryForPinnedShortcuts.isEmpty()) {
                     instance.getModel().updatePinnedShortcuts("com.google.android.calendar", queryForPinnedShortcuts, userHandleCompat);
                 }
