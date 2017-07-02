@@ -46,6 +46,8 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.PaintDrawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Process;
+import android.os.UserHandle;
 import android.os.PowerManager;
 import android.text.Spannable;
 import android.text.SpannableString;
@@ -74,6 +76,7 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 import java.util.concurrent.Executor;
@@ -194,7 +197,7 @@ public final class Utilities {
                 final int id = resources.getIdentifier(resourceName, null, null);
                 return createIconBitmap(
                         resources.getDrawableForDensity(id, LauncherAppState.getInstance()
-                                .getInvariantDeviceProfile().fillResIconDpi), context);
+                                .getInvariantDeviceProfile().fillResIconDpi, null), context);
             }
         } catch (Exception e) {
             // Icon not found.
@@ -363,7 +366,6 @@ public final class Utilities {
             canvas.restore();
             icon.setBounds(sOldBounds);
             canvas.setBitmap(null);
-
             return bitmap;
         }
     }
@@ -885,6 +887,10 @@ public final class Utilities {
     public static boolean isEmpty(Collection c) {
         return c == null || c.isEmpty();
     }
+	
+	public static boolean isAtLeastO() {
+        return Build.VERSION.SDK_INT >= 26;
+    }
 
     /**
      * An extension of {@link BitmapDrawable} which returns the bitmap pixel size as intrinsic size.
@@ -924,5 +930,26 @@ public final class Utilities {
             event.getText().add(text);
             accessibilityManager.sendAccessibilityEvent(event);
         }
+    }
+	
+	public static UserHandle myUserHandle() {
+        return android.os.Process.myUserHandle();
+    }
+	
+	public static Bitmap attachNotificationBadge(Bitmap icon){
+        Bitmap bitmap = icon.copy(Bitmap.Config.ARGB_8888, true);
+        Canvas canvas = new Canvas(bitmap);
+        Paint badgePaint = new Paint();
+        badgePaint.setStyle(Paint.Style.FILL);
+        badgePaint.setColor(Utilities.getColorAccent(LauncherAppState.getInstance().getContext()));
+        int radius = bitmap.getWidth() / 12;
+        canvas.drawCircle(bitmap.getWidth() - (radius + 15), radius + 15, radius, badgePaint);
+        return bitmap;
+    }
+	
+	public static <T> HashSet<T> singletonHashSet(T obj) {
+        HashSet<T> hashSet = new HashSet<>(1);
+        hashSet.add(obj);
+        return hashSet;
     }
 }

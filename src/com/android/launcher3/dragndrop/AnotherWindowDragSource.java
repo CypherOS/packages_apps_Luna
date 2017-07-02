@@ -37,11 +37,6 @@ public class AnotherWindowDragSource implements DragSource {
     }
 
     @Override
-    public boolean supportsFlingToDelete() {
-        return false;
-    }
-
-    @Override
     public boolean supportsAppInfoDropTarget() {
         return false;
     }
@@ -55,11 +50,7 @@ public class AnotherWindowDragSource implements DragSource {
     public float getIntrinsicIconScaleFactor() {
         return 1;
     }
-
-    @Override
-    public void onFlingToDeleteCompleted() {
-    }
-
+	
     @Override
     public void onDropCompleted(View target, DragObject d,
             boolean isFlingToDelete, boolean success) {
@@ -67,10 +58,5 @@ public class AnotherWindowDragSource implements DragSource {
             Launcher.getLauncher(mContext).exitSpringLoadedDragModeDelayed(false, 0, null);
         }
 
-    }
-
-    @Override
-    public void fillInLaunchSourceData(View v, ItemInfo info, Target target, Target targetParent) {
-        // TODO: Probably log something
     }
 }
