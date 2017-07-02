@@ -27,16 +27,17 @@ import java.util.Arrays;
 public class ComponentKey {
 
     public final ComponentName componentName;
-    public final UserHandleCompat user;
+    public final UserHandle user;
 
     private final int mHashCode;
 
-    public ComponentKey(ComponentName componentName, UserHandleCompat user) {
+    public ComponentKey(ComponentName componentName, UserHandle user) {
+		UserHandleCompat user2 = UserHandleCompat.myUserHandle();
         Preconditions.assertNotNull(componentName);
-        Preconditions.assertNotNull(user);
+        Preconditions.assertNotNull(user2);
         this.componentName = componentName;
         this.user = user;
-        mHashCode = Arrays.hashCode(new Object[] {componentName, user});
+        mHashCode = Arrays.hashCode(new Object[] {componentName, user2});
 
     }
 
