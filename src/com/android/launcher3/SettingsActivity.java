@@ -1,5 +1,7 @@
 /*
  * Copyright (C) 2015 The Android Open Source Project
+ * Copyright (C) 2017 Paranoid Android
+ * Copyright (C) 2017 CypherOS
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,12 +32,17 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
+import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
 import android.preference.SwitchPreference;
 import android.preference.TwoStatePreference;
@@ -81,8 +88,9 @@ public class SettingsActivity extends Activity {
      * This fragment shows the launcher preferences.
      */
     public static class LauncherSettingsFragment extends PreferenceFragment 
-            implements Preference.OnPreferenceChangeListener, Preference.OnPreferenceClickListener	{
+            implements Preference.OnPreferenceChangeListener, Preference.OnPreferenceClickListener, OnSharedPreferenceChangeListener {
 
+        private String mDefaultIconPack;
         private SystemDisplayRotationLockObserver mRotationLockObserver;
         private IconBadgingObserver mIconBadgingObserver;
 		
@@ -92,6 +100,10 @@ public class SettingsActivity extends Activity {
 		private SwitchPreference mShowPredictions;
 		
 		private Context mContext;
+
+        private IconsHandler mIconsHandler;
+        private PackageManager mPackageManager;
+        private Preference mIconPack;
 
         @Override
         public void onCreate(Bundle savedInstanceState) {
@@ -117,6 +129,14 @@ public class SettingsActivity extends Activity {
                     getPreferenceScreen().removePreference(mSmartSpace);
                 }
             }
+			
+			PreferenceManager.getDefaultSharedPreferences(getActivity())
+                    .registerOnSharedPreferenceChangeListener(this);
+            mPackageManager = getActivity().getPackageManager();
+
+            mDefaultIconPack = getString(R.string.default_iconpack_title);
+            mIconsHandler = IconCache.getIconsHandler(getActivity().getApplicationContext());
+            mIconPack = (Preference) findPreference(Utilities.KEY_ICON_PACK);
 
             // Setup allow rotation preference
             Preference rotationPref = findPreference(Utilities.ALLOW_ROTATION_PREFERENCE_KEY);
@@ -157,6 +177,7 @@ public class SettingsActivity extends Activity {
                     getPreferenceScreen().removePreference(iconShapeOverride);
                 }
             }
+			reloadIconPackSummary();
         }
 		
 		@Override
@@ -188,7 +209,15 @@ public class SettingsActivity extends Activity {
         }
 
         @Override
+        public void onPause() {
+            super.onPause();
+            mIconsHandler.hideDialog();
+		}
+
+        @Override
         public void onDestroy() {
+            PreferenceManager.getDefaultSharedPreferences(getActivity())
+                    .unregisterOnSharedPreferenceChangeListener(this);
             if (mRotationLockObserver != null) {
                 mRotationLockObserver.unregister();
                 mRotationLockObserver = null;
@@ -198,6 +227,36 @@ public class SettingsActivity extends Activity {
                 mIconBadgingObserver = null;
             }
             super.onDestroy();
+        }
+
+        @Override
+        public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen, Preference pref) {
+            if (pref == mIconPack) {
+                mIconsHandler.showDialog(getActivity());
+                return true;
+            }
+            return false;
+        }
+
+        @Override
+        public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+            reloadIconPackSummary();
+        }
+
+        private void reloadIconPackSummary() {
+            ApplicationInfo info = null;
+            String iconPack = PreferenceManager.getDefaultSharedPreferences(getActivity())
+                    .getString(Utilities.KEY_ICON_PACK, mDefaultIconPack);
+            if (!mIconsHandler.isDefaultIconPack()) {
+                try {
+                    info = mPackageManager.getApplicationInfo(iconPack, 0);
+                } catch (PackageManager.NameNotFoundException e) {
+                }
+                if (info != null) {
+                    iconPack = mPackageManager.getApplicationLabel(info).toString();
+                }
+            }
+            mIconPack.setSummary(iconPack);
         }
     }
 
