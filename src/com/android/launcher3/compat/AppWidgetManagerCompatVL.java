@@ -81,11 +81,11 @@ class AppWidgetManagerCompatVL extends AppWidgetManagerCompat {
     }
 
     @Override
-    public UserHandleCompat getUser(LauncherAppWidgetProviderInfo info) {
+    public UserHandle getUser(LauncherAppWidgetProviderInfo info) {
         if (info.isCustomWidget) {
-            return UserHandleCompat.myUserHandle();
+            return Utilities.myUserHandle();
         }
-        return UserHandleCompat.fromUser(info.getProfile());
+        return UserHandle.fromUser(info.getProfile());
     }
 
     @Override
@@ -150,7 +150,7 @@ class AppWidgetManagerCompatVL extends AppWidgetManagerCompat {
     }
 
     @Override
-    public LauncherAppWidgetProviderInfo findProvider(ComponentName provider, UserHandleCompat user) {
+    public LauncherAppWidgetProviderInfo findProvider(ComponentName provider, UserHandle user) {
         for (AppWidgetProviderInfo info : mAppWidgetManager
                 .getInstalledProvidersForProfile(user.getUser())) {
             if (info.provider.equals(provider)) {
@@ -164,7 +164,7 @@ class AppWidgetManagerCompatVL extends AppWidgetManagerCompat {
     public HashMap<ComponentKey, AppWidgetProviderInfo> getAllProvidersMap() {
         HashMap<ComponentKey, AppWidgetProviderInfo> result = new HashMap<>();
         for (UserHandle user : mUserManager.getUserProfiles()) {
-            UserHandleCompat userHandle = UserHandleCompat.fromUser(user);
+            UserHandle userHandle = user;
             for (AppWidgetProviderInfo info :
                     mAppWidgetManager.getInstalledProvidersForProfile(user)) {
                 result.put(new ComponentKey(info.provider, userHandle), info);

@@ -30,7 +30,7 @@ import android.util.Log;
 import com.android.launcher3.ItemInfo;
 import com.android.launcher3.LauncherSettings;
 import com.android.launcher3.Utilities;
-import com.android.launcher3.compat.UserHandleCompat;
+import android.os.UserHandle;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -76,7 +76,7 @@ public class DeepShortcutManager {
      * because we only get "key" fields in onShortcutsChanged().
      */
     public List<ShortcutInfoCompat> queryForFullDetails(String packageName,
-            List<String> shortcutIds, UserHandleCompat user) {
+            List<String> shortcutIds, UserHandle user) {
         return query(FLAG_GET_ALL, packageName, null, shortcutIds, user);
     }
 
@@ -85,7 +85,7 @@ public class DeepShortcutManager {
      * to be displayed in the shortcuts container on long press.
      */
     public List<ShortcutInfoCompat> queryForShortcutsContainer(ComponentName activity,
-            List<String> ids, UserHandleCompat user) {
+            List<String> ids, UserHandle user) {
         return query(FLAG_MATCH_MANIFEST | FLAG_MATCH_DYNAMIC,
                 activity.getPackageName(), activity, ids, user);
     }
@@ -99,7 +99,7 @@ public class DeepShortcutManager {
         if (Utilities.isNycMR1OrAbove()) {
             String packageName = key.componentName.getPackageName();
             String id = key.getId();
-            UserHandleCompat user = key.user;
+            UserHandle user = key.user;
             List<String> pinnedIds = extractIds(queryForPinnedShortcuts(packageName, user));
             pinnedIds.remove(id);
             try {
@@ -121,7 +121,7 @@ public class DeepShortcutManager {
         if (Utilities.isNycMR1OrAbove()) {
             String packageName = key.componentName.getPackageName();
             String id = key.getId();
-            UserHandleCompat user = key.user;
+            UserHandle user = key.user;
             List<String> pinnedIds = extractIds(queryForPinnedShortcuts(packageName, user));
             pinnedIds.add(id);
             try {
@@ -136,7 +136,7 @@ public class DeepShortcutManager {
 
     @TargetApi(25)
     public void startShortcut(String packageName, String id, Rect sourceBounds,
-          Bundle startActivityOptions, UserHandleCompat user) {
+          Bundle startActivityOptions, UserHandle user) {
         if (Utilities.isNycMR1OrAbove()) {
             try {
                 mLauncherApps.startShortcut(packageName, id, sourceBounds,
@@ -171,11 +171,11 @@ public class DeepShortcutManager {
      * If packageName is null, returns all pinned shortcuts regardless of package.
      */
     public List<ShortcutInfoCompat> queryForPinnedShortcuts(String packageName,
-            UserHandleCompat user) {
+            UserHandle user) {
         return query(FLAG_MATCH_PINNED, packageName, null, null, user);
     }
 
-    public List<ShortcutInfoCompat> queryForAllShortcuts(UserHandleCompat user) {
+    public List<ShortcutInfoCompat> queryForAllShortcuts(UserHandle user) {
         return query(FLAG_GET_ALL, null, null, null, user);
     }
 
@@ -195,7 +195,7 @@ public class DeepShortcutManager {
      */
     @TargetApi(25)
     private List<ShortcutInfoCompat> query(int flags, String packageName,
-            ComponentName activity, List<String> shortcutIds, UserHandleCompat user) {
+            ComponentName activity, List<String> shortcutIds, UserHandle user) {
         if (Utilities.isNycMR1OrAbove()) {
             ShortcutQuery q = new ShortcutQuery();
             q.setQueryFlags(flags);
