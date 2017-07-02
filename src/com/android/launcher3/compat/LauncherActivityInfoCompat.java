@@ -18,7 +18,10 @@ package com.android.launcher3.compat;
 
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.ApplicationInfo;
+import android.content.pm.LauncherActivityInfo;
+import android.content.pm.LauncherApps;
 import android.content.pm.ResolveInfo;
 import android.graphics.drawable.Drawable;
 import android.os.UserHandle;
@@ -26,6 +29,12 @@ import android.os.UserHandle;
 public abstract class LauncherActivityInfoCompat {
 
     LauncherActivityInfoCompat() {
+    }
+	
+	public static LauncherActivityInfoCompat create(Context context, UserHandle user, Intent intent) {
+        LauncherApps launcherApps = (LauncherApps) context.getSystemService("launcherapps");
+        LauncherActivityInfo info = launcherApps.resolveActivity(intent, user);
+        return new LauncherActivityInfoCompat(info);
     }
 
     public abstract ComponentName getComponentName();

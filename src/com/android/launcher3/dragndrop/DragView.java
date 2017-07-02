@@ -50,7 +50,9 @@ public class DragView extends View {
     public static final int COLOR_CHANGE_DURATION = 120;
     public static final int VIEW_ZOOM_DURATION = 150;
 
-    @Thunk static float sDragAlpha = 1f;
+    @Thunk 
+	static float sDragAlpha = 1f;
+	private final float mInitialScale;
 
     private Bitmap mBitmap;
     private Bitmap mCrossFadeBitmap;
@@ -70,6 +72,8 @@ public class DragView extends View {
     // The intrinsic icon scale factor is the scale factor for a drag icon over the workspace
     // size.  This is ignored for non-icons.
     private float mIntrinsicIconScale = 1f;
+	
+	private float initialScale;
 
     @Thunk float[] mCurrentFilter;
     private ValueAnimator mFilterAnimator;
@@ -78,6 +82,7 @@ public class DragView extends View {
     private int mLastTouchY;
     private int mAnimatedShiftX;
     private int mAnimatedShiftY;
+	private final int[] mTempLoc = new int[2];
 
     /**
      * Construct the drag view.
@@ -89,7 +94,6 @@ public class DragView extends View {
      * @param registrationX The x coordinate of the registration point.
      * @param registrationY The y coordinate of the registration point.
      */
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public DragView(Launcher launcher, Bitmap bitmap, int registrationX, int registrationY,
                     final float initialScale, final float finalScaleDps) {
         super(launcher);
@@ -145,6 +149,7 @@ public class DragView extends View {
 
         if (Utilities.ATLEAST_LOLLIPOP) {
             setElevation(getResources().getDimension(R.dimen.drag_elevation));
+			mInitialScale = initialScale;
         }
     }
 
@@ -301,6 +306,12 @@ public class DragView extends View {
         });
         mFilterAnimator.start();
     }
+	
+	public void animateTo(int i, int i2, Runnable runnable, int i3) {
+        this.mTempLoc[0] = i - this.mRegistrationX;
+        this.mTempLoc[1] = i2 - this.mRegistrationY;
+        this.mDragLayer.animateViewIntoPosition(this, this.mTempLoc, 1.0f, this.mInitialScale, this.mInitialScale, 0, runnable, i3);
+    }
 
     public boolean hasDrawn() {
         return mHasDrawn;
@@ -331,6 +342,7 @@ public class DragView extends View {
         move(touchX, touchY);
         // Post the animation to skip other expensive work happening on the first frame
         post(new Runnable() {
+			@Override
             public void run() {
                 mAnim.start();
             }
