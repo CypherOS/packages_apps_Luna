@@ -35,6 +35,10 @@ import com.android.launcher3.util.Thunk;
  * The track and scrollbar that shows when you scroll the list.
  */
 public class BaseRecyclerViewFastScrollBar {
+	
+	public void setThumbOffsetY(int thumbOffsetY) {
+        this.mThumbOffset.y = thumbOffsetY;
+    }
 
     public interface FastScrollFocusableView {
         void setFastScrollFocusState(final FastBitmapDrawable.State focusState, boolean animated);
