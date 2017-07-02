@@ -8,6 +8,7 @@ import android.graphics.drawable.Drawable;
 import com.android.launcher3.compat.LauncherActivityInfoCompat;
 import com.android.launcher3.compat.UserHandleCompat;
 import com.android.launcher3.compat.UserManagerCompat;
+import com.android.launcher3.shortcuts.DeepShortcutManager;
 
 import android.content.res.TypedArray;
 import android.content.res.Resources;
