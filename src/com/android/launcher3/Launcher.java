@@ -96,7 +96,6 @@ import com.android.launcher3.allapps.PredictedAppsController;
 import com.android.launcher3.compat.AppWidgetManagerCompat;
 import com.android.launcher3.compat.LauncherActivityInfoCompat;
 import com.android.launcher3.compat.LauncherAppsCompat;
-import com.android.launcher3.compat.UserHandleCompat;
 import com.android.launcher3.compat.UserManagerCompat;
 import com.android.launcher3.config.FeatureFlags;
 import com.android.launcher3.config.ProviderConfig;
@@ -2544,7 +2543,7 @@ public class Launcher extends Activity
             .setNeutralButton(R.string.abandoned_clean_this,
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        final UserHandleCompat user = UserHandleCompat.myUserHandle();
+                        final UserHandle user = Utilities.myUserHandle();
                         mWorkspace.removeAbandonedPromise(packageName, user);
                     }
                 })
@@ -2846,7 +2845,7 @@ public class Launcher extends Activity
                 !intent.hasExtra(INTENT_EXTRA_IGNORE_LAUNCH_ANIMATION);
         Bundle optsBundle = useLaunchAnimation ? getActivityLaunchOptions(v) : null;
 
-        UserHandleCompat user = null;
+        UserHandle user = null;
         if (intent.hasExtra(AppInfo.EXTRA_PROFILE)) {
             long serialNumber = intent.getLongExtra(AppInfo.EXTRA_PROFILE, -1);
             user = UserManagerCompat.getInstance(this).getUserForSerialNumber(serialNumber);
@@ -2864,7 +2863,7 @@ public class Launcher extends Activity
                     && ((ShortcutInfo) item).promisedIntent == null) {
                 // Shortcuts need some special checks due to legacy reasons.
                 startShortcutIntentSafely(intent, optsBundle, item);
-            } else if (user == null || user.equals(UserHandleCompat.myUserHandle())) {
+            } else if (user == null || user.equals(Utilities.myUserHandle())) {
                 // Could be launching some bookkeeping activity
                 startActivity(intent, optsBundle);
 
@@ -4166,7 +4165,7 @@ public class Launcher extends Activity
      */
     @Override
     public void bindShortcutsChanged(final ArrayList<ShortcutInfo> updated,
-            final ArrayList<ShortcutInfo> removed, final UserHandleCompat user) {
+            final ArrayList<ShortcutInfo> removed, final UserHandle user) {
         Runnable r = new Runnable() {
             public void run() {
                 bindShortcutsChanged(updated, removed, user);
@@ -4235,7 +4234,7 @@ public class Launcher extends Activity
     @Override
     public void bindWorkspaceComponentsRemoved(
             final HashSet<String> packageNames, final HashSet<ComponentName> components,
-            final UserHandleCompat user) {
+            final UserHandle user) {
         Runnable r = new Runnable() {
             public void run() {
                 bindWorkspaceComponentsRemoved(packageNames, components, user);
@@ -4385,20 +4384,20 @@ public class Launcher extends Activity
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public ItemInfo createAppDragInfo(Intent appLaunchIntent) {
         // Called from search suggestion
-        UserHandleCompat user = null;
+        UserHandle user = null;
         if (Utilities.ATLEAST_LOLLIPOP) {
             UserHandle userHandle = appLaunchIntent.getParcelableExtra(Intent.EXTRA_USER);
             if (userHandle != null) {
-                user = UserHandleCompat.fromUser(userHandle);
+                user = Utilities.myUserHandle();
             }
         }
         return createAppDragInfo(appLaunchIntent, user);
     }
 
     // TODO: This method should be a part of LauncherSearchCallback
-    public ItemInfo createAppDragInfo(Intent intent, UserHandleCompat user) {
+    public ItemInfo createAppDragInfo(Intent intent, UserHandle user) {
         if (user == null) {
-            user = UserHandleCompat.myUserHandle();
+            user = Utilities.myUserHandle();
         }
 
         // Called from search suggestion, add the profile extra to the intent to ensure that we
@@ -4415,7 +4414,7 @@ public class Launcher extends Activity
     public ItemInfo createShortcutDragInfo(Intent shortcutIntent, CharSequence caption,
             Bitmap icon) {
         return new ShortcutInfo(shortcutIntent, caption, caption, icon,
-                UserHandleCompat.myUserHandle());
+                Utilities.myUserHandle());
     }
 
     protected void moveWorkspaceToDefaultScreen() {
