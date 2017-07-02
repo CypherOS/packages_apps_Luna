@@ -62,7 +62,7 @@ import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityManager;
 import android.widget.Toast;
 
-import com.android.launcher3.compat.UserHandleCompat;
+import android.os.UserHandle;
 import com.android.launcher3.config.FeatureFlags;
 import com.android.launcher3.config.ProviderConfig;
 import com.android.launcher3.graphics.ShadowGenerator;
@@ -222,7 +222,7 @@ public final class Utilities {
      */
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public static Bitmap createBadgedIconBitmap(
-            Drawable icon, UserHandleCompat user, Context context) {
+            Drawable icon, UserHandle user, Context context) {
         float scale = FeatureFlags.LAUNCHER3_DISABLE_ICON_NORMALIZATION ?
                 1 : IconNormalizer.getInstance().getScale(icon, null);
         Bitmap bitmap = createIconBitmap(icon, context, scale);
@@ -232,9 +232,9 @@ public final class Utilities {
     /**
      * Badges the provided icon with the user badge if required.
      */
-    public static Bitmap badgeIconForUser(Bitmap icon,  UserHandleCompat user, Context context) {
+    public static Bitmap badgeIconForUser(Bitmap icon,  UserHandle user, Context context) {
         if (Utilities.ATLEAST_LOLLIPOP && user != null
-                && !UserHandleCompat.myUserHandle().equals(user)) {
+                && !Utilities.myUserHandle().equals(user)) {
             BitmapDrawable drawable = new FixedSizeBitmapDrawable(icon);
             Drawable badged = context.getPackageManager().getUserBadgedIcon(
                     drawable, user.getUser());

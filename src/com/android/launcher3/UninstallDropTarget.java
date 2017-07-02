@@ -12,7 +12,7 @@ import android.util.AttributeSet;
 import android.util.Pair;
 import android.widget.Toast;
 
-import com.android.launcher3.compat.UserHandleCompat;
+import android.os.UserHandle;
 
 public class UninstallDropTarget extends ButtonDropTarget {
 
@@ -127,7 +127,7 @@ public class UninstallDropTarget extends ButtonDropTarget {
      */
     protected static void sendUninstallResult(
             final Launcher launcher, boolean activityStarted,
-            final ComponentName cn, final UserHandleCompat user,
+            final ComponentName cn, final UserHandle user,
             final DropTargetResultCallback callback) {
         if (activityStarted)  {
             final Runnable checkIfUninstallWasSuccess = new Runnable() {

@@ -52,7 +52,7 @@ public class PackageInstallerCompatVL extends PackageInstallerCompat {
     @Override
     public HashMap<String, Integer> updateAndGetActiveSessionCache() {
         HashMap<String, Integer> activePackages = new HashMap<>();
-        UserHandleCompat user = UserHandleCompat.myUserHandle();
+        UserHandle user = Utilities.myUserHandle();
         for (SessionInfo info : mInstaller.getAllSessions()) {
             addSessionInfoToCahce(info, user);
             if (info.getAppPackageName() != null) {
@@ -63,7 +63,7 @@ public class PackageInstallerCompatVL extends PackageInstallerCompat {
         return activePackages;
     }
 
-    @Thunk void addSessionInfoToCahce(SessionInfo info, UserHandleCompat user) {
+    @Thunk void addSessionInfoToCahce(SessionInfo info, UserHandle user) {
         String packageName = info.getAppPackageName();
         if (packageName != null) {
             mCache.cachePackageInstallInfo(packageName, user, info.getAppIcon(),
@@ -124,7 +124,7 @@ public class PackageInstallerCompatVL extends PackageInstallerCompat {
         private void pushSessionDisplayToLauncher(int sessionId) {
             SessionInfo session = mInstaller.getSessionInfo(sessionId);
             if (session != null && session.getAppPackageName() != null) {
-                addSessionInfoToCahce(session, UserHandleCompat.myUserHandle());
+                addSessionInfoToCahce(session, Utilities.myUserHandle());
                 LauncherAppState app = LauncherAppState.getInstanceNoCreate();
 
                 if (app != null) {

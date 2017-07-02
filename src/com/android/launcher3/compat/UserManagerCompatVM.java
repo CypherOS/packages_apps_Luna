@@ -28,7 +28,7 @@ public class UserManagerCompatVM extends UserManagerCompatVL {
     }
 
     @Override
-    public long getUserCreationTime(UserHandleCompat user) {
+    public long getUserCreationTime(UserHandle user) {
         return mUserManager.getUserCreationTime(user.getUser());
     }
 }

@@ -28,10 +28,10 @@ import java.util.HashMap;
 @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
 public class UserManagerCompatV17 extends UserManagerCompatV16 {
 
-    protected LongArrayMap<UserHandleCompat> mUsers;
+    protected LongArrayMap<UserHandle> mUsers;
     // Create a separate reverse map as LongArrayMap.indexOfValue checks if objects are same
     // and not {@link Object#equals}
-    protected HashMap<UserHandleCompat, Long> mUserToSerialMap;
+    protected HashMap<UserHandle, Long> mUserToSerialMap;
 
     protected UserManager mUserManager;
 
@@ -39,7 +39,7 @@ public class UserManagerCompatV17 extends UserManagerCompatV16 {
         mUserManager = (UserManager) context.getSystemService(Context.USER_SERVICE);
     }
 
-    public long getSerialNumberForUser(UserHandleCompat user) {
+    public long getSerialNumberForUser(UserHandle user) {
         synchronized (this) {
             if (mUserToSerialMap != null) {
                 Long serial = mUserToSerialMap.get(user);
@@ -49,13 +49,13 @@ public class UserManagerCompatV17 extends UserManagerCompatV16 {
         return mUserManager.getSerialNumberForUser(user.getUser());
     }
 
-    public UserHandleCompat getUserForSerialNumber(long serialNumber) {
+    public UserHandle getUserForSerialNumber(long serialNumber) {
         synchronized (this) {
             if (mUsers != null) {
                 return mUsers.get(serialNumber);
             }
         }
-        return UserHandleCompat.fromUser(mUserManager.getUserForSerialNumber(serialNumber));
+        return UserHandle.fromUser(mUserManager.getUserForSerialNumber(serialNumber));
     }
 
     @Override
@@ -63,7 +63,7 @@ public class UserManagerCompatV17 extends UserManagerCompatV16 {
         synchronized (this) {
             mUsers = new LongArrayMap<>();
             mUserToSerialMap = new HashMap<>();
-            UserHandleCompat myUser = UserHandleCompat.myUserHandle();
+            UserHandle myUser = Utilities.myUserHandle();
             long serial = mUserManager.getSerialNumberForUser(myUser.getUser());
             mUsers.put(serial, myUser);
             mUserToSerialMap.put(myUser, serial);

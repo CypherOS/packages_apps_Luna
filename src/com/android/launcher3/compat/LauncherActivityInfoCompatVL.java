@@ -36,8 +36,8 @@ public class LauncherActivityInfoCompatVL extends LauncherActivityInfoCompat {
         return mLauncherActivityInfo.getComponentName();
     }
 
-    public UserHandleCompat getUser() {
-        return UserHandleCompat.fromUser(mLauncherActivityInfo.getUser());
+    public UserHandle getUser() {
+        return UserHandle.fromUser(mLauncherActivityInfo.getUser());
     }
 
     public CharSequence getLabel() {
