@@ -37,6 +37,9 @@
     <string name="safemode_widget_error">Widgets disabled in Safe mode</string>
     <!-- Message shown when a shortcut is not available. It could have been temporarily disabled and may start working again after some time. -->
     <string name="shortcut_not_available">Shortcut isn\'t available</string>
+	
+	<!-- Message shown when a feature isn't supported for third party software -->
+	<string name="luna_launcher_unsupported">This feature isn\'t supported on your current software</string>
 
     <!-- Widgets -->
     <!-- Message to tell the user to press and hold on a widget to add it [CHAR_LIMIT=50] -->
