@@ -1,14 +1,19 @@
 package com.android.launcher3.notification;
 
 import android.app.Notification;
+import android.content.ComponentName;
+import android.content.Context;
 import android.os.Handler;
 import android.os.Handler.Callback;
 import android.os.Looper;
 import android.os.Message;
+import android.os.RemoteException;
+import android.os.UserHandle;
 import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
 import android.support.v4.util.Pair;
 import android.text.TextUtils;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -22,6 +27,8 @@ import com.android.launcher3.util.PackageUserKey;
 
 public class NotificationListener extends NotificationListenerService {
     private static boolean sIsConnected;
+	private static Context mContext;
+	private static NotificationListenerService mNotificationListenerService;
     private static NotificationListener sNotificationListenerInstance = null;
     private static NotificationsChangedListener sNotificationsChangedListener;
     private Ranking mTempRanking = new Ranking();
@@ -111,6 +118,14 @@ public class NotificationListener extends NotificationListenerService {
 
     public NotificationListener() {
         sNotificationListenerInstance = this;
+		// Resgister the notification listener as a system service.
+        try {
+            mNotificationListenerService.registerAsSystemService(mContext,
+                    new ComponentName(mContext.getPackageName(), getClass().getCanonicalName()),
+                    UserHandle.USER_ALL);
+        } catch (RemoteException e) {
+            Log.e("NotificationListener", "Unable to register", e);
+        }
     }
 
     public static NotificationListener getInstanceIfConnected() {
