@@ -116,6 +116,10 @@ public final class Utilities {
     public static boolean isNycOrAbove() {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.N;
     }
+	
+	public static boolean isCypherOS() {
+        return Build.VERSION.AOSCP;
+    }
 
     public static final boolean ATLEAST_MARSHMALLOW =
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.M;

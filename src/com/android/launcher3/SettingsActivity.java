@@ -73,6 +73,12 @@ public class SettingsActivity extends Activity {
             mDefaultIconPack = getString(R.string.default_iconpack_title);
             mIconsHandler = IconCache.getIconsHandler(getActivity().getApplicationContext());
             mIconPack = (Preference) findPreference(Utilities.KEY_ICON_PACK);
+			if (Utilities.isCypherOS()) {
+				mIconPack.setEnabled(true);
+			} else {
+				mIconPack.setEnabled(false);
+				mIconPack.setSummary(R.string.luna_launcher_unsupported);
+			}
 
             // Setup allow rotation preference
             Preference rotationPref = findPreference(Utilities.ALLOW_ROTATION_PREFERENCE_KEY);
