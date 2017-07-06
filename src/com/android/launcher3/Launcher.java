@@ -424,6 +424,11 @@ public class Launcher extends Activity
         super.onCreate(savedInstanceState);
 
         LauncherAppState app = LauncherAppState.getInstance();
+		
+		Log.d(TAG, "Starting notification service");
+		Intent service = new Intent(Launcher.this, NotificationListener.class);
+        service.putExtras(new Bundle(intent.getExtras()));     
+        startService(Launcher.this, service);
 
         // Load configuration-specific DeviceProfile
         mDeviceProfile = getResources().getConfiguration().orientation
@@ -513,7 +518,7 @@ public class Launcher extends Activity
         String setting = Settings.Secure.ENABLED_NOTIFICATION_LISTENERS;
         String permission = Settings.Secure.getString(resolver, setting);
         if(permission == null || !permission.contains("com.android.launcher3")) {
-            ComponentName analytics = new ComponentName("com.android.launcher3", "com.android.launcher3.Launcher");
+            ComponentName analytics = new ComponentName("com.android.launcher3", "com.android.launcher3.notification.NotificationListener");
             if(permission == null) {
                 permission = "";
             } else {
