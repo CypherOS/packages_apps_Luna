@@ -1,7 +1,9 @@
 package com.android.launcher3.popup;
 
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -19,6 +21,8 @@ import com.android.launcher3.widget.WidgetsBottomSheet;
 public abstract class SystemShortcut {
     private final int mIconResId;
     private final int mLabelResId;
+	
+	private Launcher mLauncher;
 
     public static class AppInfo extends SystemShortcut {
         public AppInfo() {
@@ -53,6 +57,36 @@ public abstract class SystemShortcut {
                     ((WidgetsBottomSheet) launcher.getLayoutInflater().inflate(R.layout.widgets_bottom_sheet, launcher.getDragLayer(), false)).populateAndShow(itemInfo);
                 }
             };
+        }
+    }
+	
+	public static class Edit extends SystemShortcut {
+        public Edit() {
+            super(R.drawable.ic_edit_no_shadow, R.string.edit_drop_target_label);
+        }
+
+        @Override
+        public OnClickListener getOnClickListener(final Launcher launcher, final ItemInfo itemInfo) {
+            return new OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    startEdit();
+                }
+            };
+        }
+    }
+	
+    public void startEdit() {
+        Bitmap bitmap = null;
+        ComponentName componentName = null;
+        ItemInfo info = null;
+		com.android.launcher3.AppInfo appInfo = new com.android.launcher3.AppInfo
+        info instanceof appInfo;
+        componentName = ((appInfo) info).componentName;
+        bitmap = ((appInfo) info).iconBitmap;
+
+        if (bitmap != null && componentName != null) {
+            mLauncher.startEdit(bitmap, info, componentName);
         }
     }
 
