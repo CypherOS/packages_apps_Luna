@@ -19,6 +19,7 @@
 package com.android.launcher3;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.content.ContentResolver;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
@@ -57,6 +58,7 @@ public class SettingsActivity extends Activity {
         private String mDefaultIconPack;
         private SystemDisplayRotationLockObserver mRotationLockObserver;
         private SwitchPreference mPredictiveApps;
+		private SwitchPreference mShowGoogleApp;
 
         private IconsHandler mIconsHandler;
         private PackageManager mPackageManager;
@@ -80,6 +82,12 @@ public class SettingsActivity extends Activity {
 
             mPredictiveApps = (SwitchPreference) findPreference(Utilities.KEY_ENABLE_PREDICTIVE_APPS);
             mPredictiveApps.setChecked(Utilities.isPreditiveAppsPrefEnabled(getActivity()));
+			
+			boolean state = Utilities.getPrefs(getActivity()).getBoolean(
+                    Utilities.ACTION_LEFT_PAGE_CHANGED, true);
+
+            mShowGoogleApp = (SwitchPreference) findPreference(Utilities.KEY_SHOW_GOOGLE_APP);
+            mShowGoogleApp.setChecked(state);
 
             // Setup allow rotation preference
             Preference rotationPref = findPreference(Utilities.ALLOW_ROTATION_PREFERENCE_KEY);
@@ -130,6 +138,15 @@ public class SettingsActivity extends Activity {
             if (pref == mPredictiveApps) {
                 boolean state = mPredictiveApps.isChecked();
                 Utilities.setPredictiveAppsPref(getActivity(), state);
+                return true;
+            }
+			if (pref == mShowGoogleApp) {
+                boolean state = Utilities.getPrefs(getActivity()).getBoolean(
+                        Utilities.ACTION_LEFT_PAGE_CHANGED, true);
+                Utilities.getPrefs(getActivity()).edit().putBoolean(
+                        Utilities.ACTION_LEFT_PAGE_CHANGED, !state).commit();
+                Intent intent = new Intent(Utilities.ACTION_LEFT_PAGE_CHANGED);
+                getActivity().sendBroadcast(intent);
                 return true;
             }
             return false;

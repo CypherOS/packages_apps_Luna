@@ -285,5 +285,8 @@
 
     <!-- Predictive apps -->
     <string name="predictive_apps_title">App suggestions</string>
-    <string name="predictive_apps_title_summary">Display recently used applications inside the app drawer</string>
+	
+	<!-- Show Google App -->
+	<string name="show_google_app_title">Show Google app</string>
+	<string name="show_google_app_summary">When swiping left from the homescreen</string>
 </resources>
