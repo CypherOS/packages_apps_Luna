@@ -49,7 +49,14 @@ public class EditDropTarget extends ButtonDropTarget {
     }
 
     @Override
-    public void completeDrop(DragObject d) {
+    void completeDrop(DragObject d) {
+		DropTargetResultCallback callback = d.dragSource instanceof DropTargetResultCallback
+                ? (DropTargetResultCallback) d.dragSource : null;
+        startEditApplicationDialog(d.dragInfo, mLauncher, callback);
+        
+    }
+	
+	public static boolean startEditApplicationDialog(ItemInfo itemInfo, Launcher launcher, DropTargetResultCallback dropTargetResultCallback) {
         Bitmap bitmap = null;
         ComponentName componentName = null;
         ItemInfo info = d.dragInfo;

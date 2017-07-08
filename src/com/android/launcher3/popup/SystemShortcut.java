@@ -55,6 +55,22 @@ public abstract class SystemShortcut {
             };
         }
     }
+	
+	public static class Edit extends SystemShortcut {
+        public Edit() {
+            super(R.drawable.ic_edit_no_shadow, R.string.edit_drop_target_label);
+        }
+
+        @Override
+        public OnClickListener getOnClickListener(final Launcher launcher, final ItemInfo itemInfo) {
+            return new OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    EditDropTarget.startEditApplicationDialog(itemInfo, launcher, null);
+                }
+            };
+        }
+    }
 
     public abstract OnClickListener getOnClickListener(Launcher launcher, ItemInfo itemInfo);
 
