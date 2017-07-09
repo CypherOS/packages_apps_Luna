@@ -316,4 +316,7 @@
     <!-- Accessibility confirmation for notification being dismissed. -->
     <string name="notification_dismissed">Notification dismissed</string>
 
+	<!-- Show Google App -->
+	<string name="show_google_app_title">Show Google app</string>
+	<string name="show_google_app_summary">When swiping left from the homescreen</string>
 </resources>
