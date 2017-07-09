@@ -158,6 +158,11 @@ public class ShortcutInfo extends ItemInfoWithIcon {
      * Refer {@link #FLAG_RESTORED_ICON}, {@link #FLAG_AUTOINTALL_ICON}
      */
     Intent promisedIntent;
+	
+	/**
+     * Class member variable to display unbadged icons where possible
+     */
+	private Bitmap mUnbadgedIcon;
 
     public ShortcutInfo() {
         itemType = LauncherSettings.BaseLauncherColumns.ITEM_TYPE_SHORTCUT;
@@ -235,6 +240,13 @@ public class ShortcutInfo extends ItemInfoWithIcon {
             updateIcon(iconCache);
         }
         return mIcon;
+    }
+	
+	public Bitmap getUnbadgedIcon(IconCache iconCache) {
+        if (mUnbadgedIcon == null) {
+            return getIcon(iconCache);
+        }
+        return mUnbadgedIcon;
     }
 
     public void updateIcon(IconCache iconCache, boolean useLowRes) {
@@ -326,6 +338,7 @@ public class ShortcutInfo extends ItemInfoWithIcon {
         Bitmap unbadgedBitmap = unbadgedDrawable == null
                 ? cache.getDefaultIcon(Utilities.myUserHandle())
                 : Utilities.createScaledBitmapWithoutShadow(unbadgedDrawable, context);
+		mUnbadgedIcon = unbadgedBitmap;
         setIcon(getBadgedIcon(unbadgedBitmap, shortcutInfo, cache, context));
     }
 
