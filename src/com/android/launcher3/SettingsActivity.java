@@ -19,7 +19,10 @@
 package com.android.launcher3;
 
 import android.app.Activity;
+import android.content.ComponentName;
 import android.content.ContentResolver;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.pm.ApplicationInfo;
@@ -33,7 +36,9 @@ import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
 import android.preference.SwitchPreference;
 import android.provider.Settings;
+import android.provider.Settings.Secure;
 import android.provider.Settings.System;
+import android.text.TextUtils;
 
 /**
  * Settings activity for Launcher. Currently implements the following setting: Allow rotation
@@ -57,6 +62,7 @@ public class SettingsActivity extends Activity {
         private String mDefaultIconPack;
         private SystemDisplayRotationLockObserver mRotationLockObserver;
         private SwitchPreference mPredictiveApps;
+		private Preference mNotificationBadges;
 
         private IconsHandler mIconsHandler;
         private PackageManager mPackageManager;
@@ -69,6 +75,8 @@ public class SettingsActivity extends Activity {
             super.onCreate(savedInstanceState);
             getPreferenceManager().setSharedPreferencesName(LauncherFiles.SHARED_PREFERENCES_KEY);
             addPreferencesFromResource(R.xml.launcher_preferences);
+			
+			PreferenceScreen preference = getPreferenceScreen();
 
             PreferenceManager.getDefaultSharedPreferences(getActivity())
                     .registerOnSharedPreferenceChangeListener(this);
@@ -80,6 +88,14 @@ public class SettingsActivity extends Activity {
 
             mPredictiveApps = (SwitchPreference) findPreference(Utilities.KEY_ENABLE_PREDICTIVE_APPS);
             mPredictiveApps.setChecked(Utilities.isPreditiveAppsPrefEnabled(getActivity()));
+			
+			// Load the switch preference if the service isn't enabled in notification access settings.
+            if(!isNotificationBadgeEnabled()){
+                mNotificationBadges = (Preference) findPreference(Utilities.KEY_NOTIFICATION_BADGES);
+			} else {
+				// If the service is enabled, remove the preference.
+				preference.removePreference(mNotificationBadges);
+            }
 
             // Setup allow rotation preference
             Preference rotationPref = findPreference(Utilities.ALLOW_ROTATION_PREFERENCE_KEY);
@@ -131,6 +147,10 @@ public class SettingsActivity extends Activity {
                 Utilities.setPredictiveAppsPref(getActivity(), state);
                 return true;
             }
+			if (pref == mNotificationBadges) {
+                startActivity(new Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS));
+                return true;
+            }
             return false;
         }
 
@@ -153,6 +173,29 @@ public class SettingsActivity extends Activity {
                 }
             }
             mIconPack.setSummary(iconPack);
+        }
+		
+		/**
+         * Checks whether the notification badge service is enabled.
+         * @return True if eanbled, false otherwise.
+         */
+        private boolean isNotificationBadgeEnabled(){
+			ContentResolver resolver = getActivity().getApplicationContext().getContentResolver();
+            String packageName = getActivity().getApplicationContext().getPackageName();
+            final String flat = Settings.Secure.getString(resolver,
+                    Settings.Secure.ENABLED_NOTIFICATION_LISTENERS);
+            if (!TextUtils.isEmpty(flat)) {
+                final String[] names = flat.split(":");
+                for (int i = 0; i < names.length; i++) {
+                    final ComponentName componentName = ComponentName.unflattenFromString(names[i]);
+                    if (componentName != null) {
+                        if (TextUtils.equals(packageName, componentName.getPackageName())) {
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
         }
     }
 
