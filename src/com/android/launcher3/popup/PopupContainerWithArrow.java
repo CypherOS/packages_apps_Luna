@@ -679,11 +679,6 @@ public class PopupContainerWithArrow extends AbstractFloatingView implements Dra
     public static PopupContainerWithArrow getOpen(Launcher launcher) {
         return (PopupContainerWithArrow) AbstractFloatingView.getOpenView(launcher, 2);
     }
-
-    @Override
-    public int getLogContainerType() {
-        return 9;
-    }
 	
 	@Override
     public void fillInLaunchSourceData(View v, ItemInfo info, Target target, Target targetParent) {
