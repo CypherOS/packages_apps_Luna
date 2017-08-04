@@ -23,6 +23,8 @@ import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.PointF;
 import android.graphics.Rect;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.ShapeDrawable;
 import android.support.v4.view.accessibility.AccessibilityEventCompat;
 import android.support.v4.view.accessibility.AccessibilityRecordCompat;
 import android.support.v7.widget.GridLayoutManager;
@@ -34,6 +36,7 @@ import android.view.View.OnFocusChangeListener;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.accessibility.AccessibilityEvent;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.android.launcher3.AppInfo;
@@ -482,8 +485,10 @@ public class AllAppsGridAdapter extends RecyclerView.Adapter<AllAppsGridAdapter.
                 });
                 return new ViewHolder(searchMarketView);
             case VIEW_TYPE_SEARCH_DIVIDER:
-                return new ViewHolder(mLayoutInflater.inflate(
-                        R.layout.all_apps_search_divider, parent, false));
+                ImageView divider = (ImageView) mLayoutInflater.inflate(
+                        R.layout.all_apps_search_divider, parent, false);
+                divider.setImageDrawable(new ColorDrawable(Utilities.getDynamicAccent(parent.getContext())));
+                return new ViewHolder(divider);
             case VIEW_TYPE_PREDICTION_DIVIDER:
                 /* falls through */
             case VIEW_TYPE_SEARCH_MARKET_DIVIDER:
