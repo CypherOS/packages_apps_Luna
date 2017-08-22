@@ -27,9 +27,13 @@ import com.android.launcher3.compat.PackageInstallerCompat;
 import com.android.launcher3.compat.UserManagerCompat;
 import com.android.launcher3.config.ProviderConfig;
 import com.android.launcher3.dynamicui.ExtractionUtils;
+<<<<<<< HEAD
 import com.android.launcher3.logging.FileLog;
 import com.android.launcher3.shortcuts.DeepShortcutManager;
 import com.android.launcher3.shortcuts.ShortcutCache;
+=======
+import com.android.launcher3.pixel.NexusAppFilter;
+>>>>>>> 9b06581... Add NexusAppFilter
 import com.android.launcher3.util.ConfigMonitor;
 import com.android.launcher3.util.TestingUtils;
 import com.android.launcher3.util.Thunk;
@@ -101,8 +105,13 @@ public class LauncherAppState {
         mWidgetCache = new WidgetPreviewLoader(sContext, mIconCache);
         mDeepShortcutManager = new DeepShortcutManager(sContext);
 
+<<<<<<< HEAD
         mAppFilter = AppFilter.loadByName(sContext.getString(R.string.app_filter_class));
         mModel = new LauncherModel(this, mIconCache, mAppFilter, DeepShortcutManager.getInstance(getContext()));
+=======
+        mModel = new LauncherModel(this, mIconCache,
+                new NexusAppFilter());
+>>>>>>> 9b06581... Add NexusAppFilter
 
         LauncherAppsCompat.getInstance(sContext).addOnAppsChangedCallback(mModel);
 
