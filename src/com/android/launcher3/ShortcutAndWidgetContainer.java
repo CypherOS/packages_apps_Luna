@@ -23,6 +23,12 @@ import android.graphics.Rect;
 import android.view.View;
 import android.view.ViewGroup;
 
+<<<<<<< HEAD
+=======
+import com.android.launcher3.CellLayout.ContainerType;
+import com.android.launcher3.pixel.QsbBlockerView;
+
+>>>>>>> 658340c... Switch to Pixel Launcher QSB
 public class ShortcutAndWidgetContainer extends ViewGroup {
     static final String TAG = "CellLayoutChildren";
 
@@ -127,7 +133,13 @@ public class ShortcutAndWidgetContainer extends ViewGroup {
                     mCountX);
 
             if (child instanceof LauncherAppWidgetHostView || child instanceof QsbBlockerView) {
+<<<<<<< HEAD
                 // Widgets have their own padding, so skip
+=======
+                lp.setup(mCellWidth, mCellHeight, invertLayoutHorizontally(), mCountX,
+                        profile.appWidgetScale.x, profile.appWidgetScale.y);
+                // Widgets have their own padding
+>>>>>>> 658340c... Switch to Pixel Launcher QSB
             } else {
                 // Otherwise, center the icon/folder
                 int cHeight = getCellContentHeight();

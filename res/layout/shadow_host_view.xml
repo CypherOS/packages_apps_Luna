@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
+<<<<<<< HEAD
 <com.android.launcher3.pixelui.ShadowHostView
+=======
+<com.android.launcher3.pixel.ShadowHostView
+>>>>>>> 658340c... Switch to Pixel Launcher QSB
     android:layout_gravity="end|center"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
