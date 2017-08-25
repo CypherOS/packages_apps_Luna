@@ -58,6 +58,7 @@
     <!-- QSB Widget -->
     <color name="qsb_connector">#fff2f2f2</color>
     <color name="qsb_background">#ffffffff</color>
+<<<<<<< HEAD
 
     <!-- Icon Chooser -->
     <color name="icon_settings_background">#ff313131</color>
@@ -70,4 +71,7 @@
     <color name="notification_icon_default_color">#ff757575</color>
     <color name="notification_color_beneath">#ffe0e0e0</color>
     <color name="badge_color">#ffffffff</color>
+=======
+    <color name="qsb_connector_gradient_end_color">#66ffffff</color>
+>>>>>>> d199f13... Backport transparent QsbConnector
 </resources>
