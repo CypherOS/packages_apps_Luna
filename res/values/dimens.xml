@@ -215,4 +215,7 @@
 <!-- Other -->
     <!-- Approximates the system status bar height. Not guaranteed to be always be correct. -->
     <dimen name="status_bar_height">24dp</dimen>
+	
+	<!-- Quick Search Bar -->
+	<dimen name="qsb_connector_gradient_end_padding">20.0dip</dimen>
 </resources>
