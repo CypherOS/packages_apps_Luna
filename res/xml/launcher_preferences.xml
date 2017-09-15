@@ -61,5 +61,13 @@
         android:key="pref_hiddenApp"
         android:title="@string/hide_app"
         android:summary="@string/hide_app_sum"/>
+		
+	<ListPreference
+        android:defaultValue="0"
+        android:entries="@array/hotseat_color_options"
+        android:entryValues="@array/hotseat_color_values"
+        android:key="pref_hotseatColor"
+        android:summary="%s"
+        android:title="@string/hotseat_pref" />
 
 </PreferenceScreen>

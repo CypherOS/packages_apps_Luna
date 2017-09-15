@@ -20,12 +20,15 @@ import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.database.ContentObserver;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
+import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
 import android.preference.SwitchPreference;
 import android.provider.Settings;
@@ -56,7 +59,7 @@ public class SettingsActivity extends Activity {
     /**
      * This fragment shows the launcher preferences.
      */
-    public static class LauncherSettingsFragment extends PreferenceFragment {
+    public static class LauncherSettingsFragment extends PreferenceFragment implements OnSharedPreferenceChangeListener {
 
         private SystemDisplayRotationLockObserver mRotationLockObserver;
         private IconBadgingObserver mIconBadgingObserver;
@@ -78,6 +81,9 @@ public class SettingsActivity extends Activity {
             mShowGoogleApp.setChecked(state);
 			
 			mHiddenApp = (Preference) findPreference(Utilities.KEY_HIDDEN_APPS);
+			
+			PreferenceManager.getDefaultSharedPreferences(getActivity())
+                    .registerOnSharedPreferenceChangeListener(this);
 
             // Setup allow rotation preference
             Preference rotationPref = findPreference(Utilities.ALLOW_ROTATION_PREFERENCE_KEY);
@@ -124,6 +130,8 @@ public class SettingsActivity extends Activity {
 
         @Override
         public void onDestroy() {
+			PreferenceManager.getDefaultSharedPreferences(getActivity())
+                    .unregisterOnSharedPreferenceChangeListener(this);
             if (mRotationLockObserver != null) {
                 getActivity().getContentResolver().unregisterContentObserver(mRotationLockObserver);
                 mRotationLockObserver = null;
@@ -152,6 +160,14 @@ public class SettingsActivity extends Activity {
                 return true;
             }
             return false;
+        }
+		
+		@Override
+        public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+
+            if (Utilities.KEY_HOTSEAT.equals(key)) {
+                Launcher.setUpdateHotseatColor();
+            }
         }
     }
 
