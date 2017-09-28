@@ -24,7 +24,7 @@
     android:sharedUserId="android.uid.system"
     android:versionCode="4"
     android:versionName="aoscp.409B">
-    <uses-sdk android:targetSdkVersion="23" android:minSdkVersion="21"/>
+    <uses-sdk android:targetSdkVersion="25" android:minSdkVersion="21"/>
     <uses-feature android:glEsVersion="0x00020000" android:required="false"/>
     <!--
     Manifest entries specific to Launcher3. This is merged with AndroidManifest-common.xml.
