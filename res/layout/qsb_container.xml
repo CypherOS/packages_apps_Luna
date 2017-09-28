@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+<<<<<<< HEAD
 <!--
      Copyright (C) 2016 The Android Open Source Project
 
@@ -24,3 +25,15 @@
     android:layout_width="match_parent"
     android:layout_height="0dp"
     android:layout_marginStart="@dimen/qsb_overlap_margin" />
+=======
+<com.android.launcher3.pixel.SuperGContainerView
+    android:gravity="top"
+    android:orientation="horizontal"
+    android:id="@+id/qsb_container"
+    android:padding="0.0dip"
+    android:clipToPadding="false"
+    android:layout_width="fill_parent"
+    android:layout_height="0.0dip"
+    android:layout_marginStart="@dimen/qsb_overlap_margin"
+    xmlns:android="http://schemas.android.com/apk/res/android" />
+>>>>>>> 658340c... Switch to Pixel Launcher QSB

@@ -125,8 +125,13 @@ public class IconCache {
         mLowResCanvas = new Canvas();
         mLowResPaint = new Paint(Paint.FILTER_BITMAP_FLAG | Paint.ANTI_ALIAS_FLAG);
 
+<<<<<<< HEAD
         mIconProvider = IconProvider.loadByName(context.getString(R.string.icon_provider_class),
                 context);
+=======
+        mIconProvider = new com.android.launcher3.pixel.DynamicIconProvider(mContext);
+        mWorkerHandler = new Handler(LauncherModel.getWorkerLooper());
+>>>>>>> 1d614c2... Add Pixel Launcher's icon parser
 
         mWorkerHandler = new Handler(LauncherModel.getWorkerLooper());
 
