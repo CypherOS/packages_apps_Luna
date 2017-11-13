@@ -57,5 +57,10 @@
         android:key="pref_showGoogleApp"
         android:title="@string/show_google_app_title"
         android:summary="@string/show_google_app_summary" />
+		
+	<Preference
+        android:key="pref_hiddenApp"
+        android:title="@string/hide_apps_title"
+        android:summary="@string/hide_apps_summary"/>
 
 </PreferenceScreen>
