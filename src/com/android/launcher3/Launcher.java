@@ -345,6 +345,10 @@ public class Launcher extends BaseActivity
 
     private LauncherTab mLauncherTab;
 
+    // Hotseat
+    private static boolean sUpdateHotseatColor;
+    int mHotseatAccentColor;
+	
     @Thunk void setOrientation() {
         if (mRotationEnabled) {
             unlockScreenOrientation(true);
@@ -414,6 +418,8 @@ public class Launcher extends BaseActivity
         // LauncherModel load.
         mPaused = false;
 
+		mHotseatAccentColor = Utilities.getColorAccent(this);
+		
         mLauncherView = getLayoutInflater().inflate(R.layout.launcher, null);
 
         setupViews();
@@ -519,6 +525,11 @@ public class Launcher extends BaseActivity
         }
     }
 
+	// Method to set sUpdateHotseatColor boolean to apply changes on resume from settings
+    public static void setUpdateHotseatColor() {
+        sUpdateHotseatColor = true;
+    }
+	
     // TODO: use platform flag on API >= 26
     private static final int SYSTEM_UI_FLAG_LIGHT_NAV_BAR = 0x10;
 
@@ -1088,6 +1099,12 @@ public class Launcher extends BaseActivity
 
             // Refresh shortcuts if the permission changed.
             mModel.refreshShortcutsIfRequired();
+
+            //update hotseat color
+            if (sUpdateHotseatColor) {
+                sUpdateHotseatColor = false;
+                mHotseat.updateColor(mExtractedColors, !mPaused);
+            }
         }
 
         if (shouldShowDiscoveryBounce()) {

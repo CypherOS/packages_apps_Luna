@@ -316,4 +316,10 @@
     <string name="hidden_app">Hidden app</string>
     <string name="hide_selected">Hide selected app</string>
     <string name="more">More</string>
+	
+	<!-- Hotseat -->
+    <string name="hotseat_pref">Dock color</string>
+    <string name="hotseat_transparent">Transparent</string>
+    <string name="hotseat_extracted">Wallpaper extracted</string>
+    <string name="hotseat_accent">Theme accent</string>
 </resources>
