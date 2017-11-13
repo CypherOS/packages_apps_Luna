@@ -19,11 +19,13 @@ package com.android.launcher3;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Build;
 import android.text.TextUtils;
 
 import com.android.launcher3.LauncherSettings.Favorites;
 import com.android.launcher3.compat.UserManagerCompat;
+import com.android.launcher3.folder.FolderIcon;
 import com.android.launcher3.shortcuts.ShortcutInfoCompat;
 import com.android.launcher3.util.ContentWriter;
 
@@ -69,12 +71,24 @@ public class ShortcutInfo extends ItemInfoWithIcon {
      * The intent used to start the application.
      */
     public Intent intent;
+	
+	/**
+     * If this shortcut is a placeholder, then intent will be a market intent for the package, and
+     * this will hold the original intent from the database.  Otherwise, null.
+     * Refer {@link #FLAG_RESTORED_ICON}, {@link #FLAG_AUTOINTALL_ICON}
+     */
+    Intent promisedIntent;
 
     /**
      * If isShortcut=true and customIcon=false, this contains a reference to the
      * shortcut icon as an application's resource.
      */
     public Intent.ShortcutIconResource iconResource;
+	
+	/**
+     * The application icon.
+     */
+    private Bitmap mIcon;
 
     /**
      * Indicates that the icon is disabled due to safe mode restrictions.
@@ -156,6 +170,24 @@ public class ShortcutInfo extends ItemInfoWithIcon {
         itemType = LauncherSettings.Favorites.ITEM_TYPE_DEEP_SHORTCUT;
         updateFromDeepShortcutInfo(shortcutInfo, context);
     }
+	
+	public Bitmap getIcon(IconCache iconCache) {
+        if (mIcon == null) {
+            updateIcon(iconCache);
+        }
+        return mIcon;
+    }
+	
+	public void updateIcon(IconCache iconCache, boolean useLowRes) {
+        if (itemType == Favorites.ITEM_TYPE_APPLICATION) {
+            iconCache.getTitleAndIcon(this, promisedIntent != null ? promisedIntent : intent, user,
+                    useLowRes);
+        }
+    }
+
+    public void updateIcon(IconCache iconCache) {
+        updateIcon(iconCache, shouldUseLowResIcon());
+    }
 
     @Override
     public void onAddToDatabase(ContentWriter writer) {
@@ -195,6 +227,10 @@ public class ShortcutInfo extends ItemInfoWithIcon {
     public void setInstallProgress(int progress) {
         mInstallProgress = progress;
         status |= FLAG_INSTALL_SESSION_ACTIVE;
+    }
+	
+	public boolean shouldUseLowResIcon() {
+        return usingLowResIcon && container >= 0 && rank >= FolderIcon.NUM_ITEMS_IN_PREVIEW;
     }
 
     public void updateFromDeepShortcutInfo(ShortcutInfoCompat shortcutInfo, Context context) {
