@@ -390,6 +390,7 @@ public class LauncherModel extends BroadcastReceiver
     public void onPackageChanged(String packageName, UserHandle user) {
         int op = PackageUpdatedTask.OP_UPDATE;
         enqueueModelUpdateTask(new PackageUpdatedTask(op, user, packageName));
+		IconCache.getIconsHandler(mApp.getContext()).switchIconPacks(packageName);
     }
 
     @Override
@@ -400,6 +401,7 @@ public class LauncherModel extends BroadcastReceiver
     public void onPackagesRemoved(UserHandle user, String... packages) {
         int op = PackageUpdatedTask.OP_REMOVE;
         enqueueModelUpdateTask(new PackageUpdatedTask(op, user, packages));
+		IconCache.getIconsHandler(mApp.getContext()).switchIconPacks(packageName);
     }
 
     @Override

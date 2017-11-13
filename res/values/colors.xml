@@ -54,4 +54,11 @@
     <color name="qsb_connector">#fff2f2f2</color>
     <color name="qsb_background">#ffffffff</color>
     <color name="qsb_connector_gradient_end_color">#66ffffff</color>
+
+	<!-- Icon Chooser -->
+    <color name="icon_settings_background">#ff313131</color>
+    <color name="icon_settings_text">#ffafafaf</color>
+	
+	<!-- System Colors -->
+	<color name="colorAccent">@*android:color/accent_device_default_light</color>
 </resources>
