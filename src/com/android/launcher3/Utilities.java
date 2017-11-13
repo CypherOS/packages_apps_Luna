@@ -27,6 +27,7 @@ import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.pm.ResolveInfo;
 import android.content.res.Resources;
+import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Matrix;
@@ -37,6 +38,7 @@ import android.os.Bundle;
 import android.os.DeadObjectException;
 import android.os.PowerManager;
 import android.os.TransactionTooLargeException;
+import android.preference.PreferenceManager;
 import android.support.v4.os.BuildCompat;
 import android.text.Spannable;
 import android.text.SpannableString;
@@ -52,6 +54,7 @@ import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityManager;
 
 import com.android.launcher3.config.ProviderConfig;
+import com.android.launcher3.dynamicui.ExtractedColors;
 
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
@@ -128,6 +131,7 @@ public final class Utilities {
     public static final String ACTION_LEFT_PAGE_CHANGED = "com.android.launcher3.intent.ACTION_LEFT_PAGE_CHANGED";
     static final String KEY_HIDDEN_APPS = "pref_hiddenApp";
     static final String KEY_HIDDEN_APPS_SET = "hidden-app-set";
+    static final String KEY_HOTSEAT = "pref_hotseatColor";
 
     public static boolean isPropertyEnabled(String propertyName) {
         return Log.isLoggable(propertyName, Log.VERBOSE);
@@ -138,6 +142,30 @@ public final class Utilities {
                 getAllowRotationDefaultValue(context));
     }
 
+    // Resolve hotseat color
+    static int resolveHotseatColor(Context context) {
+
+        String hotseatColor = PreferenceManager.getDefaultSharedPreferences(context).getString(KEY_HOTSEAT, String.valueOf(0));
+
+        switch (Integer.parseInt(hotseatColor)) {
+            default:
+            case 0:
+                return ExtractedColors.HOTSEAT_INDEX;
+
+            case 1:
+                return 0;
+
+            case 2:
+                return ExtractedColors.VIBRANT_INDEX;
+        }
+    }
+
+    static boolean isAccentColoredHotseatPrefEnabled(Context context) {
+
+        String hotseatColor = PreferenceManager.getDefaultSharedPreferences(context).getString(KEY_HOTSEAT, String.valueOf(0));
+        return Integer.parseInt(hotseatColor) == 3;
+    }
+	
     public static boolean getAllowRotationDefaultValue(Context context) {
         if (ATLEAST_NOUGAT) {
             // If the device was scaled, used the original dimensions to determine if rotation
@@ -650,5 +678,12 @@ public final class Utilities {
         HashSet<T> hashSet = new HashSet<>(1);
         hashSet.add(elem);
         return hashSet;
+    }
+	
+	public static int getColorAccent(Context context) {
+        TypedArray ta = context.obtainStyledAttributes(new int[]{android.R.attr.colorAccent});
+        int colorAccent = ta.getColor(0, 0);
+        ta.recycle();
+        return colorAccent;
     }
 }
