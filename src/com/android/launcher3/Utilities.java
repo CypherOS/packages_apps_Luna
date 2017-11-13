@@ -27,16 +27,20 @@ import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.pm.ResolveInfo;
 import android.content.res.Resources;
+import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.DeadObjectException;
 import android.os.PowerManager;
 import android.os.TransactionTooLargeException;
+import android.os.UserHandle;
 import android.support.v4.os.BuildCompat;
 import android.text.Spannable;
 import android.text.SpannableString;
@@ -654,5 +658,38 @@ public final class Utilities {
         HashSet<T> hashSet = new HashSet<>(1);
         hashSet.add(elem);
         return hashSet;
+    }
+	
+	/**
+     * Returns a bitmap suitable for the all apps view.
+     */
+    public static Bitmap createIconBitmap(Drawable icon, Context context) {
+        return createIconBitmap(icon, context, 1.0f /* scale */);
+    }
+	
+	public static int getColorAccent(Context context) {
+        TypedArray ta = context.obtainStyledAttributes(new int[]{android.R.attr.colorAccent});
+        int colorAccent = ta.getColor(0, 0);
+        ta.recycle();
+        return colorAccent;
+    }
+	
+	/**
+     * Badges the provided icon with the user badge if required.
+     */
+    public static Bitmap badgeIconForUser(Bitmap icon,  UserHandle user, Context context) {
+        if (Utilities.ATLEAST_LOLLIPOP && user != null
+                && !Utilities.myUserHandle().equals(user)) {
+            BitmapDrawable drawable = new FixedSizeBitmapDrawable(icon);
+            Drawable badged = context.getPackageManager().getUserBadgedIcon(
+                    drawable, user);
+            if (badged instanceof BitmapDrawable) {
+                return ((BitmapDrawable) badged).getBitmap();
+            } else {
+                return createIconBitmap(badged, context);
+            }
+        } else {
+            return icon;
+        }
     }
 }

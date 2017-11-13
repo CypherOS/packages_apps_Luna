@@ -1,9 +1,12 @@
 package com.android.launcher3;
 
+import android.content.Context;
 import android.content.pm.LauncherActivityInfo;
 import android.graphics.drawable.Drawable;
 
 import java.util.Locale;
+
+import com.android.launcher3.pixel.DynamicIconProvider;
 
 public class IconProvider {
 
@@ -13,8 +16,8 @@ public class IconProvider {
     protected String mSystemState;
 	private Context mContext;
 
-    public IconProvider() {
-		CustomIconProvider provider = new CustomIconProvider(context);
+    public static IconProvider() {
+		DynamicIconProvider provider = new DynamicIconProvider(mContext);
         if (provider != null) {
             return provider;
         }

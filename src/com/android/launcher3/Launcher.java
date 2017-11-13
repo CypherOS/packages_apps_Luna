@@ -43,6 +43,7 @@ import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Bitmap;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
@@ -82,6 +83,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ListPopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -358,6 +360,8 @@ public class Launcher extends BaseActivity
     private ImageView mPackageIcon;
     private IconsHandler mIconsHandler;
     private View mIconPackView;
+	
+	private Context mContext;
 
     @Thunk void setOrientation() {
         if (mRotationEnabled) {
@@ -4075,7 +4079,7 @@ public class Launcher extends BaseActivity
     }
 	
     public void startEdit(final Bitmap bm, final ItemInfo info, final ComponentName component) {
-        LauncherActivityInfoCompat app = LauncherAppsCompat.getInstance(this)
+        LauncherActivityInfo app = LauncherAppsCompat.getInstance(this)
                 .resolveActivity(info.getIntent(), info.user);
         mIconPackView = getLayoutInflater().inflate(R.layout.edit_dialog, null);
         mPackageIcon = (ImageView) mIconPackView.findViewById(R.id.package_icon);
@@ -4116,7 +4120,7 @@ public class Launcher extends BaseActivity
                     @Override
                     public void onDismiss(DialogInterface dialog) {
                         // reload workspace
-                        LauncherAppState.getInstance().getModel().forceReload();
+                        LauncherAppState.getInstance(mContext).getModel().forceReload();
                     }
                 })
                 .setNegativeButton(R.string.edit_reset,
