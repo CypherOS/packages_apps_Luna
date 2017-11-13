@@ -126,6 +126,9 @@ public final class Utilities {
             TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
 
     public static final String ALLOW_ROTATION_PREFERENCE_KEY = "pref_allowRotation";
+	
+    static final String KEY_HIDDEN_APPS = "pref_hiddenApp";
+    static final String KEY_HIDDEN_APPS_SET = "hidden-app-set";
 
     public static boolean isPropertyEnabled(String propertyName) {
         return Log.isLoggable(propertyName, Log.VERBOSE);
