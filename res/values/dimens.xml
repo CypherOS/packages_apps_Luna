@@ -225,4 +225,11 @@
     <dimen name="qsb_shadow_blur_radius">1.0dip</dimen>
     <dimen name="qsb_key_shadow_offset">1.0dip</dimen>
     <dimen name="qsb_connector_gradient_end_padding">20.0dip</dimen>
+
+	<!-- Icon Chooser -->
+    <dimen name="app_icon_size">65dp</dimen>
+    <dimen name="icon_pack_icon_size">48dp</dimen>
+    <dimen name="icon_margin">5dp</dimen>
+    <dimen name="edit_dialog_min_width">200dp</dimen>
+    <dimen name="grid_item_spacing">15dp</dimen>
 </resources>

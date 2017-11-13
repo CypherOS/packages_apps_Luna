@@ -11,8 +11,13 @@ public class IconProvider {
     private static final String TAG = "IconProvider";
 
     protected String mSystemState;
+	private Context mContext;
 
     public IconProvider() {
+		CustomIconProvider provider = new CustomIconProvider(context);
+        if (provider != null) {
+            return provider;
+        }
         updateSystemStateString();
     }
 
