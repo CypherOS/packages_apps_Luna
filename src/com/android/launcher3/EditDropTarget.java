@@ -25,6 +25,7 @@ import android.util.AttributeSet;
 public class EditDropTarget extends ButtonDropTarget {
 
     private Launcher mLauncher;
+	private Context mContext;
 
     public EditDropTarget(Context context, AttributeSet attrs) {
         this(context, attrs, 0);
@@ -50,7 +51,7 @@ public class EditDropTarget extends ButtonDropTarget {
     }
 
     @Override
-    void completeDrop(DragObject d) {
+    public void completeDrop(DragObject d) {
         startEditApplicationDialog(d.dragInfo, mLauncher);
         
     }
@@ -63,7 +64,7 @@ public class EditDropTarget extends ButtonDropTarget {
             bitmap = ((AppInfo) info).iconBitmap;
         } else if (info instanceof ShortcutInfo) {
             componentName = ((ShortcutInfo) info).intent.getComponent();
-            bitmap = ((ShortcutInfo) info).getIcon(LauncherAppState.getInstance().getIconCache());
+            bitmap = ((ShortcutInfo) info).getIcon(LauncherAppState.getInstance(LauncherAppState.getContext()));
         }
 
         if (bitmap != null && componentName != null) {
