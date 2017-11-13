@@ -396,12 +396,12 @@ public class LauncherModel extends BroadcastReceiver
     @Override
     public void onPackageRemoved(String packageName, UserHandle user) {
         onPackagesRemoved(user, packageName);
+		IconCache.getIconsHandler(mApp.getContext()).switchIconPacks(packageName);
     }
 
     public void onPackagesRemoved(UserHandle user, String... packages) {
         int op = PackageUpdatedTask.OP_REMOVE;
         enqueueModelUpdateTask(new PackageUpdatedTask(op, user, packages));
-		IconCache.getIconsHandler(mApp.getContext()).switchIconPacks(packageName);
     }
 
     @Override
