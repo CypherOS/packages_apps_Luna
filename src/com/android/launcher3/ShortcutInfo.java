@@ -156,6 +156,24 @@ public class ShortcutInfo extends ItemInfoWithIcon {
         itemType = LauncherSettings.Favorites.ITEM_TYPE_DEEP_SHORTCUT;
         updateFromDeepShortcutInfo(shortcutInfo, context);
     }
+	
+	public Bitmap getIcon(IconCache iconCache) {
+        if (mIcon == null) {
+            updateIcon(iconCache);
+        }
+        return mIcon;
+    }
+	
+	public void updateIcon(IconCache iconCache, boolean useLowRes) {
+        if (itemType == Favorites.ITEM_TYPE_APPLICATION) {
+            iconCache.getTitleAndIcon(this, promisedIntent != null ? promisedIntent : intent, user,
+                    useLowRes);
+        }
+    }
+
+    public void updateIcon(IconCache iconCache) {
+        updateIcon(iconCache, shouldUseLowResIcon());
+    }
 
     @Override
     public void onAddToDatabase(ContentWriter writer) {
@@ -195,6 +213,10 @@ public class ShortcutInfo extends ItemInfoWithIcon {
     public void setInstallProgress(int progress) {
         mInstallProgress = progress;
         status |= FLAG_INSTALL_SESSION_ACTIVE;
+    }
+	
+	public boolean shouldUseLowResIcon() {
+        return usingLowResIcon && container >= 0 && rank >= FolderIcon.NUM_ITEMS_IN_PREVIEW;
     }
 
     public void updateFromDeepShortcutInfo(ShortcutInfoCompat shortcutInfo, Context context) {
