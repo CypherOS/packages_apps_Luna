@@ -37,6 +37,7 @@ import android.os.Bundle;
 import android.os.DeadObjectException;
 import android.os.PowerManager;
 import android.os.TransactionTooLargeException;
+import android.os.UserHandle;
 import android.support.v4.os.BuildCompat;
 import android.text.Spannable;
 import android.text.SpannableString;
@@ -654,5 +655,19 @@ public final class Utilities {
         HashSet<T> hashSet = new HashSet<>(1);
         hashSet.add(elem);
         return hashSet;
+    }
+	
+	/**
+     * Returns a bitmap suitable for the all apps view.
+     */
+    public static Bitmap createIconBitmap(Drawable icon, Context context) {
+        return createIconBitmap(icon, context, 1.0f /* scale */);
+    }
+	
+	public static int getColorAccent(Context context) {
+        TypedArray ta = context.obtainStyledAttributes(new int[]{android.R.attr.colorAccent});
+        int colorAccent = ta.getColor(0, 0);
+        ta.recycle();
+        return colorAccent;
     }
 }

@@ -50,7 +50,7 @@ public class EditDropTarget extends ButtonDropTarget {
     }
 
     @Override
-    void completeDrop(DragObject d) {
+    public void completeDrop(DragObject d) {
         startEditApplicationDialog(d.dragInfo, mLauncher);
         
     }
@@ -63,7 +63,7 @@ public class EditDropTarget extends ButtonDropTarget {
             bitmap = ((AppInfo) info).iconBitmap;
         } else if (info instanceof ShortcutInfo) {
             componentName = ((ShortcutInfo) info).intent.getComponent();
-            bitmap = ((ShortcutInfo) info).getIcon(LauncherAppState.getInstance().getIconCache());
+            bitmap = ((ShortcutInfo) info).getIcon(LauncherAppState.getInstance(getContext()).getIconCache());
         }
 
         if (bitmap != null && componentName != null) {

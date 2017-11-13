@@ -17,6 +17,7 @@
 package com.android.launcher3;
 
 import android.app.Activity;
+import android.content.Context;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
@@ -49,6 +50,7 @@ public class ChooseIconActivity extends Activity {
 
     private float mIconMargin;
     private int mIconSize;
+	private Context mContext;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -59,7 +61,7 @@ public class ChooseIconActivity extends Activity {
         mCurrentPackageLabel = getIntent().getStringExtra("app_label");
         mIconPackPackageName = getIntent().getStringExtra("icon_pack_package");
 
-        mIconCache = LauncherAppState.getInstance().getIconCache();
+        mIconCache = LauncherAppState.getInstance(mContext).getIconCache();
         mIconsHandler = IconCache.getIconsHandler(this);
 
         int itemSpacing = getResources().getDimensionPixelSize(R.dimen.grid_item_spacing);

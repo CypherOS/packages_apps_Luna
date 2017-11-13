@@ -562,7 +562,7 @@ public class IconsHandler {
 
         private IconPackLoader(String packageName) {
             mIconPackPackageName = packageName;
-            mIconCache = LauncherAppState.getInstance().getIconCache();
+            mIconCache = LauncherAppState.getInstance(.getContext()).getIconCache();
         }
 
         @Override
@@ -577,7 +577,7 @@ public class IconsHandler {
                     .putString(Utilities.KEY_ICON_PACK, mIconPackPackageName).commit();
             mIconCache.clearIconDataBase();
             mIconCache.flush();
-            LauncherAppState.getInstance().getModel().forceReload();
+            LauncherAppState.getInstance(.getContext()).getModel().forceReload();
         }
     }
 }

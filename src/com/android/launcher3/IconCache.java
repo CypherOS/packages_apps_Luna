@@ -368,7 +368,7 @@ public class IconCache {
         }
     }
 
-    CacheEntry getCacheEntry(LauncherActivityInfoCompat app) {
+    CacheEntry getCacheEntry(LauncherActivityInfo app) {
         final ComponentKey key = new ComponentKey(app.getComponentName(), app.getUser());
         return mCache.get(key);
     }
@@ -378,7 +378,7 @@ public class IconCache {
     }
 
     void addCustomInfoToDataBase(Drawable icon, ItemInfo info, CharSequence title) {
-        LauncherActivityInfoCompat app = mLauncherApps.resolveActivity(info.getIntent(), info.user);
+        LauncherActivityInfo app = mLauncherApps.resolveActivity(info.getIntent(), info.user);
         final ComponentKey key = new ComponentKey(app.getComponentName(), app.getUser());
         CacheEntry entry = mCache.get(key);
         PackageInfo packageInfo = null;
@@ -547,7 +547,7 @@ public class IconCache {
     }
 
     public synchronized Drawable getDefaultIcon(ItemInfo info) {
-        LauncherActivityInfoCompat app = mLauncherApps.resolveActivity(info.getIntent(), info.user);
+        LauncherActivityInfo app = mLauncherApps.resolveActivity(info.getIntent(), info.user);
         return app.getIcon(mIconDpi);
     }
 
