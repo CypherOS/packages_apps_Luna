@@ -76,6 +76,8 @@ public class ImportDataTask {
     private int mHotseatSize;
     private int mMaxGridSizeX;
     private int mMaxGridSizeY;
+	
+	public boolean createEmptyRowOnFirstScreen;
 
     private ImportDataTask(Context context, String sourceAuthority) {
         mContext = context;
@@ -132,8 +134,7 @@ public class ImportDataTask {
         String profileId = Long.toString(UserManagerCompat.getInstance(mContext)
                 .getSerialNumberForUser(Process.myUserHandle()));
 
-        boolean createEmptyRowOnFirstScreen;
-        if (FeatureFlags.QSB_ON_FIRST_SCREEN) {
+        if (FeatureFlags.QSB_IN_HOTSEAT) {
             try (Cursor c = mContext.getContentResolver().query(mOtherFavoritesUri, null,
                     // get items on the first row of the first screen
                     "profileId = ? AND container = -100 AND screen = ? AND cellY = 0",
