@@ -79,6 +79,7 @@ public class QsbContainerView extends FrameLayout {
         private QsbWidgetHost mQsbWidgetHost;
         private AppWidgetProviderInfo mWidgetInfo;
         private QsbWidgetHostView mQsb;
+		private boolean mHotseatLocation;
 
         // We need to store the orientation here, due to a bug (b/64916689) that results in widgets
         // being inflated in the wrong orientation.
@@ -97,10 +98,11 @@ public class QsbContainerView extends FrameLayout {
         public View onCreateView(
                 LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
+			mHotseatLocation = getTag().equals("qsb_view_hotseat");
             mWrapper = new FrameLayout(getActivity());
 
             // Only add the view when enabled
-            if (FeatureFlags.QSB_ON_FIRST_SCREEN) {
+            if (FeatureFlags.QSB_ON_FIRST_SCREEN && !mHotseatLocation) {
                 mWrapper.addView(createQsb(mWrapper));
             }
             return mWrapper;
@@ -199,9 +201,9 @@ public class QsbContainerView extends FrameLayout {
         @Override
         public void onResume() {
             super.onResume();
-            if (mQsb != null && mQsb.isReinflateRequired(mOrientation)) {
-                rebindFragment();
-            }
+			if (mHotseatLocation) {
+				rebindFragment();
+			}
         }
 
         @Override
@@ -212,7 +214,7 @@ public class QsbContainerView extends FrameLayout {
 
         private void rebindFragment() {
             // Exit if the embedded qsb is disabled
-            if (!FeatureFlags.QSB_ON_FIRST_SCREEN) {
+            if (!FeatureFlags.QSB_ON_FIRST_SCREEN && !mHotseatLocation) {
                 return;
             }
 

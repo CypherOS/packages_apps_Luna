@@ -1076,7 +1076,7 @@ public class Workspace extends PagedView
 
         final CellLayout layout;
         if (container == LauncherSettings.Favorites.CONTAINER_HOTSEAT) {
-            layout = mLauncher.getHotseat().getLayout();
+            layout = mLauncher.getHotseat().getCellLayout();
             child.setOnKeyListener(new HotseatIconKeyEventListener());
 
             // Hide folder title in the hotseat
@@ -2112,7 +2112,7 @@ public class Workspace extends PagedView
                 @Override
                 protected void enableAccessibleDrag(boolean enable) {
                     super.enableAccessibleDrag(enable);
-                    setEnableForLayout(mLauncher.getHotseat().getLayout(),enable);
+                    setEnableForLayout(mLauncher.getHotseat().getCellLayout(),enable);
 
                     // We need to allow our individual children to become click handlers in this
                     // case, so temporarily unset the click handlers.
@@ -2832,7 +2832,7 @@ public class Workspace extends PagedView
        mTempXY[0] = (int) xy[0];
        mTempXY[1] = (int) xy[1];
        mLauncher.getDragLayer().getDescendantCoordRelativeToSelf(this, mTempXY, true);
-       mLauncher.getDragLayer().mapCoordInSelfToDescendant(hotseat.getLayout(), mTempXY);
+       mLauncher.getDragLayer().mapCoordInSelfToDescendant(hotseat.getCellLayout(), mTempXY);
 
        xy[0] = mTempXY[0];
        xy[1] = mTempXY[1];
@@ -2957,7 +2957,7 @@ public class Workspace extends PagedView
         // Test to see if we are over the hotseat first
         if (mLauncher.getHotseat() != null && !isDragWidget(d)) {
             if (isPointInSelfOverHotseat(d.x, d.y)) {
-                layout = mLauncher.getHotseat().getLayout();
+                layout = mLauncher.getHotseat().getCellLayout();
             }
         }
 
@@ -3675,7 +3675,7 @@ public class Workspace extends PagedView
             layouts.add(((CellLayout) getChildAt(screen)));
         }
         if (mLauncher.getHotseat() != null) {
-            layouts.add(mLauncher.getHotseat().getLayout());
+            layouts.add(mLauncher.getHotseat().getCellLayout());
         }
         return layouts;
     }
@@ -3692,7 +3692,7 @@ public class Workspace extends PagedView
             childrenLayouts.add(((CellLayout) getChildAt(screen)).getShortcutsAndWidgets());
         }
         if (mLauncher.getHotseat() != null) {
-            childrenLayouts.add(mLauncher.getHotseat().getLayout().getShortcutsAndWidgets());
+            childrenLayouts.add(mLauncher.getHotseat().getCellLayout().getShortcutsAndWidgets());
         }
         return childrenLayouts;
     }

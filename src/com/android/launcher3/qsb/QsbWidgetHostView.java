@@ -62,7 +62,7 @@ public class QsbWidgetHostView extends AppWidgetHostView {
                 @Override
                 public void run() {
                     // Update the widget with 0 Layout id, to reset the view to error view.
-                    updateAppWidget(new RemoteViews(getAppWidgetInfo().provider.getPackageName(), 0));
+                    // updateAppWidget(new RemoteViews(getAppWidgetInfo().provider.getPackageName(), 0));
                 }
             });
         }

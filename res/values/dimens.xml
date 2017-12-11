@@ -26,6 +26,9 @@
     <dimen name="dynamic_grid_overview_max_icon_zone_height">120dp</dimen>
     <dimen name="dynamic_grid_overview_bar_item_width">80dp</dimen>
     <dimen name="dynamic_grid_overview_bar_spacer_width">25dp</dimen>
+	<dimen name="dynamic_grid_hotseat_height">88dp</dimen>
+    <dimen name="dynamic_grid_hotseat_top_padding">4dp</dimen>
+    <dimen name="dynamic_grid_hotseat_gutter_width">24dp</dimen>
     <dimen name="dynamic_grid_workspace_top_padding">8dp</dimen>
     <dimen name="dynamic_grid_workspace_page_spacing">8dp</dimen>
     <!-- Minimum space between workspace and hotseat in spring loaded mode -->
@@ -237,4 +240,8 @@
 <!-- Other -->
     <!-- Approximates the system status bar height. Not guaranteed to be always be correct. -->
     <dimen name="status_bar_height">24dp</dimen>
+	
+	<!-- QSB Customizations -->
+    <dimen name="qsb_hotseat_height">80dp</dimen>
+	<dimen name="qsb_shadow_margin">6.0dip</dimen>
 </resources>
