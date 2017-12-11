@@ -2786,7 +2786,7 @@ public class Launcher extends BaseActivity
     boolean isHotseatLayout(View layout) {
         // TODO: Remove this method
         return mHotseat != null && layout != null &&
-                (layout instanceof CellLayout) && (layout == mHotseat.getLayout());
+                (layout instanceof CellLayout) && (layout == mHotseat.getCellLayout());
     }
 
     /**
@@ -2795,7 +2795,7 @@ public class Launcher extends BaseActivity
     public CellLayout getCellLayout(long container, long screenId) {
         if (container == LauncherSettings.Favorites.CONTAINER_HOTSEAT) {
             if (mHotseat != null) {
-                return mHotseat.getLayout();
+                return mHotseat.getCellLayout();
             } else {
                 return null;
             }
@@ -2861,6 +2861,9 @@ public class Launcher extends BaseActivity
             getWindow().getDecorView()
                     .sendAccessibilityEvent(AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED);
         }
+		
+		updateHotseatQsbVisibility();
+
         return changed;
     }
 
@@ -3928,7 +3931,7 @@ public class Launcher extends BaseActivity
             }
 
             writer.println(prefix + "  Hotseat");
-            ViewGroup layout = mHotseat.getLayout().getShortcutsAndWidgets();
+            ViewGroup layout = mHotseat.getCellLayout().getShortcutsAndWidgets();
             for (int j = 0; j < layout.getChildCount(); j++) {
                 Object tag = layout.getChildAt(j).getTag();
                 if (tag != null) {
@@ -4038,6 +4041,13 @@ public class Launcher extends BaseActivity
                 // Recreate the activity so that it initializes the rotation preference again.
                 recreate();
             }
+        }
+    }
+	
+	private void updateHotseatQsbVisibility() {
+        View qsbContainerView = mHotseat.getQsbContainer();
+        if (qsbContainerView != null) {
+            qsbContainerView.setVisibility(View.VISIBLE);
         }
     }
 }

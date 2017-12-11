@@ -32,6 +32,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewDebug;
 import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.android.launcher3.config.FeatureFlags;
@@ -56,6 +57,8 @@ public class Hotseat extends FrameLayout
     @ViewDebug.ExportedProperty(category = "launcher")
     private ColorDrawable mBackground;
     private ValueAnimator mBackgroundColorAnimator;
+    private View mQsbContainer;
+    private LinearLayout mContentContainer;
 
     public Hotseat(Context context) {
         this(context, null);
@@ -77,8 +80,12 @@ public class Hotseat extends FrameLayout
         }
     }
 
-    public CellLayout getLayout() {
+    public CellLayout getCellLayout() {
         return mContent;
+    }
+
+    public LinearLayout getLayoutContainer() {
+        return mContentContainer;
     }
 
     /**
@@ -120,6 +127,8 @@ public class Hotseat extends FrameLayout
         } else {
             mContent.setGridSize(grid.inv.numHotseatIcons, 1);
         }
+        mQsbContainer = findViewById(R.id.qsb_container_bottom);
+        mContentContainer = (LinearLayout) findViewById(R.id.layout_container);
 
         resetLayout();
     }
@@ -221,5 +230,9 @@ public class Hotseat extends FrameLayout
 
     public int getBackgroundDrawableColor() {
         return mBackgroundColor;
+    }
+
+    public View getQsbContainer() {
+        return mQsbContainer;
     }
 }
