@@ -203,6 +203,7 @@ public class ImportDataTask {
                             continue;
                         }
                         // Reset the screen to 0-index value
+						boolean createEmptyRowOnFirstScreen;
                         screen = newScreenId;
                         if (createEmptyRowOnFirstScreen && screen == Workspace.FIRST_SCREEN_ID) {
                             // Shift items by 1.
