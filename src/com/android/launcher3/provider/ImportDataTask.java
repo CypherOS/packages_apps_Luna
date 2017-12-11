@@ -77,6 +77,8 @@ public class ImportDataTask {
     private int mMaxGridSizeX;
     private int mMaxGridSizeY;
 
+    private boolean createEmptyRowOnFirstScreen;
+
     private ImportDataTask(Context context, String sourceAuthority) {
         mContext = context;
         mOtherScreensUri = Uri.parse("content://" +
@@ -132,7 +134,6 @@ public class ImportDataTask {
         String profileId = Long.toString(UserManagerCompat.getInstance(mContext)
                 .getSerialNumberForUser(Process.myUserHandle()));
 
-        boolean createEmptyRowOnFirstScreen;
         if (FeatureFlags.QSB_ON_FIRST_SCREEN) {
             try (Cursor c = mContext.getContentResolver().query(mOtherFavoritesUri, null,
                     // get items on the first row of the first screen
