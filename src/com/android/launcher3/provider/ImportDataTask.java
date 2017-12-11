@@ -204,9 +204,11 @@ public class ImportDataTask {
                         }
                         // Reset the screen to 0-index value
                         screen = newScreenId;
-                        if (createEmptyRowOnFirstScreen && screen == Workspace.FIRST_SCREEN_ID) {
-                            // Shift items by 1.
-                            cellY++;
+                        if (FeatureFlags.QSB_IN_HOTSEAT) {
+							if (createEmptyRowOnFirstScreen && screen == Workspace.FIRST_SCREEN_ID) {
+								// Shift items by 1.
+								cellY++;
+							}
                         }
 
                         mMaxGridSizeX = Math.max(mMaxGridSizeX, cellX + spanX);
