@@ -51,8 +51,7 @@ public class DrawableFactory {
     public static DrawableFactory get(Context context) {
         synchronized (LOCK) {
             if (sInstance == null) {
-                sInstance = Utilities.getOverrideObject(DrawableFactory.class,
-                        context.getApplicationContext(), R.string.drawable_factory_class);
+                sInstance = new com.android.launcher3.dynamicui.DynamicDrawableFactory(context);
             }
             return sInstance;
         }
