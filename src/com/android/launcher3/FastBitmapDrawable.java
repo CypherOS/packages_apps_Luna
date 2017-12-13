@@ -39,6 +39,10 @@ public class FastBitmapDrawable extends Drawable {
     private static final float PRESSED_BRIGHTNESS = 100f / 255f;
     private static final float DISABLED_DESATURATION = 1f;
     private static final float DISABLED_BRIGHTNESS = 0.5f;
+	
+	protected FastBitmapDrawable() {
+		// Empty constructor
+	}
 
     public static final TimeInterpolator CLICK_FEEDBACK_INTERPOLATOR = new TimeInterpolator() {
 
@@ -68,7 +72,7 @@ public class FastBitmapDrawable extends Drawable {
     private static final ColorMatrix sTempFilterMatrix = new ColorMatrix();
 
     protected final Paint mPaint = new Paint(Paint.FILTER_BITMAP_FLAG | Paint.ANTI_ALIAS_FLAG);
-    private final Bitmap mBitmap;
+    private Bitmap mBitmap;
 
     private boolean mIsPressed;
     private boolean mIsDisabled;
@@ -164,6 +168,13 @@ public class FastBitmapDrawable extends Drawable {
 
     public Bitmap getBitmap() {
         return mBitmap;
+    }
+	
+	public void setBitmap(Bitmap bitmap) {
+        if (mBitmap != null)
+            mBitmap.recycle();
+        mBitmap = bitmap;
+        invalidateSelf();
     }
 
     @Override
