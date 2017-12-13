@@ -17,6 +17,7 @@
 package com.android.launcher3;
 
 import android.animation.ObjectAnimator;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.content.res.TypedArray;
@@ -42,6 +43,7 @@ import android.widget.TextView;
 
 import com.android.launcher3.IconCache.IconLoadRequest;
 import com.android.launcher3.IconCache.ItemInfoUpdateReceiver;
+import com.android.launcher3.aoscp.ClockIconDrawable;
 import com.android.launcher3.badge.BadgeInfo;
 import com.android.launcher3.badge.BadgeRenderer;
 import com.android.launcher3.folder.FolderIcon;
@@ -184,15 +186,26 @@ public class BubbleTextView extends TextView implements ItemInfoUpdateReceiver {
     public void applyFromShortcutInfo(ShortcutInfo info, boolean promiseStateChanged) {
         applyIconAndLabel(info.iconBitmap, info);
         setTag(info);
+		if (info.itemType == LauncherSettings.Favorites.ITEM_TYPE_APPLICATION)
+            applyClockIcon(info.getTargetComponent());
         if (promiseStateChanged || (info.hasPromiseIconUi())) {
             applyPromiseState(promiseStateChanged);
         }
 
         applyBadgeState(info, false /* animate */);
     }
+	
+	private void applyClockIcon(ComponentName componentName) {
+        if (componentName != null &&
+                "com.android.deskclock/com.android.deskclock.DeskClock"
+                .equals(componentName.flattenToString())) {
+            setIcon(new ClockIconDrawable.Wrapper());
+        }
+    }
 
     public void applyFromApplicationInfo(AppInfo info) {
         applyIconAndLabel(info.iconBitmap, info);
+		applyClockIcon(info.getTargetComponent());
 
         // We don't need to check the info since it's not a ShortcutInfo
         super.setTag(info);
