@@ -26,10 +26,13 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
+import android.preference.PreferenceScreen;
+import android.preference.SwitchPreference;
 import android.provider.Settings;
 
 import com.android.launcher3.graphics.IconShapeOverride;
@@ -67,6 +70,7 @@ public class SettingsActivity extends Activity {
 
         private SystemDisplayRotationLockObserver mRotationLockObserver;
         private IconBadgingObserver mIconBadgingObserver;
+        private SwitchPreference mShowGoogleApp;
 
         @Override
         public void onCreate(Bundle savedInstanceState) {
@@ -75,6 +79,12 @@ public class SettingsActivity extends Activity {
             addPreferencesFromResource(R.xml.launcher_preferences);
 
             ContentResolver resolver = getActivity().getContentResolver();
+			
+			boolean state = Utilities.getPrefs(getActivity()).getBoolean(
+                    Utilities.ACTION_LEFT_PAGE_CHANGED, true);
+
+            mShowGoogleApp = (SwitchPreference) findPreference(Utilities.KEY_SHOW_GOOGLE_APP);
+            mShowGoogleApp.setChecked(state);
 
             // Setup allow rotation preference
             Preference rotationPref = findPreference(Utilities.ALLOW_ROTATION_PREFERENCE_KEY);
@@ -127,7 +137,21 @@ public class SettingsActivity extends Activity {
                 mIconBadgingObserver.unregister();
                 mIconBadgingObserver = null;
             }
-            super.onDestroy();
+			super.onDestroy();
+        }
+		
+		@Override
+        public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen, Preference pref) {
+            if (pref == mShowGoogleApp) {
+                boolean state = Utilities.getPrefs(getActivity()).getBoolean(
+                        Utilities.ACTION_LEFT_PAGE_CHANGED, true);
+                Utilities.getPrefs(getActivity()).edit().putBoolean(
+                        Utilities.ACTION_LEFT_PAGE_CHANGED, !state).commit();
+                Intent intent = new Intent(Utilities.ACTION_LEFT_PAGE_CHANGED);
+                getActivity().sendBroadcast(intent);
+                return true;
+            }
+            return false;
         }
     }
 
