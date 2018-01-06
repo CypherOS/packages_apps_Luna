@@ -56,6 +56,7 @@ import android.os.StrictMode;
 import android.os.SystemClock;
 import android.os.Trace;
 import android.os.UserHandle;
+import android.provider.Settings;
 import android.support.annotation.Nullable;
 import android.text.Selection;
 import android.text.SpannableStringBuilder;
@@ -523,8 +524,12 @@ public class Launcher extends BaseActivity
     }
 
     protected void overrideTheme(boolean isDark, boolean supportsDarkText) {
-        if (isDark) {
+		int userThemeSetting = Settings.Secure.getIntForUser(mContext.getContentResolver(),
+                Settings.Secure.DEVICE_THEME, 0, mCurrentUserId);
+        if (isDark && userThemeSetting == 0) { // Respect ColorOM settings, only apply if set to automatic
             setTheme(R.style.LauncherThemeDark);
+		} else if (userThemeSetting == 2) { // Apply dark theme if set to "Dark: Setting 2"
+			setTheme(R.style.LauncherThemeDark);
         } else if (supportsDarkText) {
             setTheme(R.style.LauncherThemeDarkText);
         }
