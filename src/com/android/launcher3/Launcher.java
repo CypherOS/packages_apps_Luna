@@ -33,6 +33,8 @@ import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
 import android.content.ComponentCallbacks2;
 import android.content.ComponentName;
+import android.content.ContentObserver;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.DialogInterface;
@@ -56,6 +58,7 @@ import android.os.StrictMode;
 import android.os.SystemClock;
 import android.os.Trace;
 import android.os.UserHandle;
+import android.provider.Settings;
 import android.support.annotation.Nullable;
 import android.text.Selection;
 import android.text.SpannableStringBuilder;
@@ -396,6 +399,8 @@ public class Launcher extends BaseActivity
         WallpaperColorInfo wallpaperColorInfo = WallpaperColorInfo.getInstance(this);
         wallpaperColorInfo.setOnThemeChangeListener(this);
         overrideTheme(wallpaperColorInfo.isDark(), wallpaperColorInfo.supportsDarkText());
+		mThemeSettingsObserver.observe();
+        mThemeSettingsObserver.update();
 
         super.onCreate(savedInstanceState);
 
@@ -523,8 +528,12 @@ public class Launcher extends BaseActivity
     }
 
     protected void overrideTheme(boolean isDark, boolean supportsDarkText) {
-        if (isDark) {
+		int userThemeSetting = Settings.Secure.getIntForUser(mContext.getContentResolver(),
+                Settings.Secure.DEVICE_THEME, 0, mCurrentUserId);
+        if (isDark && userThemeSetting == 0) { // Respect ColorOM settings, only apply if set to automatic
             setTheme(R.style.LauncherThemeDark);
+		} else if (userThemeSetting == 2) { // Apply dark theme if set to "Dark: Setting 2"
+			setTheme(R.style.LauncherThemeDark);
         } else if (supportsDarkText) {
             setTheme(R.style.LauncherThemeDarkText);
         }
@@ -1673,6 +1682,31 @@ public class Launcher extends BaseActivity
                 });
             }
             clearTypedText();
+        }
+    }
+	
+	private ThemeSettingsObserver mThemeSettingsObserver = new ThemeSettingsObserver(mHandler);
+    private class ThemeSettingsObserver extends ContentObserver {
+        ThemeSettingsObserver(Handler handler) {
+            super(handler);
+        }
+
+        void observe() {
+            ContentResolver resolver = mContext.getContentResolver();
+            resolver.registerContentObserver(Settings.Secure.getUriFor(
+                    Settings.Secure.DEVICE_THEME),
+                    false, this, UserHandle.USER_ALL);
+        }
+
+        @Override
+        public void onChange(boolean selfChange, Uri uri) {
+            update();
+        }
+
+        public void update() {
+			WallpaperColorInfo wallpaperColorInfo = WallpaperColorInfo.getInstance(this);
+			wallpaperColorInfo.setOnThemeChangeListener(this); // Probably don't need this
+            overrideTheme(wallpaperColorInfo.isDark(), wallpaperColorInfo.supportsDarkText());
         }
     }
 
