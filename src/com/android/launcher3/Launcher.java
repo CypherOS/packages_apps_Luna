@@ -224,7 +224,26 @@ public class Launcher extends BaseActivity
     private static final int NEW_APPS_ANIMATION_INACTIVE_TIMEOUT_SECONDS = 5;
     @Thunk static final int NEW_APPS_ANIMATION_DELAY = 500;
 
+    private boolean mLauncherTabEnabled;
+
     private final ExtractedColors mExtractedColors = new ExtractedColors();
+
+    private final BroadcastReceiver mNowPageReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (Utilities.ACTION_LEFT_PAGE_CHANGED.equals(intent.getAction())) {
+                if (mLauncherTab != null) {
+                    mLauncherTabEnabled = isLauncherTabEnabled();
+                    mLauncherTab.updateLauncherTab(mLauncherTabEnabled);
+                    if (!mLauncherTabEnabled) {
+                        mLauncherTab.getClient().onDestroy();
+                    } else {
+                        mLauncherTab.getClient().onAttachedToWindow();
+                    }
+                }
+            }
+        }
+    };
 
     @Thunk Workspace mWorkspace;
     private View mLauncherView;
@@ -456,7 +475,12 @@ public class Launcher extends BaseActivity
         mDefaultKeySsb = new SpannableStringBuilder();
         Selection.setSelection(mDefaultKeySsb, 0);
 
-        mLauncherTab = new LauncherTab(this);
+        IntentFilter nowPageFilter = new IntentFilter(Utilities.ACTION_LEFT_PAGE_CHANGED);
+        registerReceiver(mNowPageReceiver, nowPageFilter);
+
+        mLauncherTabEnabled = isLauncherTabEnabled();
+
+        mLauncherTab = new LauncherTab(this, mLauncherTabEnabled);
 
         mRotationEnabled = getResources().getBoolean(R.bool.allow_rotation);
         // In case we are on a device with locked rotation, we should look at preferences to check
@@ -1054,7 +1078,9 @@ public class Launcher extends BaseActivity
         if (shouldShowDiscoveryBounce()) {
             mAllAppsController.showDiscoveryBounce();
         }
-        mLauncherTab.getClient().onResume();
+        if (mLauncherTabEnabled) {
+            mLauncherTab.getClient().onResume();
+        }
 
         if (mLauncherCallbacks != null) {
             mLauncherCallbacks.onResume();
@@ -1078,7 +1104,9 @@ public class Launcher extends BaseActivity
             mWorkspace.getCustomContentCallbacks().onHide();
         }
 
-        mLauncherTab.getClient().onPause();
+        if (mLauncherTabEnabled) {
+            mLauncherTab.getClient().onPause();
+        }
 
         if (mLauncherCallbacks != null) {
             mLauncherCallbacks.onPause();
@@ -1588,8 +1616,10 @@ public class Launcher extends BaseActivity
         super.onAttachedToWindow();
 
         FirstFrameAnimatorHelper.initializeDrawListener(getWindow().getDecorView());
-        mLauncherTab.getClient().onAttachedToWindow();
-
+        if (mLauncherTabEnabled) {
+            mLauncherTab.getClient().onAttachedToWindow();
+        }
+		
         if (mLauncherCallbacks != null) {
             mLauncherCallbacks.onAttachedToWindow();
         }
@@ -1599,7 +1629,9 @@ public class Launcher extends BaseActivity
     public void onDetachedFromWindow() {
         super.onDetachedFromWindow();
 
-        mLauncherTab.getClient().onDetachedFromWindow();
+        if (mLauncherTabEnabled) {
+            mLauncherTab.getClient().onDetachedFromWindow();
+        }
 
         if (mLauncherCallbacks != null) {
             mLauncherCallbacks.onDetachedFromWindow();
@@ -1642,6 +1674,10 @@ public class Launcher extends BaseActivity
             }
             clearTypedText();
         }
+    }
+
+    private boolean isLauncherTabEnabled() {
+        return Utilities.getPrefs(this).getBoolean(Utilities.ACTION_LEFT_PAGE_CHANGED, true);
     }
 
     public DragLayer getDragLayer() {
@@ -1761,7 +1797,9 @@ public class Launcher extends BaseActivity
                 mWidgetsView.scrollToTop();
             }
 
-            mLauncherTab.getClient().hideOverlay(true);
+            if (mLauncherTabEnabled) {
+                mLauncherTab.getClient().hideOverlay(true);
+            }
 
             if (mLauncherCallbacks != null) {
                 mLauncherCallbacks.onHomeIntent();
@@ -1871,9 +1909,11 @@ public class Launcher extends BaseActivity
         WallpaperColorInfo.getInstance(this).setOnThemeChangeListener(null);
 
         LauncherAnimUtils.onDestroyActivity();
-        mLauncherTab.getClient().onDestroy();
         clearPendingBinds();
-
+        unregisterReceiver(mNowPageReceiver);
+        if (mLauncherTabEnabled) {
+            mLauncherTab.getClient().onDestroy();
+        }
         if (mLauncherCallbacks != null) {
             mLauncherCallbacks.onDestroy();
         }
