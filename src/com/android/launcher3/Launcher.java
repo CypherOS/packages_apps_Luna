@@ -542,6 +542,8 @@ public class Launcher extends BaseActivity
             setTheme(R.style.LauncherThemeDark);
         } else if (userThemeSetting == 2) { // Apply dark theme if set to "Dark: Setting 2"
             setTheme(R.style.LauncherThemeDark);
+        } else if (userThemeSetting == 3) { // Apply black theme if set to "Black: Setting 3"
+            setTheme(R.style.LauncherThemeBlack);
         } else if (supportsDarkText) {
             setTheme(R.style.LauncherThemeDarkText);
         }
