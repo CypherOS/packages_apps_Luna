@@ -29,7 +29,10 @@ LOCAL_STATIC_JAVA_LIBRARIES := \
     android-support-v7-palette \
     android-support-dynamic-animation
 	
-LOCAL_AIDL_INCLUDES := $(LOCAL_PATH)/src
+LOCAL_AIDL_INCLUDES := \
+    $(LOCAL_PATH)/src \
+	$(FRAMEWORKS_BASE_JAVA_SRC_DIRS)
+	
 LOCAL_SRC_FILES := \
     $(call all-java-files-under, src) \
 	$(call all-Iaidl-files-under, src) \
@@ -76,7 +79,10 @@ LOCAL_STATIC_JAVA_LIBRARIES := \
     android-support-v7-palette \
     android-support-dynamic-animation
 
-LOCAL_AIDL_INCLUDES := $(LOCAL_PATH)/src
+LOCAL_AIDL_INCLUDES := \
+    $(LOCAL_PATH)/src \
+	$(FRAMEWORKS_BASE_JAVA_SRC_DIRS)
+	
 LOCAL_SRC_FILES := \
     $(call all-java-files-under, src) \
 	$(call all-Iaidl-files-under, src) \
