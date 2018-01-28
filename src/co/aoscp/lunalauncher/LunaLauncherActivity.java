@@ -1,6 +1,8 @@
 package co.aoscp.lunalauncher;
 
+import android.content.ContentResolver;
 import android.content.res.Configuration;
+import android.provider.Settings;
 
 import com.android.launcher3.AppInfo;
 import com.android.launcher3.Launcher;
@@ -19,11 +21,15 @@ public class LunaLauncherActivity extends Launcher {
     }
 
     public void overrideTheme(boolean isDark, boolean supportsDarkText) {
+		ContentResolver resolver = this.getContentResolver();
         int flags = Utilities.getDevicePrefs(this).getInt("pref_persistent_flags", 0);
         int orientFlag = getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE ? 16 : 8;
         boolean useGoogleInOrientation = (orientFlag & flags) != 0;
-        if (useGoogleInOrientation && isDark) {
+        int userThemeSetting = Settings.Secure.getIntForUser(resolver, Settings.Secure.DEVICE_THEME, 0, mLauncher.mCurrentUserId);
+        if (useGoogleInOrientation && isDark && userThemeSetting == 0) { // Respect ColorOM settings, only apply if set to automatic
             setTheme(R.style.GoogleSearchLauncherThemeDark);
+		} else if (userThemeSetting == 2) { // Apply dark theme if set to "Dark: Setting 2"
+		    setTheme(R.style.GoogleSearchLauncherThemeDark);
         } else if (useGoogleInOrientation && supportsDarkText && Utilities.ATLEAST_NOUGAT) {
             setTheme(R.style.GoogleSearchLauncherThemeDarkText);
         } else if (useGoogleInOrientation) {
