@@ -29,8 +29,10 @@ public class LunaLauncherActivity extends Launcher {
         int userThemeSetting = Settings.Secure.getIntForUser(resolver, Settings.Secure.DEVICE_THEME, 0, mCurrentUserId);
         if (useGoogleInOrientation && isDark && userThemeSetting == 0) { // Respect ColorOM settings, only apply if set to automatic
             setTheme(R.style.GoogleSearchLauncherThemeDark);
-		 } else if (useGoogleInOrientation && userThemeSetting == 2) { // Apply dark theme if set to "Dark: Setting 2"
+		} else if (useGoogleInOrientation && userThemeSetting == 2) { // Apply dark theme if set to "Dark: Setting 2"
             setTheme(R.style.GoogleSearchLauncherThemeDark);
+		} else if (useGoogleInOrientation && userThemeSetting == 3) { // Apply black theme if set to "Black: Setting 3"
+            setTheme(R.style.GoogleSearchLauncherThemeBlack);
         } else if (useGoogleInOrientation && supportsDarkText && Utilities.ATLEAST_NOUGAT) {
             setTheme(R.style.GoogleSearchLauncherThemeDarkText);
         } else if (useGoogleInOrientation) {
