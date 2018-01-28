@@ -1,5 +1,6 @@
 package co.aoscp.lunalauncher;
 
+import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -42,6 +43,10 @@ public class LunaLauncher {
     private boolean mStarted;
     private final Bundle mUiInformation = new Bundle();
     private ItemInfoUpdateReceiver mItemInfoUpdateReceiver;
+	
+	private Context mContext;
+	
+	protected int mCurrentUserId = 0;
 
     public LunaLauncher(LunaLauncherActivity activity) {
         mLauncher = activity;
@@ -120,6 +125,10 @@ public class LunaLauncher {
             WallpaperColorInfo instance = WallpaperColorInfo.getInstance(mLauncher);
             instance.addOnChangeListener(this);
             onExtractedColorsChanged(instance);
+			mLauncher.mThemeSettingsObserver.observe();
+			mLauncher.mThemeSettingsObserver.update();
+			
+			mCurrentUserId = ActivityManager.getCurrentUser();
 
             getUpdateReceiver().onCreate();
         }

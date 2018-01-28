@@ -1,6 +1,10 @@
 package co.aoscp.lunalauncher;
 
+import android.content.ContentResolver;
 import android.content.res.Configuration;
+import android.database.ContentObserver;
+import android.net.Uri;
+import android.provider.Settings;
 
 import com.android.launcher3.AppInfo;
 import com.android.launcher3.Launcher;
@@ -19,11 +23,15 @@ public class LunaLauncherActivity extends Launcher {
     }
 
     public void overrideTheme(boolean isDark, boolean supportsDarkText) {
+		ContentResolver resolver = this.getContentResolver();
         int flags = Utilities.getDevicePrefs(this).getInt("pref_persistent_flags", 0);
         int orientFlag = getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE ? 16 : 8;
         boolean useGoogleInOrientation = (orientFlag & flags) != 0;
-        if (useGoogleInOrientation && isDark) {
+        int userThemeSetting = Settings.Secure.getIntForUser(resolver, Settings.Secure.DEVICE_THEME, 0, mLauncher.mCurrentUserId);
+        if (useGoogleInOrientation && isDark && userThemeSetting == 0) { // Respect ColorOM settings, only apply if set to automatic
             setTheme(R.style.GoogleSearchLauncherThemeDark);
+		} else if (userThemeSetting == 2) { // Apply dark theme if set to "Dark: Setting 2"
+		    setTheme(R.style.GoogleSearchLauncherThemeDark);
         } else if (useGoogleInOrientation && supportsDarkText && Utilities.ATLEAST_NOUGAT) {
             setTheme(R.style.GoogleSearchLauncherThemeDarkText);
         } else if (useGoogleInOrientation) {
@@ -39,5 +47,29 @@ public class LunaLauncherActivity extends Launcher {
 
     public GoogleNow getGoogleNow() {
         return mLauncher.mGoogleNow;
+    }
+	
+	private ThemeSettingsObserver mThemeSettingsObserver = new ThemeSettingsObserver(mHandler);
+    private class ThemeSettingsObserver extends ContentObserver {
+        ThemeSettingsObserver(Handler handler) {
+            super(handler);
+        }
+
+        void observe() {
+            ContentResolver resolver = LunaLauncherActivity.this.getContentResolver();
+            resolver.registerContentObserver(Settings.Secure.getUriFor(
+                    Settings.Secure.DEVICE_THEME),
+                    false, this, UserHandle.USER_ALL);
+        }
+
+        @Override
+        public void onChange(boolean selfChange, Uri uri) {
+            update();
+        }
+
+        public void update() {
+            WallpaperColorInfo wallpaperColorInfo = WallpaperColorInfo.getInstance(mContext);
+            overrideTheme(wallpaperColorInfo.isDark(), wallpaperColorInfo.supportsDarkText());
+        }
     }
 }
