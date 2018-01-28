@@ -277,7 +277,7 @@ public class Launcher extends BaseActivity
     private ModelWriter mModelWriter;
     private IconCache mIconCache;
     private LauncherAccessibilityDelegate mAccessibilityDelegate;
-    private final Handler mHandler = new Handler();
+    public Handler mHandler = new Handler();
     private boolean mHasFocus = false;
 
     private ObjectAnimator mScrimAnimator;
