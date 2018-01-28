@@ -1,10 +1,15 @@
 package co.aoscp.lunalauncher;
 
+import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.ContentObserver;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.RemoteException;
+import android.os.UserHandle;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.graphics.ColorUtils;
 import android.view.Menu;
@@ -42,6 +47,10 @@ public class LunaLauncher {
     private boolean mStarted;
     private final Bundle mUiInformation = new Bundle();
     private ItemInfoUpdateReceiver mItemInfoUpdateReceiver;
+	
+	private Context mContext;
+	
+	protected int mCurrentUserId = 0;
 
     public LunaLauncher(LunaLauncherActivity activity) {
         mLauncher = activity;
@@ -120,6 +129,10 @@ public class LunaLauncher {
             WallpaperColorInfo instance = WallpaperColorInfo.getInstance(mLauncher);
             instance.addOnChangeListener(this);
             onExtractedColorsChanged(instance);
+			mThemeSettingsObserver.observe();
+			mThemeSettingsObserver.update();
+			
+			mCurrentUserId = ActivityManager.getCurrentUser();
 
             getUpdateReceiver().onCreate();
         }
@@ -269,6 +282,30 @@ public class LunaLauncher {
             mUiInformation.putBoolean("is_background_dark", Themes.getAttrBoolean(mLauncher, R.attr.isMainColorDark));
 
             mGoogleNow.redraw(mUiInformation);
+        }
+    }
+	
+	private ThemeSettingsObserver mThemeSettingsObserver = new ThemeSettingsObserver(mHandler);
+    private class ThemeSettingsObserver extends ContentObserver {
+        ThemeSettingsObserver(Handler handler) {
+            super(handler);
+        }
+
+        void observe() {
+            ContentResolver resolver = LunaLauncher.this.getContentResolver();
+            resolver.registerContentObserver(Settings.Secure.getUriFor(
+                    Settings.Secure.DEVICE_THEME),
+                    false, this, UserHandle.USER_ALL);
+        }
+
+        @Override
+        public void onChange(boolean selfChange, Uri uri) {
+            update();
+        }
+
+        public void update() {
+            WallpaperColorInfo wallpaperColorInfo = WallpaperColorInfo.getInstance(mContext);
+            mLauncher.overrideTheme(wallpaperColorInfo.isDark(), wallpaperColorInfo.supportsDarkText());
         }
     }
 
