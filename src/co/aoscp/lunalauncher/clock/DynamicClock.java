@@ -30,7 +30,7 @@ import java.util.WeakHashMap;
 
 public class DynamicClock extends BroadcastReceiver
 {
-    public static final ComponentName DESK_CLOCK = new ComponentName("com.google.android.deskclock", "com.android.deskclock.DeskClock");
+    public static final ComponentName DESK_CLOCK = new ComponentName("com.android.deskclock", "com.android.deskclock.DeskClock");
     private final Set<AutoUpdateClock> mUpdaters;
     private ClockLayers mLayers;
     private final Context mContext;
@@ -41,7 +41,7 @@ public class DynamicClock extends BroadcastReceiver
         mContext = context;
         final Handler handler = new Handler(LauncherModel.getWorkerLooper());
         mContext.registerReceiver(this,
-                ActionIntentFilter.newInstance("com.google.android.deskclock",
+                ActionIntentFilter.newInstance("com.android.deskclock",
                     Intent.ACTION_PACKAGE_ADDED,
                     Intent.ACTION_PACKAGE_CHANGED),
                 null, handler);
@@ -74,7 +74,7 @@ public class DynamicClock extends BroadcastReceiver
         ClockLayers layers = new ClockLayers();
         try {
             PackageManager packageManager = context.getPackageManager();
-            ApplicationInfo applicationInfo = packageManager.getApplicationInfo("com.google.android.deskclock", PackageManager.GET_META_DATA | PackageManager.GET_UNINSTALLED_PACKAGES);
+            ApplicationInfo applicationInfo = packageManager.getApplicationInfo("com.android.deskclock", PackageManager.GET_META_DATA | PackageManager.GET_UNINSTALLED_PACKAGES);
             Bundle metaData = applicationInfo.metaData;
             if (metaData != null) {
                 int levelPerTickIcon = metaData.getInt("co.aoscp.lunalauncher.LEVEL_PER_TICK_ICON_ROUND", 0);
