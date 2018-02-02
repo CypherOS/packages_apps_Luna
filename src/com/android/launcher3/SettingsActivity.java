@@ -98,7 +98,9 @@ public class SettingsActivity extends Activity {
 			    mSmartSpace = (Preference) findPreference(SMARTSPACE_PREF);
                 mSmartSpace.setOnPreferenceClickListener(this);
             } else {
-                getPreferenceScreen().removePreference(mSmartSpace);
+				if (mSmartSpace != null) {
+					getPreferenceScreen().removePreference(mSmartSpace);
+				}
             }
 			
             // Setup allow rotation preference
