@@ -33,7 +33,7 @@ import com.android.launcher3.dynamicui.WallpaperColorInfo;
 import com.android.launcher3.popup.PopupContainerWithArrow;
 import com.android.launcher3.popup.SystemShortcut;
 import com.android.launcher3.util.Themes;
-import com.android.launcher3.aoscp.LunaIconProvider;
+import com.android.launcher3.LunaIconProvider;
 import co.aoscp.lunalauncher.graphics.IcuDateTextView;
 
 import java.util.ArrayList;

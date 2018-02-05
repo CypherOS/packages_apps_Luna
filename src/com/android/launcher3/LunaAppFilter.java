@@ -1,11 +1,7 @@
-package com.android.launcher3.aoscp;
+package com.android.launcher3;
 
 import android.content.ComponentName;
 import android.content.Context;
-
-import com.android.launcher3.AppFilter;
-import com.android.launcher3.SettingsActivity;
-import com.android.launcher3.Utilities;
 
 import co.aoscp.lunalauncher.utils.IconPackUtils;
 

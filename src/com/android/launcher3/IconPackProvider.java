@@ -1,4 +1,4 @@
-package com.android.launcher3.aoscp;
+package com.android.launcher3;
 
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -15,10 +15,6 @@ import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.UserHandle;
 
-import com.android.launcher3.LauncherAppState;
-import com.android.launcher3.LauncherModel;
-import com.android.launcher3.SettingsActivity;
-import com.android.launcher3.Utilities;
 import com.android.launcher3.compat.LauncherAppsCompat;
 import com.android.launcher3.compat.UserManagerCompat;
 import com.android.launcher3.shortcuts.DeepShortcutManager;

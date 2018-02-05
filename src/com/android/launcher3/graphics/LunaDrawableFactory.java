@@ -1,4 +1,4 @@
-package com.android.launcher3.aoscp;
+package com.android.launcher3.graphics;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -9,7 +9,6 @@ import com.android.launcher3.ItemInfo;
 import com.android.launcher3.LauncherSettings;
 import com.android.launcher3.SettingsActivity;
 import com.android.launcher3.Utilities;
-import com.android.launcher3.graphics.DrawableFactory;
 
 import co.aoscp.lunalauncher.clock.DynamicClock;
 
