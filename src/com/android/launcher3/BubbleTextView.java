@@ -42,11 +42,11 @@ import android.widget.TextView;
 
 import com.android.launcher3.IconCache.IconLoadRequest;
 import com.android.launcher3.IconCache.ItemInfoUpdateReceiver;
+import com.android.launcher3.aoscp.LunaDrawableFactory;
 import com.android.launcher3.badge.BadgeInfo;
 import com.android.launcher3.badge.BadgeRenderer;
 import com.android.launcher3.folder.FolderIcon;
 import com.android.launcher3.folder.FolderIconPreviewVerifier;
-import com.android.launcher3.graphics.DrawableFactory;
 import com.android.launcher3.graphics.HolographicOutlineHelper;
 import com.android.launcher3.graphics.IconPalette;
 import com.android.launcher3.graphics.PreloadIconDrawable;
@@ -217,7 +217,7 @@ public class BubbleTextView extends TextView implements ItemInfoUpdateReceiver {
     }
 
     private void applyIconAndLabel(Bitmap icon, ItemInfo info) {
-        FastBitmapDrawable iconDrawable = DrawableFactory.get(getContext()).newIcon(icon, info);
+        FastBitmapDrawable iconDrawable = LunaDrawableFactory.get(getContext()).newIcon(icon, info);
         iconDrawable.setIsDisabled(info.isDisabled());
         setIcon(iconDrawable);
         setText(info.title);
@@ -507,7 +507,7 @@ public class BubbleTextView extends TextView implements ItemInfoUpdateReceiver {
                     preloadDrawable = (PreloadIconDrawable) mIcon;
                     preloadDrawable.setLevel(progressLevel);
                 } else {
-                    preloadDrawable = DrawableFactory.get(getContext())
+                    preloadDrawable = LunaDrawableFactory.get(getContext())
                             .newPendingIcon(info.iconBitmap, getContext());
                     preloadDrawable.setLevel(progressLevel);
                     setIcon(preloadDrawable);

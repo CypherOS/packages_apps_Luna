@@ -35,7 +35,7 @@ import com.android.launcher3.R;
 import com.android.launcher3.SimpleOnStylusPressListener;
 import com.android.launcher3.StylusEventHelper;
 import com.android.launcher3.WidgetPreviewLoader;
-import com.android.launcher3.graphics.DrawableFactory;
+import com.android.launcher3.aoscp.LunaDrawableFactory;
 import com.android.launcher3.model.WidgetItem;
 
 /**
@@ -161,7 +161,7 @@ public class WidgetCell extends LinearLayout implements OnLayoutChangeListener {
     public void applyPreview(Bitmap bitmap, boolean animate) {
         if (bitmap != null) {
             mWidgetImage.setBitmap(bitmap,
-                    DrawableFactory.get(getContext()).getBadgeForUser(mItem.user, getContext()));
+                    LunaDrawableFactory.get(getContext()).getBadgeForUser(mItem.user, getContext()));
             if (mAnimatePreview) {
                 mWidgetImage.setAlpha(0f);
                 ViewPropertyAnimator anim = mWidgetImage.animate();
