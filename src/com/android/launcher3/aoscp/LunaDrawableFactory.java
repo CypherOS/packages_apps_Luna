@@ -1,4 +1,4 @@
-package co.aoscp.lunalauncher;
+package com.android.launcher3.aoscp;
 
 import android.content.Context;
 import android.graphics.Bitmap;
