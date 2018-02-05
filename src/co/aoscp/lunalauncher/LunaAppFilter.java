@@ -1,4 +1,4 @@
-package com.android.launcher3.aoscp;
+package co.aoscp.lunalauncher;
 
 import android.content.ComponentName;
 import android.content.Context;
