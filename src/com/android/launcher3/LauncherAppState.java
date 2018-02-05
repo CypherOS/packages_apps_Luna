@@ -24,6 +24,7 @@ import android.content.IntentFilter;
 import android.os.Looper;
 import android.util.Log;
 
+import com.android.launcher3.aoscp.LunaAppFilter;
 import com.android.launcher3.compat.LauncherAppsCompat;
 import com.android.launcher3.compat.PackageInstallerCompat;
 import com.android.launcher3.compat.UserManagerCompat;
@@ -49,6 +50,7 @@ public class LauncherAppState {
 
     private final Context mContext;
     private final LauncherModel mModel;
+	private final LunaAppFilter mAppFilter;
     private final IconCache mIconCache;
     private final WidgetPreviewLoader mWidgetCache;
     private final InvariantDeviceProfile mInvariantDeviceProfile;
@@ -97,8 +99,9 @@ public class LauncherAppState {
 
         mInvariantDeviceProfile = new InvariantDeviceProfile(mContext);
         mIconCache = new IconCache(mContext, mInvariantDeviceProfile);
+		mAppFilter = new LunaAppFilter(mContext);
         mWidgetCache = new WidgetPreviewLoader(mContext, mIconCache);
-        mModel = new LauncherModel(this, mIconCache, AppFilter.newInstance(mContext));
+        mModel = new LauncherModel(this, mIconCache, mAppFilter);
 
         LauncherAppsCompat.getInstance(mContext).addOnAppsChangedCallback(mModel);
 

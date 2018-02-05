@@ -33,8 +33,8 @@ import com.android.launcher3.DeviceProfile;
 import com.android.launcher3.ItemInfo;
 import com.android.launcher3.R;
 import com.android.launcher3.anim.SpringAnimationHandler;
+import com.android.launcher3.aoscp.LunaDrawableFactory;
 import com.android.launcher3.config.FeatureFlags;
-import com.android.launcher3.graphics.DrawableFactory;
 import com.android.launcher3.logging.UserEventDispatcher.LogContainerProvider;
 import com.android.launcher3.touch.OverScroll;
 import com.android.launcher3.touch.SwipeDetector;
@@ -265,7 +265,7 @@ public class AllAppsRecyclerView extends BaseRecyclerView implements LogContaine
 
         if (mApps.shouldShowEmptySearch()) {
             if (mEmptySearchBackground == null) {
-                mEmptySearchBackground = DrawableFactory.get(getContext())
+                mEmptySearchBackground = LunaDrawableFactory.get(getContext())
                         .getAllAppsBackground(getContext());
                 mEmptySearchBackground.setAlpha(0);
                 mEmptySearchBackground.setCallback(this);
