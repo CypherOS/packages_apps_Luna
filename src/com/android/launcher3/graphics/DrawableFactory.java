@@ -35,6 +35,7 @@ import com.android.launcher3.ItemInfo;
 import com.android.launcher3.R;
 import com.android.launcher3.Utilities;
 import com.android.launcher3.allapps.AllAppsBackgroundDrawable;
+import com.android.launcher3.aoscp.LunaDrawableFactory;
 
 /**
  * Factory for creating new drawables.
@@ -52,7 +53,7 @@ public class DrawableFactory {
         synchronized (LOCK) {
             if (sInstance == null) {
                 sInstance = Utilities.getOverrideObject(DrawableFactory.class,
-                        context.getApplicationContext(), R.string.drawable_factory_class);
+                        context.getApplicationContext(), LunaDrawableFactory.class);
             }
             return sInstance;
         }
