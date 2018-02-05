@@ -14,7 +14,6 @@ import android.support.test.InstrumentationRegistry;
 import android.test.ProviderTestCase2;
 
 import com.android.launcher3.AllAppsList;
-import com.android.launcher3.AppFilter;
 import com.android.launcher3.AppInfo;
 import com.android.launcher3.IconCache;
 import com.android.launcher3.InvariantDeviceProfile;
@@ -24,6 +23,7 @@ import com.android.launcher3.LauncherModel;
 import com.android.launcher3.LauncherModel.ModelUpdateTask;
 import com.android.launcher3.LauncherModel.Callbacks;
 import com.android.launcher3.LauncherProvider;
+import com.android.launcher3.aoscp.LunaAppFilter;
 import com.android.launcher3.util.ComponentKey;
 import com.android.launcher3.util.Provider;
 import com.android.launcher3.util.TestLauncherProvider;
@@ -87,7 +87,7 @@ public class BaseModelUpdateTaskTestCase extends ProviderTestCase2<TestLauncherP
         idp = new InvariantDeviceProfile();
         iconCache = new MyIconCache(targetContext, idp);
 
-        allAppsList = new AllAppsList(iconCache, new AppFilter());
+        allAppsList = new AllAppsList(iconCache, new LunaAppFilter());
 
         when(appState.getIconCache()).thenReturn(iconCache);
         when(appState.getInvariantDeviceProfile()).thenReturn(idp);
