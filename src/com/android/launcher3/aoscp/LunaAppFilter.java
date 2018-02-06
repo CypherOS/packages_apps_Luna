@@ -2,14 +2,17 @@ package com.android.launcher3.aoscp;
 
 import android.content.ComponentName;
 import android.content.Context;
+import android.preference.PreferenceManager;
 
 import com.android.launcher3.AppFilter;
+import com.android.launcher3.AppInfo;
 import com.android.launcher3.SettingsActivity;
 import com.android.launcher3.Utilities;
 
 import co.aoscp.lunalauncher.utils.IconPackUtils;
 
 import java.util.HashSet;
+import java.util.Set;
 
 public class LunaAppFilter extends AppFilter {
 
@@ -33,9 +36,10 @@ public class LunaAppFilter extends AppFilter {
     }
 
     @Override
-    public boolean shouldShowApp(ComponentName componentName) {
-        return super.shouldShowApp(componentName) &&
-                (!hasIconPack || !IconPackUtils.isPackProvider(mContext, componentName.getPackageName()))
-                 && !mHideList.contains(componentName);
+    public boolean shouldShowApp(AppInfo info, Context context) {
+		Set<String> hiddenApps = PreferenceManager.getDefaultSharedPreferences(context).getStringSet(Utilities.KEY_HIDDEN_APPS_SET, null);
+        return hiddenApps == null || !hiddenApps.contains(info.componentName.getPackageName()) &&
+                (!hasIconPack || !IconPackUtils.isPackProvider(mContext, info.componentName.getPackageName()))
+                 && !mHideList.contains(info.componentName.getPackageName());
     }
 }

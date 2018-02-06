@@ -92,6 +92,7 @@ public class SettingsActivity extends Activity {
         private IconPackPreference mIconPacks;
         private SwitchPreference mGoogleNow;
         private Preference mSmartSpace;
+		private Preference mHiddenApp;
 
         private Context mContext;
 
@@ -105,6 +106,8 @@ public class SettingsActivity extends Activity {
 
             mIconPacks = (IconPackPreference) findPreference(ICON_PACK_PREF);
             mIconPacks.setOnPreferenceChangeListener(this);
+			
+			mHiddenApp = (Preference) findPreference(Utilities.KEY_HIDDEN_APPS);
 
             mGoogleNow = (SwitchPreference) findPreference(GOOGLE_NOW_PREF);
 
@@ -214,6 +217,11 @@ public class SettingsActivity extends Activity {
         public boolean onPreferenceClick(Preference pref) {
             if (pref == mSmartSpace) {
                 SmartspaceController.get(mContext).cZ();
+                return true;
+            }
+			if (pref == mHiddenApp) {
+                Intent intent = new Intent(getActivity(), MultiSelectRecyclerViewActivity.class);
+                startActivity(intent);
                 return true;
             }
             return false;
