@@ -368,4 +368,8 @@
     <string name="icon_chooser">Icon chooser</string>
     <string name="icon_search">Search for icons</string>
     <string name="action_edit">Edit</string>
+	
+	<!-- Notification Count -->
+	<string name="pref_icon_badging_numbers_title">Show notification count</string>
+    <string name="pref_icon_badging_numbers_summary">Inside of the notification dot</string>
 </resources>
