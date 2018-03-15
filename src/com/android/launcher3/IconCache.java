@@ -59,6 +59,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.Stack;
 
+import com.google.android.apps.nexuslauncher.IconsHandler;
+
 /**
  * Cache of application icons.  Icons can be made from any thread.
  */
@@ -102,6 +104,8 @@ public class IconCache {
     @Thunk final Handler mWorkerHandler;
 
     private final BitmapFactory.Options mLowResOptions;
+
+    private static IconsHandler sIconsHandler;
 
     public IconCache(Context context, InvariantDeviceProfile inv) {
         mContext = context;
@@ -346,6 +350,57 @@ public class IconCache {
         }
     }
 
+    @Thunk void addIconToDBAndMemCache(LauncherActivityInfo app, PackageInfo info,
+            long userSerial) {
+        // Reuse the existing entry if it already exists in the DB. This ensures that we do not
+        // create bitmap if it was already created during loader.
+        ContentValues values = updateCacheAndGetContentValues(app, false);
+        addIconToDB(values, app.getComponentName(), info, userSerial);
+    }
+
+    public void flush() {
+        synchronized (mCache) {
+            mCache.clear();
+        }
+    }
+
+    CacheEntry getCacheEntry(LauncherActivityInfo app) {
+        final ComponentKey key = new ComponentKey(app.getComponentName(), app.getUser());
+        return mCache.get(key);
+    }
+
+    public void clearIconDataBase() {
+        mIconDb.clearDB(mIconDb.getDatabase());
+    }
+
+    void addCustomInfoToDataBase(Drawable icon, ItemInfo info, CharSequence title) {
+        LauncherActivityInfo app = mLauncherApps.resolveActivity(info.getIntent(), info.user);
+        final ComponentKey key = new ComponentKey(app.getComponentName(), app.getUser());
+        CacheEntry entry = mCache.get(key);
+        PackageInfo packageInfo = null;
+        try {
+            packageInfo = mPackageManager.getPackageInfo(
+                    app.getComponentName().getPackageName(), 0);
+        } catch (NameNotFoundException e) {
+        }
+        // We can't reuse the entry if the high-res icon is not present.
+        if (entry == null || entry.isLowResIcon || entry.icon == null) {
+            entry = new CacheEntry();
+        }
+        entry.icon = LauncherIcons.createIconBitmap(icon, mContext);
+        entry.title = title != null ? title : app.getLabel();
+        entry.contentDescription = mUserManager.getBadgedLabelForUser(entry.title, app.getUser());
+        mCache.put(key, entry);
+
+        Bitmap lowResIcon = generateLowResIcon(entry.icon);
+        ContentValues values = newContentValues(entry.icon, lowResIcon, entry.title.toString(),
+                app.getApplicationInfo().packageName);
+        if (packageInfo != null) {
+            addIconToDB(values, app.getComponentName(), packageInfo,
+                    mUserManager.getSerialNumberForUser(app.getUser()));
+        }
+    }
+
     /**
      * Adds an entry into the DB and the in-memory cache.
      * @param replaceExisting if true, it will recreate the bitmap even if it already exists in
@@ -365,8 +420,8 @@ public class IconCache {
         }
         if (entry == null) {
             entry = new CacheEntry();
-            entry.icon = LauncherIcons.createBadgedIconBitmap(getFullResIcon(app), app.getUser(),
-                    mContext,  app.getApplicationInfo().targetSdkVersion);
+            entry.icon = LauncherIcons.createBadgedIconBitmap(getFullResIcon(app), app.getUser(), 
+			        mContext, app.getApplicationInfo().targetSdkVersion);
         }
         entry.title = app.getLabel();
         entry.contentDescription = mUserManager.getBadgedLabelForUser(entry.title, app.getUser());
@@ -389,6 +444,31 @@ public class IconCache {
         values.put(IconDB.COLUMN_LAST_UPDATED, info.lastUpdateTime);
         values.put(IconDB.COLUMN_VERSION, info.versionCode);
         mIconDb.insertOrReplace(values);
+    }
+	
+	@Thunk ContentValues updateCacheAndGetContentValues(LauncherActivityInfo app,
+            boolean replaceExisting) {
+        final ComponentKey key = new ComponentKey(app.getComponentName(), app.getUser());
+        CacheEntry entry = null;
+        if (!replaceExisting) {
+            entry = mCache.get(key);
+            // We can't reuse the entry if the high-res icon is not present.
+            if (entry == null || entry.isLowResIcon || entry.icon == null) {
+                entry = null;
+            }
+        }
+        if (entry == null) {
+            entry = new CacheEntry();
+            entry.icon = LauncherIcons.createBadgedIconBitmap(getFullResIcon(app),
+                    app.getUser(), mContext, Build.VERSION_CODES.O);
+        }
+        entry.title = app.getLabel();
+        entry.contentDescription = mUserManager.getBadgedLabelForUser(entry.title, app.getUser());
+        mCache.put(new ComponentKey(app.getComponentName(), app.getUser()), entry);
+
+        Bitmap lowResIcon = generateLowResIcon(entry.icon);
+        return newContentValues(entry.icon, lowResIcon, entry.title.toString(),
+                app.getApplicationInfo().packageName);
     }
 
     /**
@@ -485,6 +565,11 @@ public class IconCache {
         info.contentDescription = entry.contentDescription;
         info.iconBitmap = entry.icon == null ? getDefaultIcon(info.user) : entry.icon;
         info.usingLowResIcon = entry.isLowResIcon;
+    }
+
+    public synchronized Drawable getDefaultIcon(ItemInfo info) {
+        LauncherActivityInfo app = mLauncherApps.resolveActivity(info.getIntent(), info.user);
+        return app.getIcon(mIconDpi);
     }
 
     public synchronized Bitmap getDefaultIcon(UserHandle user) {
@@ -655,6 +740,13 @@ public class IconCache {
         return entry;
     }
 
+    public static IconsHandler getIconsHandler(Context context) {
+        if (sIconsHandler == null) {
+            sIconsHandler = new IconsHandler(context);
+        }
+        return sIconsHandler;
+    }
+
     private boolean getEntryFromDB(ComponentKey cacheKey, CacheEntry entry, boolean lowRes) {
         Cursor c = null;
         try {
@@ -795,6 +887,11 @@ public class IconCache {
                     COLUMN_SYSTEM_STATE + " TEXT, " +
                     "PRIMARY KEY (" + COLUMN_COMPONENT + ", " + COLUMN_USER + ") " +
                     ");");
+        }
+
+        private void clearDB(SQLiteDatabase db) {
+            db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME);
+            onCreateTable(db);
         }
     }
 
