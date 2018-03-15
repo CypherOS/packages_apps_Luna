@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.view.View;
 
 import com.android.launcher3.AbstractFloatingView;
+import com.android.launcher3.EditDropTarget;
 import com.android.launcher3.InfoDropTarget;
 import com.android.launcher3.ItemInfo;
 import com.android.launcher3.Launcher;
@@ -45,6 +46,24 @@ public abstract class SystemShortcut extends ItemInfo {
 
     public abstract View.OnClickListener getOnClickListener(final Launcher launcher,
             final ItemInfo itemInfo);
+			
+	public static class Edit extends SystemShortcut {
+        public Edit() {
+            super(R.drawable.ic_edit_no_shadow, R.string.edit_button_text);
+        }
+
+        @Override
+        public View.OnClickListener getOnClickListener(final Launcher launcher, final ItemInfo itemInfo) {
+            return new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    EditDropTarget.startEditApplicationDialog(itemInfo, launcher);
+					launcher.getUserEventDispatcher().logActionOnControl(Action.Touch.TAP,
+                            ControlType.APPINFO_TARGET, view);
+                }
+            };
+        }
+    }
 
     public static class Widgets extends SystemShortcut {
 
