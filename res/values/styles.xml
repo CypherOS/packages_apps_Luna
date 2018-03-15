@@ -232,8 +232,7 @@
         <item name="android:textColorPrimary">@color/colorAccent</item>
         <item name="android:colorControlNormal">@color/colorAccent</item>
     </style>
-    <style name="AlertDialogCustom">
-        <item name="android:backgroundTint">?attr/popupColorSecondary</item>
+    <style name="AlertDialogCustom" parent="@android:style/Theme.Material.Settings.BaseDialog">
         <item name="android:outlineProvider">none</item>
     </style>
 </resources>

@@ -20,6 +20,7 @@
     android:layout_height="wrap_content"
     android:baselineAligned="false"
     android:padding="16dp">
+	
     <ImageView
         android:id="@+id/package_icon"
         android:layout_width="@dimen/app_icon_size"
@@ -39,5 +40,7 @@
         android:singleLine="true"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:textAlignment="viewStart"
+		android:backgroundTint="@color/colorAccent"
         android:labelFor="@id/package_icon" />
+		
 </LinearLayout>
