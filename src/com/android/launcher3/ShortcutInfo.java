@@ -20,6 +20,7 @@ import android.annotation.TargetApi;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Build;
 import android.text.TextUtils;
 
@@ -81,6 +82,11 @@ public class ShortcutInfo extends ItemInfoWithIcon {
      * shortcut icon as an application's resource.
      */
     public Intent.ShortcutIconResource iconResource;
+	
+	/**
+     * The application icon.
+     */
+    private Bitmap mIcon;
 
     /**
      * Indicates that the icon is disabled due to safe mode restrictions.
@@ -161,6 +167,19 @@ public class ShortcutInfo extends ItemInfoWithIcon {
         user = shortcutInfo.getUserHandle();
         itemType = LauncherSettings.Favorites.ITEM_TYPE_DEEP_SHORTCUT;
         updateFromDeepShortcutInfo(shortcutInfo, context);
+    }
+	
+	public Bitmap getIcon(IconCache iconCache) {
+        if (mIcon == null) {
+            updateIcon(iconCache, false);
+        }
+        return mIcon;
+    }
+	
+	public void updateIcon(IconCache iconCache, boolean useLowRes) {
+        if (itemType == Favorites.ITEM_TYPE_APPLICATION) {
+            iconCache.getTitleAndIcon(this, false);
+        }
     }
 
     @Override

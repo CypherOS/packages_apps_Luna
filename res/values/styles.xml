@@ -231,4 +231,7 @@
         <item name="android:textColorPrimary">@color/colorAccent</item>
         <item name="android:colorControlNormal">@color/colorAccent</item>
     </style>
+	<style name="ChooseIconTheme" parent="@android:style/Theme.Material.NoActionBar">
+        <item name="android:colorBackground">@color/icon_settings_background</item>
+    </style>
 </resources>
