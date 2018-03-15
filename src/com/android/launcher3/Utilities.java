@@ -37,6 +37,7 @@ import android.os.Bundle;
 import android.os.DeadObjectException;
 import android.os.PowerManager;
 import android.os.TransactionTooLargeException;
+import android.preference.PreferenceManager;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.TextUtils;
@@ -129,9 +130,17 @@ public final class Utilities {
 
     public static final String KEY_HIDDEN_APPS = "pref_hiddenApp";
     public static final String KEY_HIDDEN_APPS_SET = "hidden-app-set";
+	
+	public static final String KEY_ICON_PACK = "pref_iconPack";
+	public static final String KEY_ROUND_ICONS = "pref_roundIcons";
 
     public static boolean isPropertyEnabled(String propertyName) {
         return Log.isLoggable(propertyName, Log.VERBOSE);
+    }
+	
+	public static boolean isRoundIconsPrefEnabled(Context context) {
+        String defaultIconPack = context.getString(R.string.default_iconpack_title);
+        return PreferenceManager.getDefaultSharedPreferences(context).getBoolean(KEY_ROUND_ICONS, false) && PreferenceManager.getDefaultSharedPreferences(context).getString(KEY_ICON_PACK, defaultIconPack).equals(defaultIconPack);
     }
 
     public static boolean isAllowRotationPrefEnabled(Context context) {
