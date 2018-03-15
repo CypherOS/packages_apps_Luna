@@ -33,7 +33,7 @@ public class ShortcutInfoCompat {
     private static final String INTENT_CATEGORY = "com.android.launcher3.DEEP_SHORTCUT";
     public static final String EXTRA_SHORTCUT_ID = "shortcut_id";
 
-    private ShortcutInfo mShortcutInfo;
+    private static ShortcutInfo mShortcutInfo;
 
     public ShortcutInfoCompat(ShortcutInfo shortcutInfo) {
         mShortcutInfo = shortcutInfo;
@@ -49,7 +49,7 @@ public class ShortcutInfoCompat {
                 .putExtra(EXTRA_SHORTCUT_ID, getId());
     }
 
-    public ShortcutInfo getShortcutInfo() {
+    public static ShortcutInfo getShortcutInfo() {
         return mShortcutInfo;
     }
 
