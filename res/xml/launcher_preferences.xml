@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Copyright (C) 2015 Google Inc.
+     Copyright (C) 2017 CypherOS.
 
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
@@ -38,6 +39,11 @@
         android:defaultValue="M50 0A50 50,0,1,1,50 100A50 50,0,1,1,50 0"
         android:persistent="false" 
 		/>
+		
+	<Preference
+        android:key="pref_iconPacks"
+        android:title="@string/icon_pack_title"
+        android:icon="@drawable/icon_pack" />
 		
 	<Preference
         android:key="pref_hiddenApp"
