@@ -180,6 +180,40 @@ public class SettingsActivity extends Activity {
 		@Override
         public boolean onPreferenceChange(Preference preference, final Object newValue) {
             switch (preference.getKey()) {
+				case Utilities.KEY_ICON_PACK:
+                    ProgressDialog.show(mContext,
+                            null /* title */,
+                            mContext.getString(R.string.loading),
+                            true /* indeterminate */,
+                            false /* cancelable */);
+
+                    new LooperExecutor(LauncherModel.getWorkerLooper()).execute(new Runnable() {
+                        @SuppressLint("ApplySharedPref")
+                        @Override
+                        public void run() {
+                            // Wait for it
+                            try {
+                                Thread.sleep(1000);
+                            } catch (Exception e) {
+                                Log.e("SettingsActivity", "Error waiting", e);
+                            }
+
+                            // Schedule an alarm before we kill ourself.
+                            Intent homeIntent = new Intent(Intent.ACTION_MAIN)
+                                    .addCategory(Intent.CATEGORY_HOME)
+                                    .setPackage(mContext.getPackageName())
+                                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            PendingIntent pi = PendingIntent.getActivity(mContext, 0,
+                                    homeIntent, PendingIntent.FLAG_CANCEL_CURRENT | PendingIntent.FLAG_ONE_SHOT);
+                            getContext().getSystemService(AlarmManager.class).setExact(
+                                    AlarmManager.ELAPSED_REALTIME, SystemClock.elapsedRealtime() + 50, pi);
+                            }
+
+                            // Kill process
+                            android.os.Process.killProcess(android.os.Process.myPid());
+                        }
+                    });
+                    return true;
                 case SHOW_PREDICTIONS_PREF:
                     if ((boolean) newValue) {
                         return true;
