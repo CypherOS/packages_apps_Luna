@@ -1,8 +1,6 @@
 package com.google.android.apps.nexuslauncher;
 
-import android.content.ContentResolver;
 import android.content.res.Configuration;
-import android.provider.Settings;
 
 import com.android.launcher3.AppInfo;
 import com.android.launcher3.Launcher;
@@ -20,16 +18,12 @@ public class NexusLauncherActivity extends Launcher {
         mLauncher = new NexusLauncher(this);
     }
 
-    protected void overrideTheme(boolean isDark, boolean supportsDarkText) {
-        ContentResolver resolver = this.getContentResolver();
+    public void overrideTheme(boolean isDark, boolean supportsDarkText) {
         int flags = Utilities.getDevicePrefs(this).getInt("pref_persistent_flags", 0);
         int orientFlag = getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE ? 16 : 8;
         boolean useGoogleInOrientation = (orientFlag & flags) != 0;
-        int userThemeSetting = Settings.Secure.getIntForUser(resolver, Settings.Secure.DEVICE_THEME, 0, mCurrentUserId);
-        if (userThemeSetting == 2 || (useGoogleInOrientation && isDark && userThemeSetting == 0)) { // Respect ColorOM settings, only apply if set to automatic or set to "Dark: Setting 2"
+        if (useGoogleInOrientation && isDark) {
             setTheme(R.style.GoogleSearchLauncherThemeDark);
-        } else if (userThemeSetting == 3 || (useGoogleInOrientation && userThemeSetting == 3)) { // Apply black theme if set to "Black: Setting 3"
-            setTheme(R.style.GoogleSearchLauncherThemeBlack);
         } else if (useGoogleInOrientation && supportsDarkText && Utilities.ATLEAST_NOUGAT) {
             setTheme(R.style.GoogleSearchLauncherThemeDarkText);
         } else if (useGoogleInOrientation) {
