@@ -48,6 +48,7 @@ import android.preference.TwoStatePreference;
 import android.provider.Settings;
 import android.util.Log;
 
+import com.android.launcher3.R;
 import com.android.launcher3.graphics.IconShapeOverride;
 import com.android.launcher3.notification.NotificationListener;
 import com.android.launcher3.util.LooperExecutor;
@@ -74,11 +75,13 @@ public class SettingsActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+		setContentView(R.layout.home_settings);
+		setTheme(R.style.SettingsTheme);
 
         if (savedInstanceState == null) {
             // Display the fragment as the main content.
             getFragmentManager().beginTransaction()
-                    .replace(android.R.id.content, new LauncherSettingsFragment())
+                    .replace(R.id.home_settings, new LauncherSettingsFragment())
                     .commit();
         }
     }
