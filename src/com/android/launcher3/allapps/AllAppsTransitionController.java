@@ -8,6 +8,8 @@ import android.animation.ArgbEvaluator;
 import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
 import android.graphics.Color;
+import android.os.UserHandle;
+import android.provider.Settings;
 import android.support.animation.SpringAnimation;
 import android.support.v4.graphics.ColorUtils;
 import android.support.v4.view.animation.FastOutSlowInInterpolator;
@@ -35,6 +37,8 @@ import com.android.launcher3.util.Themes;
 import com.android.launcher3.util.TouchController;
 
 import java.lang.reflect.InvocationTargetException;
+
+import static android.provider.Settings.Secure.DEVICE_THEME_ALPHA;
 
 /**
  * Handles AllApps view transition.
@@ -95,6 +99,10 @@ public class AllAppsTransitionController implements TouchController, SwipeDetect
     private static final float RECATCH_REJECTION_FRACTION = .0875f;
 
     private long mAnimationDuration;
+	
+	private float mAlpha;
+	private int mColor;
+	private int mBgAlpha;
 
     private AnimatorSet mCurrentAnimation;
     private boolean mNoIntercept;
@@ -374,6 +382,16 @@ public class AllAppsTransitionController implements TouchController, SwipeDetect
         }
         mGradientView.setProgress(progress);
     }
+	
+	public void updateAllAppsAlpha() {
+		int userAlphaSetting = Settings.Secure.getIntForUser(
+		        this.getContentResolver(), DEVICE_THEME_ALPHA, 1, UserHandle.USER_CURRENT);
+		if (userAlphaSetting != 0) {
+            updateAllAppsBg(mAlpha);
+        } else {
+            mAppsView.setRevealDrawableColor(ColorUtils.setAlphaComponent(mColor, mBgAlpha));
+        }
+	}
 
     /**
      * @param progress       value between 0 and 1, 0 shows all apps and 1 shows workspace
@@ -384,22 +402,17 @@ public class AllAppsTransitionController implements TouchController, SwipeDetect
         float shiftCurrent = progress * mShiftRange;
 
         float workspaceHotseatAlpha = Utilities.boundToRange(progress, 0f, 1f);
-        float alpha = 1 - workspaceHotseatAlpha;
+        mAlpha = 1 - workspaceHotseatAlpha;
         float workspaceAlpha = mWorkspaceAccelnterpolator.getInterpolation(workspaceHotseatAlpha);
         float hotseatAlpha = mHotseatAccelInterpolator.getInterpolation(workspaceHotseatAlpha);
 
-        int color = (Integer) mEvaluator.evaluate(mDecelInterpolator.getInterpolation(alpha),
+        mColor = (Integer) mEvaluator.evaluate(mDecelInterpolator.getInterpolation(mAlpha),
                 mHotseatBackgroundColor, mAllAppsBackgroundColor);
-        int bgAlpha = Color.alpha((int) mEvaluator.evaluate(alpha,
+        mBgAlpha = Color.alpha((int) mEvaluator.evaluate(mAlpha,
                 mHotseatBackgroundColor, mAllAppsBackgroundColor));
-
-        if (FeatureFlags.LAUNCHER3_GRADIENT_ALL_APPS) {
-            updateAllAppsBg(alpha);
-        } else {
-            mAppsView.setRevealDrawableColor(ColorUtils.setAlphaComponent(color, bgAlpha));
-        }
-
-        mAppsView.getContentView().setAlpha(alpha);
+		
+		updateAllAppsAlpha();
+        mAppsView.getContentView().setAlpha(mAlpha);
         mAppsView.setTranslationY(shiftCurrent);
 
         if (!mLauncher.getDeviceProfile().isVerticalBarLayout()) {

@@ -37,6 +37,7 @@ public class NexusLauncherActivity extends Launcher {
         } else {
             super.overrideTheme(isDark, supportsDarkText);
         }
+		mAllAppsController.updateAllAppsAlpha();
     }
 
     public List<ComponentKeyMapper<AppInfo>> getPredictedApps() {
