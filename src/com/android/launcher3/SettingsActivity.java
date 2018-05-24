@@ -22,6 +22,7 @@ import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
+import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.PendingIntent;
 import android.app.ProgressDialog;
@@ -48,6 +49,7 @@ import android.preference.TwoStatePreference;
 import android.provider.Settings;
 import android.util.Log;
 
+import com.android.launcher3.R;
 import com.android.launcher3.graphics.IconShapeOverride;
 import com.android.launcher3.notification.NotificationListener;
 import com.android.launcher3.util.LooperExecutor;
@@ -74,11 +76,14 @@ public class SettingsActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        if (savedInstanceState == null) {
-            // Display the fragment as the main content.
-            getFragmentManager().beginTransaction()
-                    .replace(android.R.id.content, new LauncherSettingsFragment())
+		setContentView(R.layout.home_settings);
+		setTheme(R.style.SettingsTheme);
+		
+		FragmentManager fragManager = getFragmentManager();
+        Fragment fragment = fragManager.findFragmentById(R.id.home_settings);
+        if (fragment == null) {
+            fragManager.beginTransaction()
+                    .add(R.id.home_settings, new LauncherSettingsFragment())
                     .commit();
         }
     }
