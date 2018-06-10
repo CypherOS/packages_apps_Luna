@@ -210,6 +210,10 @@
         <item name="android:colorControlHighlight">#DFE1E5</item>
         <item name="android:colorForeground">@color/all_apps_bg_hand_fill_dark</item>
     </style>
+	
+	<style name="PreferenceTheme" parent="@style/PreferenceThemeOverlay.SettingsBase">
+        <item name="preferenceFragmentStyle">@style/SettingsPreferenceFragmentStyle</item>
+    </style>
 
     <!-- Pixel -->
     <style name="GoogleSearchLauncherTheme" parent="@style/LauncherTheme">
@@ -233,6 +237,11 @@
         <item name="gIcon">@drawable/ic_super_g_color</item>
         <item name="micIcon">@drawable/ic_mic_color</item>
     </style>
+	
+	<style name="Theme.HomeSettings" parent="@android:style/Theme.DeviceDefault.Settings">
+        <item name="preferenceTheme">@style/PreferenceTheme</item>
+    </style>
+	
     <style name="SettingsTheme" parent="@android:style/Theme.DeviceDefault.Settings">
         <item name="android:switchPreferenceStyle">@style/SettingsSwitchPreference</item>
         <item name="android:preferenceCategoryStyle">@style/SettingsPreferenceCategory</item>
