@@ -72,6 +72,7 @@ public class SettingsActivity extends Activity {
     public final static String SMARTSPACE_PREF = "pref_smartspace";
     public final static String SHOW_PREDICTIONS_PREF = "pref_show_predictions";
     public final static String ENABLE_MINUS_ONE_PREF = "pref_enable_minus_one";
+	public final static String SEARCH_BAR_COLOR = "pref_searchBarColor";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,6 +99,7 @@ public class SettingsActivity extends Activity {
         private IconBadgingObserver mIconBadgingObserver;
 
         private Preference mHiddenApp;
+		private Preference mSearchBarColor;
         private Preference mSmartSpace;
         private SwitchPreference mGoogleNow;
         private SwitchPreference mShowPredictions;
@@ -120,6 +122,8 @@ public class SettingsActivity extends Activity {
 
             mHiddenApp = (Preference) findPreference(Utilities.KEY_HIDDEN_APPS);
             mHiddenApp.setOnPreferenceClickListener(this);
+
+			mSearchBarColor = (Preference) findPreference(SEARCH_BAR_COLOR);
 
             mGoogleNow = (SwitchPreference) findPreference(ENABLE_MINUS_ONE_PREF);
 
