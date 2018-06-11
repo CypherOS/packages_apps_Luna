@@ -63,5 +63,8 @@
     <!-- Fastscroller -->
     <color name="fastscroller_thumb_text_color">@*android:color/white</color>
     <color name="fastscroller_thumb_background_color">@*android:color/accent_device_default_light</color>
+	
+	<!-- Qsb Color Accent -->
+	<color name="qsb_background_color_accent">@*android:color/accent_device_default_light</color>
 
 </resources>
