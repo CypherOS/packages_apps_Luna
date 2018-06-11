@@ -26,6 +26,7 @@ import android.os.UserHandle;
 import android.provider.Settings;
 import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceScreen;
+import android.support.v14.preference.SwitchPreference;
 
 import com.android.launcher3.Launcher;
 import com.android.launcher3.R;

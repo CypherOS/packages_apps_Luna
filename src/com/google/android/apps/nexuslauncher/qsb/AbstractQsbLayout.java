@@ -43,6 +43,8 @@ public abstract class AbstractQsbLayout extends FrameLayout implements LauncherL
     protected Bitmap mShadowBitmap;
     protected final Paint mShadowPaint;
 
+	private boolean mQsbAlpha;
+
     protected abstract int getWidth(int i);
 
     protected abstract void loadBottomMargin();
@@ -86,7 +88,8 @@ public abstract class AbstractQsbLayout extends FrameLayout implements LauncherL
         super.onDetachedFromWindow();
     }
 
-    public void bz(int i) {
+    public void bz(int i, boolean value) {
+		mQsbAlpha = value;
         if (mColor != i) {
             mColor = i;
             mShadowBitmap = null;
@@ -171,6 +174,9 @@ public abstract class AbstractQsbLayout extends FrameLayout implements LauncherL
             canvas.drawRoundRect(builder.bounds, (float) (height / 2), (float) (height / 2), paint);
             paint.setXfermode(null);
             paint.setColor(color);
+			if (mQsbAlpha) {
+				paint.setAlpha(50);
+			}
             canvas.drawRoundRect(builder.bounds, (float) (height / 2), (float) (height / 2), paint);
             canvas.setBitmap(null);
         /*}*/

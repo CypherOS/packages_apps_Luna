@@ -97,6 +97,8 @@
 -keep class android.support.v7.preference.Preference { *; }
 -keep class android.support.v7.preference.PreferenceScreen { *; }
 
+-keep class android.support.v14.preference.SwitchPreference { *; }
+
 -keep interface com.android.launcher3.userevent.nano.LauncherLogProto.** {
   *;
 }

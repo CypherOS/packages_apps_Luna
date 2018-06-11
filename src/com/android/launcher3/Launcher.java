@@ -1335,6 +1335,7 @@ public class Launcher extends BaseActivity
 
         mQsbWidget = (HotseatQsbWidget) findViewById(R.id.search_container_hotseat);
         if (mQsbWidget != null) {
+			mQsbWidget.setQsbAlpha(Utilities.isQsbShowTransparency(Launcher.this));
             mQsbWidget.setQsbColor();
         }
 
@@ -4215,6 +4216,14 @@ public class Launcher extends BaseActivity
             }
             if (Utilities.SHOW_NOTIFICATION_DOT_NUMBERS.equals(key)) {
                 mDeviceProfile.setShowNotifcationDotNumbers(Utilities.isShowNotificationDotNumbers(Launcher.this));
+                mModel.forceReload();
+                mOnResumeNeedsLoad = true;
+            }
+			if (Utilities.KEY_QSB_TRANSPARENCY.equals(key)) {
+				if (mQsbWidget != null) {
+					mQsbWidget.setQsbAlpha(Utilities.isQsbShowTransparency(Launcher.this));
+                    mQsbWidget.setQsbColor();
+                }
                 mModel.forceReload();
                 mOnResumeNeedsLoad = true;
             }
