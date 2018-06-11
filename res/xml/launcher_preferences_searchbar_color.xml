@@ -32,4 +32,11 @@
         android:key="qsb_wallpaper"
         android:title="@string/pref_search_bar_color_wallpaper" />
 
+	<SwitchPreference
+	    android:key="pref_qsbAllowAlpha"
+		android:title="@string/pref_search_bar_alpha_title"
+		android:summary="@string/pref_search_bar_alpha_summary"
+		android:defaultValue="false"
+		android:persistent="true" />
+
 </android.support.v7.preference.PreferenceScreen>

@@ -136,6 +136,8 @@ public final class Utilities {
 	public static final String KEY_ICON_PACK = "pref_iconPacks";
 
     public static final String SHOW_NOTIFICATION_DOT_NUMBERS = "pref_icon_badging_numbers";
+	
+	public static final String KEY_QSB_TRANSPARENCY = "pref_qsbAllowAlpha";
 
     public static boolean isPropertyEnabled(String propertyName) {
         return Log.isLoggable(propertyName, Log.VERBOSE);
@@ -161,6 +163,10 @@ public final class Utilities {
     public static boolean isShowNotificationDotNumbers(Context context) {
         return getPrefs(context).getBoolean(SHOW_NOTIFICATION_DOT_NUMBERS, false);
     }
+	
+	public static boolean isQsbShowTransparency(Context context) {
+		return getPrefs(context).getBoolean(KEY_QSB_TRANSPARENCY, false);
+	}
 
     /**
      * Given a coordinate relative to the descendant, find the coordinate in a parent view's

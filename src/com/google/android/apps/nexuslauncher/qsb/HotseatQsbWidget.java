@@ -41,6 +41,7 @@ public class HotseatQsbWidget extends AbstractQsbLayout implements WallpaperColo
     private boolean mIsDefaultLiveWallpaper;
     private boolean mGoogleHasFocus;
     private boolean mSearchRequested;
+	private boolean mHotseatQsbAlpha;
 
     private AnimatorSet mAnimatorSet;
     private final BroadcastReceiver mBroadcastReceiver;
@@ -76,7 +77,7 @@ public class HotseatQsbWidget extends AbstractQsbLayout implements WallpaperColo
 
     private void setQsbDefault() {
         View.inflate(new ContextThemeWrapper(getContext(), mIsDefaultLiveWallpaper ? R.style.HotseatQsbTheme_Colored : R.style.HotseatQsbTheme), R.layout.qsb_hotseat_content, this);
-        bz(mIsDefaultLiveWallpaper ? 0xCCFFFFFF : 0x99FAFAFA);
+        bz(mIsDefaultLiveWallpaper ? 0xCCFFFFFF : 0x99FAFAFA, mHotseatQsbAlpha);
     }
 
     private void setQsbTheme() {
@@ -86,24 +87,24 @@ public class HotseatQsbWidget extends AbstractQsbLayout implements WallpaperColo
         int userThemeSetting = Settings.Secure.getIntForUser(getContext().getContentResolver(), 
                 Settings.Secure.DEVICE_THEME, 0, UserHandle.USER_CURRENT);
         if (userThemeSetting == 0 || userThemeSetting == 1) {
-            bz(mIsDefaultLiveWallpaper ? 0xCCFFFFFF : 0x99FAFAFA);
+            bz(mIsDefaultLiveWallpaper ? 0xCCFFFFFF : 0x99FAFAFA, mHotseatQsbAlpha);
         } else if (userThemeSetting == 2) {
-            bz(mIsDefaultLiveWallpaper ? 0xCCFFFFFF : themeDark);
+            bz(mIsDefaultLiveWallpaper ? 0xCCFFFFFF : themeDark, mHotseatQsbAlpha);
         } else if (userThemeSetting == 3) {
-            bz(mIsDefaultLiveWallpaper ? 0xCCFFFFFF : themeBlack);
+            bz(mIsDefaultLiveWallpaper ? 0xCCFFFFFF : themeBlack, mHotseatQsbAlpha);
         }
     }
 
     private void setQsbAccent() {
         int accent = getContext().getResources().getColor(R.color.qsb_background_color_accent);
         View.inflate(new ContextThemeWrapper(getContext(), mIsDefaultLiveWallpaper ? R.style.HotseatQsbTheme_Colored : R.style.HotseatQsbTheme), R.layout.qsb_hotseat_content, this);
-        bz(mIsDefaultLiveWallpaper ? 0xCCFFFFFF : accent);
+        bz(mIsDefaultLiveWallpaper ? 0xCCFFFFFF : accent, mHotseatQsbAlpha);
     }
 
     private void setQsbWallpaper() {
         int wallpaper = WallpaperColorInfo.getInstance(getContext()).getMainColor();
         View.inflate(new ContextThemeWrapper(getContext(), mIsDefaultLiveWallpaper ? R.style.HotseatQsbTheme_Colored : R.style.HotseatQsbTheme), R.layout.qsb_hotseat_content, this);
-        bz(mIsDefaultLiveWallpaper ? 0xCCFFFFFF : wallpaper);
+        bz(mIsDefaultLiveWallpaper ? 0xCCFFFFFF : wallpaper, mHotseatQsbAlpha);
     }
 
     public void setQsbColor() {
@@ -120,6 +121,10 @@ public class HotseatQsbWidget extends AbstractQsbLayout implements WallpaperColo
             setQsbWallpaper();
         }
     }
+
+	public void setQsbAlpha(boolean value) {
+		mHotseatQsbAlpha = value;
+	}
 
     private void openQSB() {
         mSearchRequested = false;
