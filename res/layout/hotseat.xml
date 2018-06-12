@@ -23,5 +23,29 @@
         android:layout_height="match_parent"
         android:layout_gravity="center"
         launcher:containerType="hotseat" />
-    <include layout="@layout/search_container_hotseat" />
+
+	<LinearLayout
+	    android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+		android:layout_gravity="bottom|center">
+
+		<com.google.android.apps.nexuslauncher.qsb.HotseatQsbWidget
+            android:id="@id/search_container_hotseat"
+            android:layout_width="fill_parent"
+            android:layout_height="@dimen/qsb_widget_height"
+            android:layout_gravity="bottom|center"
+			android:paddingLeft="0dp"
+            android:background="@drawable/bg_qsb_click_feedback"
+            android:contentDescription="@string/label_search" />
+
+		<com.google.android.apps.nexuslauncher.qsb.HotseatQsbMic
+            android:id="@+id/search_container_hotseat_mic"
+            android:layout_width="fill_parent"
+            android:layout_height="@dimen/qsb_widget_height"
+            android:layout_gravity="bottom|right"
+			android:paddingRight="0dp"
+            android:background="@drawable/bg_qsb_click_feedback"
+            android:contentDescription="@string/label_search" />
+
+	</LinearLayout>
 </com.android.launcher3.Hotseat>

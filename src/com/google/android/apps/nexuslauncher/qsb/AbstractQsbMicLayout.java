@@ -4,8 +4,6 @@ import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
@@ -33,11 +31,11 @@ import com.android.launcher3.compat.LauncherAppsCompat;
 import com.android.launcher3.graphics.ShadowGenerator.Builder;
 import com.google.android.apps.nexuslauncher.NexusLauncherActivity;
 
-public abstract class AbstractQsbLayout extends FrameLayout implements LauncherLayoutChangeListener, OnClickListener, OnSharedPreferenceChangeListener {
+public abstract class AbstractQsbMicLayout extends FrameLayout implements LauncherLayoutChangeListener, OnClickListener {
+	
     protected final static String GOOGLE_QSB = "com.google.android.googlequicksearchbox";
     protected final NexusLauncherActivity mActivity;
     protected int mColor;
-    protected View mMicIconView;
     private final RectF mDestRect;
     private final Rect mSrcRect;
     protected Bitmap mShadowBitmap;
@@ -47,15 +45,15 @@ public abstract class AbstractQsbLayout extends FrameLayout implements LauncherL
 
     protected abstract void loadBottomMargin();
 
-    public AbstractQsbLayout(Context context) {
+    public AbstractQsbMicLayout(Context context) {
         this(context, null);
     }
 
-    public AbstractQsbLayout(Context context, AttributeSet attrs) {
+    public AbstractQsbMicLayout(Context context, AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
-    public AbstractQsbLayout(Context context, AttributeSet attrs, int defStyleAttr) {
+    public AbstractQsbMicLayout(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         mSrcRect = new Rect();
         mDestRect = new RectF();
@@ -68,21 +66,11 @@ public abstract class AbstractQsbLayout extends FrameLayout implements LauncherL
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
         mActivity.getDeviceProfile().addLauncherLayoutChangedListener(this);
-        loadAndGetPreferences().registerOnSharedPreferenceChangeListener(this);
-    }
-
-    protected SharedPreferences loadAndGetPreferences() {
-        mMicIconView = findViewById(R.id.mic_icon);
-        mMicIconView.setOnClickListener(this);
-        SharedPreferences devicePrefs = Utilities.getDevicePrefs(getContext());
-        loadPreferences(devicePrefs);
-        return devicePrefs;
     }
 
     @Override
     protected void onDetachedFromWindow() {
         this.mActivity.getDeviceProfile().removeLauncherLayoutChangedListener(this);
-        Utilities.getDevicePrefs(getContext()).unregisterOnSharedPreferenceChangeListener(this);
         super.onDetachedFromWindow();
     }
 
@@ -103,7 +91,7 @@ public abstract class AbstractQsbLayout extends FrameLayout implements LauncherL
         loadBottomMargin();
         DeviceProfile deviceProfile = this.mActivity.getDeviceProfile();
         int bw = getWidth(MeasureSpec.getSize(widthMeasureSpec));
-        int calculateCellWidth = DeviceProfile.calculateCellWidth(bw, deviceProfile.inv.numHotseatIcons - 2);
+        int calculateCellWidth = DeviceProfile.calculateCellWidth(bw, 1);
         int round = Math.round(((float) deviceProfile.iconSizePx) * 0.92f);
         setMeasuredDimension(((bw - (calculateCellWidth - round)) + getPaddingLeft()) + getPaddingRight(), MeasureSpec.getSize(heightMeasureSpec));
         for (int childCount = getChildCount() - 1; childCount >= 0; childCount--) {
@@ -181,9 +169,7 @@ public abstract class AbstractQsbLayout extends FrameLayout implements LauncherL
     }
 
     public void onClick(View view) {
-        if (view == mMicIconView) {
-            fallbackSearch("android.intent.action.VOICE_ASSIST");
-        }
+        fallbackSearch("android.intent.action.VOICE_ASSIST");
     }
 
     protected void fallbackSearch(String action) {
@@ -203,16 +189,5 @@ public abstract class AbstractQsbLayout extends FrameLayout implements LauncherL
     }
 
     protected void noGoogleAppSearch() {
-    }
-
-    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String str) {
-        if ("opa_enabled".equals(str)) {
-            loadPreferences(sharedPreferences);
-        }
-    }
-
-    private void loadPreferences(SharedPreferences sharedPreferences) {
-        mMicIconView.setVisibility(View.GONE);
-        requestLayout();
     }
 }

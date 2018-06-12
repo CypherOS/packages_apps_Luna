@@ -46,24 +46,45 @@
             android:scaleType="matrix"
             android:scaleX="-1.0" />
     </LinearLayout>
+	
+	<LinearLayout
+	    android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
 
-    <FrameLayout
-        android:id="@+id/qsb_icon_container"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent">
+        <FrameLayout
+            android:id="@+id/qsb_icon_container"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent">
 
-        <ImageView
-            android:id="@+id/g_icon"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="start|center"
-            android:src="@drawable/ic_super_g_color" />
+            <ImageView
+                android:id="@+id/g_icon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start|center"
+                android:src="@drawable/ic_super_g_color" />
 
-        <ImageView
-            android:id="@+id/mic_icon"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="end|center"
-            android:src="@drawable/ic_mic_color" />
-    </FrameLayout>
+            <ImageView
+                android:id="@+id/mic_icon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end|center"
+                android:src="@drawable/ic_mic_color"
+                android:visibility="gone" />
+				
+        </FrameLayout>
+		
+		<FrameLayout
+            android:id="@+id/qsb_mic_container"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent">
+
+            <ImageView
+                android:id="@+id/mic_icon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end|center"
+                android:src="@drawable/ic_mic_color" />
+
+        </FrameLayout>
+	</LinearLayout>
 </FrameLayout>

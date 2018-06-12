@@ -43,6 +43,7 @@ public class ConfigBuilder {
     private final Bundle mBundle;
     private boolean co;
     private final AbstractQsbLayout mQsbLayout;
+	private final AbstractQsbLayout mQsbMicLayout;
     private BubbleTextView mBubbleTextView;
     private final boolean mIsAllApps;
     private final UserManagerCompat mUserManager;
@@ -51,6 +52,7 @@ public class ConfigBuilder {
         mBundle = new Bundle();
         mNano = new c_search();
         mQsbLayout = qsbLayout;
+		mQsbMicLayout = qsbLayout;
         mActivity = qsbLayout.mActivity;
         mIsAllApps = isAllApps;
         mUserManager = UserManagerCompat.getInstance(mActivity);
@@ -138,6 +140,8 @@ public class ConfigBuilder {
         if (mQsbLayout.mMicIconView.getVisibility() != View.VISIBLE) {
             remoteViews.setViewVisibility(R.id.mic_icon, View.INVISIBLE);
         }
+		
+		mQsbMicLayout.findViewById(R.id.qsb_mic_container);
 
         final View gIcon = mQsbLayout.findViewById(R.id.g_icon);
         int horizontalPadding = mQsbLayout.getLayoutDirection() == View.LAYOUT_DIRECTION_RTL ?
