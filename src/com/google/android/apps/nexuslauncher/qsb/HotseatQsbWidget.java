@@ -75,12 +75,12 @@ public class HotseatQsbWidget extends AbstractQsbLayout implements WallpaperColo
     }
 
     private void setQsbDefault() {
-        View.inflate(new ContextThemeWrapper(getContext(), mIsDefaultLiveWallpaper ? R.style.HotseatQsbTheme_Colored : R.style.HotseatQsbTheme), R.layout.qsb_hotseat_content, this);
+        View.inflate(new ContextThemeWrapper(getContext(), mIsDefaultLiveWallpaper ? R.style.HotseatQsbTheme_Colored : R.style.HotseatQsbTheme), R.layout.search_container_hotseat, this);
         bz(mIsDefaultLiveWallpaper ? 0xCCFFFFFF : 0x99FAFAFA);
     }
 
     private void setQsbTheme() {
-        View.inflate(new ContextThemeWrapper(getContext(), mIsDefaultLiveWallpaper ? R.style.HotseatQsbTheme_Colored : R.style.HotseatQsbTheme), R.layout.qsb_hotseat_content, this);
+        View.inflate(new ContextThemeWrapper(getContext(), mIsDefaultLiveWallpaper ? R.style.HotseatQsbTheme_Colored : R.style.HotseatQsbTheme), R.layout.search_container_hotseat, this);
         int themeBlack = getContext().getResources().getColor(R.color.qsb_background_color_theme_black);
         int themeDark = getContext().getResources().getColor(R.color.qsb_background_color_theme_dark);
         int userThemeSetting = Settings.Secure.getIntForUser(getContext().getContentResolver(), 
@@ -96,13 +96,13 @@ public class HotseatQsbWidget extends AbstractQsbLayout implements WallpaperColo
 
     private void setQsbAccent() {
         int accent = getContext().getResources().getColor(R.color.qsb_background_color_accent);
-        View.inflate(new ContextThemeWrapper(getContext(), mIsDefaultLiveWallpaper ? R.style.HotseatQsbTheme_Colored : R.style.HotseatQsbTheme), R.layout.qsb_hotseat_content, this);
+        View.inflate(new ContextThemeWrapper(getContext(), mIsDefaultLiveWallpaper ? R.style.HotseatQsbTheme_Colored : R.style.HotseatQsbTheme), R.layout.search_container_hotseat, this);
         bz(mIsDefaultLiveWallpaper ? 0xCCFFFFFF : accent);
     }
 
     private void setQsbWallpaper() {
         int wallpaper = WallpaperColorInfo.getInstance(getContext()).getMainColor();
-        View.inflate(new ContextThemeWrapper(getContext(), mIsDefaultLiveWallpaper ? R.style.HotseatQsbTheme_Colored : R.style.HotseatQsbTheme), R.layout.qsb_hotseat_content, this);
+        View.inflate(new ContextThemeWrapper(getContext(), mIsDefaultLiveWallpaper ? R.style.HotseatQsbTheme_Colored : R.style.HotseatQsbTheme), R.layout.search_container_hotseat, this);
         bz(mIsDefaultLiveWallpaper ? 0xCCFFFFFF : wallpaper);
     }
 
