@@ -271,16 +271,14 @@ public class SettingsActivity extends Activity {
 
             String packageLabel = getActivity().getString(R.string.default_iconpack_title);
             Drawable packageIcon = getActivity().getDrawable(R.drawable.icon_pack);
-            if (!mIconsHandler.isDefaultIconPack()) {
-                try {
-                    info = mPackageManager.getApplicationInfo(iconPack, 0);
-                } catch (PackageManager.NameNotFoundException e) {
-                    e.printStackTrace();
-                }
-                if (info != null) {
-                    packageLabel = mPackageManager.getApplicationLabel(info).toString();
-                    packageIcon = mPackageManager.getApplicationIcon(info);
-                }
+            try {
+                info = mPackageManager.getApplicationInfo(iconPack, 0);
+            } catch (PackageManager.NameNotFoundException e) {
+                e.printStackTrace();
+            }
+            if (info != null) {
+                packageLabel = mPackageManager.getApplicationLabel(info).toString();
+                packageIcon = mPackageManager.getApplicationIcon(info);
             }
             mIconPack.setSummary(packageLabel);
             mIconPack.setIcon(packageIcon);
