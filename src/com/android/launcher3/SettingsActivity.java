@@ -39,14 +39,13 @@ import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.SystemClock;
-import android.preference.ListPreference;
-import android.preference.Preference;
-import android.preference.PreferenceFragment;
-import android.preference.PreferenceManager;
-import android.preference.PreferenceScreen;
-import android.preference.SwitchPreference;
-import android.preference.TwoStatePreference;
 import android.provider.Settings;
+import android.support.v7.preference.ListPreference;
+import android.support.v7.preference.Preference;
+import android.support.v7.preference.PreferenceManager;
+import android.support.v7.preference.PreferenceScreen;
+import android.support.v7.preference.TwoStatePreference;
+import android.support.v14.preference.SwitchPreference;
 import android.util.Log;
 
 import com.android.launcher3.R;
@@ -83,7 +82,6 @@ public class SettingsActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.home_settings);
-        setTheme(R.style.SettingsTheme);
 
         FragmentManager fragManager = getFragmentManager();
         Fragment fragment = fragManager.findFragmentById(R.id.home_settings);
@@ -97,7 +95,7 @@ public class SettingsActivity extends Activity {
     /**
      * This fragment shows the launcher preferences.
      */
-    public static class LauncherSettingsFragment extends PreferenceFragment 
+    public static class LauncherSettingsFragment extends LauncherPreferenceFragment 
             implements Preference.OnPreferenceChangeListener, Preference.OnPreferenceClickListener, OnSharedPreferenceChangeListener {
 
         private SystemDisplayRotationLockObserver mRotationLockObserver;
@@ -398,8 +396,8 @@ public class SettingsActivity extends Activity {
 	
 	public static class SuggestionConfirmationFragment extends DialogFragment implements DialogInterface.OnClickListener {
         public void onClick(final DialogInterface dialogInterface, final int n) {
-            if (getTargetFragment() instanceof PreferenceFragment) {
-                Preference preference = ((PreferenceFragment) getTargetFragment()).findPreference(SHOW_PREDICTIONS_PREF);
+            if (getTargetFragment() instanceof LauncherPreferenceFragment) {
+                Preference preference = ((LauncherPreferenceFragment) getTargetFragment()).findPreference(SHOW_PREDICTIONS_PREF);
                 if (preference instanceof TwoStatePreference) {
                     ((TwoStatePreference) preference).setChecked(false);
                 }
