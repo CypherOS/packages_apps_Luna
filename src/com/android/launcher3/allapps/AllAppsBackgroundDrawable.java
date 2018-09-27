@@ -16,6 +16,7 @@
 package com.android.launcher3.allapps;
 
 import android.animation.ObjectAnimator;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Canvas;
@@ -23,12 +24,16 @@ import android.graphics.ColorFilter;
 import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
+import android.os.UserHandle;
+import android.provider.Settings;
 import android.view.ContextThemeWrapper;
 import android.view.Gravity;
 
 import com.android.launcher3.LauncherAnimUtils;
 import com.android.launcher3.R;
 import com.android.launcher3.util.Themes;
+
+import static com.android.systemui.shared.system.SettingsCompat.COLOR_MANAGER_THEME;
 
 /**
  * This is a custom composite drawable that has a fixed virtual size and dynamically lays out its
@@ -102,11 +107,25 @@ public class AllAppsBackgroundDrawable extends Drawable {
         Resources res = context.getResources();
         mWidth = res.getDimensionPixelSize(R.dimen.all_apps_background_canvas_width);
         mHeight = res.getDimensionPixelSize(R.dimen.all_apps_background_canvas_height);
+		final int systemTheme = Settings.Secure.getInt(context.getContentResolver(), COLOR_MANAGER_THEME, 0);
 
-        context = new ContextThemeWrapper(context,
-                Themes.getAttrBoolean(context, R.attr.isMainColorDark)
+		switch (systemTheme) {
+            case 1:
+                context = new ContextThemeWrapper(context, R.style.AllAppsEmptySearchBackground);
+                break;
+            case 2:
+                context = new ContextThemeWrapper(context, R.style.AllAppsEmptySearchBackground_Dark);
+                break;
+            case 3:
+                context = new ContextThemeWrapper(context, R.style.AllAppsEmptySearchBackground_Black);
+                break;
+			default:
+                context = new ContextThemeWrapper(context, Themes.getAttrBoolean(context, R.attr.isMainColorDark)
                         ? R.style.AllAppsEmptySearchBackground_Dark
                         : R.style.AllAppsEmptySearchBackground);
+                break;
+        }
+
         mHand = new TransformedImageDrawable(context, R.drawable.ic_all_apps_bg_hand,
                 0.575f, 0.f, Gravity.CENTER_HORIZONTAL);
         mIcons = new TransformedImageDrawable[4];
