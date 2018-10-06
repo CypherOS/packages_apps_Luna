@@ -18,6 +18,7 @@ package com.android.launcher3;
 
 import android.app.ActivityOptions;
 import android.content.ActivityNotFoundException;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
@@ -26,6 +27,7 @@ import android.os.Bundle;
 import android.os.Process;
 import android.os.StrictMode;
 import android.os.UserHandle;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.ActionMode;
 import android.view.Surface;
@@ -77,8 +79,8 @@ public abstract class BaseDraggingActivity extends BaseActivity
         int themeRes = getThemeRes(wallpaperColorInfo);
         if (themeRes != mThemeRes) {
             mThemeRes = themeRes;
-            setTheme(themeRes);
         }
+		updateTheme(wallpaperColorInfo);
     }
 
     @Override
@@ -97,6 +99,26 @@ public abstract class BaseDraggingActivity extends BaseActivity
                     R.style.LauncherTheme_DarkText : R.style.LauncherTheme;
         }
     }
+
+	protected void updateTheme(WallpaperColorInfo wallpaperColorInfo) {
+		ContentResolver resolver = this.getContentResolver();
+		final boolean supportsDarkText = wallpaperColorInfo.supportsDarkText();
+		final int systemTheme = Settings.Secure.getInt(resolver, Settings.Secure.SYSTEM_THEME, 0);
+		switch (systemTheme) {
+            case 1:
+                setTheme(supportsDarkText ? R.style.LauncherTheme_DarkText : R.style.LauncherTheme);
+                break;
+			case 2:
+                setTheme(supportsDarkText ? R.style.LauncherThemeDark_DarKText : R.style.LauncherThemeDark);
+                break;
+            case 3:
+                setTheme(supportsDarkText ? R.style.LauncherThemeBlack_DarKText : R.style.LauncherThemeBlack);
+                break;
+            default:
+                setTheme(mThemeRes);
+                break;
+		}
+	}
 
     @Override
     public void onActionModeStarted(ActionMode mode) {
