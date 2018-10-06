@@ -61,7 +61,7 @@ public abstract class BaseDraggingActivity extends BaseActivity
 
     private OnStartCallback mOnStartCallback;
 
-    private int mThemeRes = R.style.AppTheme;
+    public int mThemeRes = R.style.AppTheme;
 
     private DisplayRotationListener mRotationListener;
 
@@ -88,7 +88,7 @@ public abstract class BaseDraggingActivity extends BaseActivity
         }
     }
 
-    protected int getThemeRes(WallpaperColorInfo wallpaperColorInfo) {
+    public int getThemeRes(WallpaperColorInfo wallpaperColorInfo) {
         if (wallpaperColorInfo.isDark()) {
             return wallpaperColorInfo.supportsDarkText() ?
                     R.style.AppTheme_Dark_DarkText : R.style.AppTheme_Dark;
