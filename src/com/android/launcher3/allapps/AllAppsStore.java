@@ -23,6 +23,7 @@ import com.android.launcher3.BubbleTextView;
 import com.android.launcher3.ItemInfo;
 import com.android.launcher3.PromiseAppInfo;
 import com.android.launcher3.util.ComponentKey;
+import com.android.launcher3.util.ComponentKeyMapper;
 import com.android.launcher3.util.PackageUserKey;
 
 import java.util.ArrayList;
@@ -58,6 +59,10 @@ public class AllAppsStore {
 
     public AppInfo getApp(ComponentKey key) {
         return mComponentToAppMap.get(key);
+    }
+
+	public AppInfo getApp(ComponentKeyMapper<AppInfo> mapper) {
+        return mapper.getItem(mComponentToAppMap);
     }
 
     public void setDeferUpdates(boolean deferUpdates) {
