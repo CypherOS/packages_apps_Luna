@@ -28,10 +28,9 @@ import android.view.MotionEvent;
 import android.view.View;
 
 import com.android.launcher3.BaseRecyclerView;
+import com.android.launcher3.BubbleTextView;
 import com.android.launcher3.DeviceProfile;
 import com.android.launcher3.ItemInfo;
-import com.android.launcher3.Launcher;
-import com.android.launcher3.LauncherAppState;
 import com.android.launcher3.R;
 import com.android.launcher3.graphics.DrawableFactory;
 import com.android.launcher3.logging.UserEventDispatcher.LogContainerProvider;
@@ -48,7 +47,7 @@ public class AllAppsRecyclerView extends BaseRecyclerView implements LogContaine
 
     private AlphabeticalAppsList mApps;
     private AllAppsFastScrollHelper mFastScrollHelper;
-    private final int mNumAppsPerRow;
+    private int mNumAppsPerRow;
 
     // The specific view heights that we use to calculate scroll
     private SparseIntArray mViewHeights = new SparseIntArray();
@@ -76,7 +75,6 @@ public class AllAppsRecyclerView extends BaseRecyclerView implements LogContaine
         Resources res = getResources();
         mEmptySearchBackgroundTopOffset = res.getDimensionPixelSize(
                 R.dimen.all_apps_empty_search_bg_top_offset);
-        mNumAppsPerRow = LauncherAppState.getIDP(context).numColumns;
     }
 
     /**
@@ -91,17 +89,45 @@ public class AllAppsRecyclerView extends BaseRecyclerView implements LogContaine
         return mApps;
     }
 
-    private void updatePoolSize() {
-        DeviceProfile grid = Launcher.getLauncher(getContext()).getDeviceProfile();
+    /**
+     * Sets the number of apps per row in this recycler view.
+     */
+    public void setNumAppsPerRow(DeviceProfile grid, int numAppsPerRow) {
+        mNumAppsPerRow = numAppsPerRow;
         RecyclerView.RecycledViewPool pool = getRecycledViewPool();
         int approxRows = (int) Math.ceil(grid.availableHeightPx / grid.allAppsIconSizePx);
         pool.setMaxRecycledViews(AllAppsGridAdapter.VIEW_TYPE_EMPTY_SEARCH, 1);
         pool.setMaxRecycledViews(AllAppsGridAdapter.VIEW_TYPE_ALL_APPS_DIVIDER, 1);
         pool.setMaxRecycledViews(AllAppsGridAdapter.VIEW_TYPE_SEARCH_MARKET, 1);
         pool.setMaxRecycledViews(AllAppsGridAdapter.VIEW_TYPE_ICON, approxRows * mNumAppsPerRow);
+        pool.setMaxRecycledViews(AllAppsGridAdapter.VIEW_TYPE_PREDICTION_ICON, mNumAppsPerRow);
+        pool.setMaxRecycledViews(AllAppsGridAdapter.VIEW_TYPE_PREDICTION_DIVIDER, 1);
+    }
 
-        mViewHeights.clear();
-        mViewHeights.put(AllAppsGridAdapter.VIEW_TYPE_ICON, grid.allAppsCellHeightPx);
+    /**
+     * Ensures that we can present a stable scrollbar for views of varying types by pre-measuring
+     * all the different view types.
+     */
+    public void preMeasureViews(AllAppsGridAdapter adapter) {
+        View icon = adapter.onCreateViewHolder(this, AllAppsGridAdapter.VIEW_TYPE_ICON).itemView;
+        final int iconHeight = icon.getLayoutParams().height;
+        mViewHeights.put(AllAppsGridAdapter.VIEW_TYPE_ICON, iconHeight);
+        mViewHeights.put(AllAppsGridAdapter.VIEW_TYPE_PREDICTION_ICON, iconHeight);
+
+        final int widthMeasureSpec = View.MeasureSpec.makeMeasureSpec(
+                getResources().getDisplayMetrics().widthPixels, View.MeasureSpec.AT_MOST);
+        final int heightMeasureSpec = View.MeasureSpec.makeMeasureSpec(
+                getResources().getDisplayMetrics().heightPixels, View.MeasureSpec.AT_MOST);
+
+        putSameHeightFor(adapter, widthMeasureSpec, heightMeasureSpec,
+                AllAppsGridAdapter.VIEW_TYPE_PREDICTION_DIVIDER,
+                AllAppsGridAdapter.VIEW_TYPE_ALL_APPS_DIVIDER);
+        putSameHeightFor(adapter, widthMeasureSpec, heightMeasureSpec,
+                AllAppsGridAdapter.VIEW_TYPE_SEARCH_MARKET);
+        putSameHeightFor(adapter, widthMeasureSpec, heightMeasureSpec,
+                AllAppsGridAdapter.VIEW_TYPE_EMPTY_SEARCH);
+        putSameHeightFor(adapter, widthMeasureSpec, heightMeasureSpec,
+                AllAppsGridAdapter.VIEW_TYPE_WORK_TAB_FOOTER);
     }
 
     /**
@@ -133,7 +159,6 @@ public class AllAppsRecyclerView extends BaseRecyclerView implements LogContaine
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         updateEmptySearchBackgroundBounds();
-        updatePoolSize();
     }
 
     @Override
@@ -141,6 +166,19 @@ public class AllAppsRecyclerView extends BaseRecyclerView implements LogContaine
         if (mApps.hasFilter()) {
             targetParent.containerType = ContainerType.SEARCHRESULT;
         } else {
+            if (v instanceof BubbleTextView) {
+                BubbleTextView icon = (BubbleTextView) v;
+                int position = getChildPosition(icon);
+                if (position != NO_POSITION) {
+                    List<AlphabeticalAppsList.AdapterItem> items = mApps.getAdapterItems();
+                    AlphabeticalAppsList.AdapterItem item = items.get(position);
+                    if (item.viewType == AllAppsGridAdapter.VIEW_TYPE_PREDICTION_ICON) {
+                        targetParent.containerType = ContainerType.PREDICTION;
+                        target.predictedRank = item.rowAppIndex;
+                        return;
+                    }
+                }
+            }
             targetParent.containerType = ContainerType.ALLAPPS;
         }
     }
