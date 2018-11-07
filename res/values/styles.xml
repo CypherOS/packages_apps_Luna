@@ -45,7 +45,9 @@
         <item name="fastscrollerTextColor">#FFFFFF</item>
     </style>
 
-    <style name="LauncherTheme" parent="@style/BaseLauncherThemeWithCustomAttrs"></style>
+    <style name="LauncherTheme" parent="@style/BaseLauncherThemeWithCustomAttrs">
+	    <item name="android:keyboardLayout">@layout/search_container_all_apps_google</item>
+	</style>
 
     <style name="LauncherTheme.DarkText" parent="@style/LauncherTheme">
         <item name="workspaceTextColor">#FF212121</item>
@@ -55,6 +57,7 @@
         <item name="workspaceKeyShadowColor">@android:color/transparent</item>
         <item name="isWorkspaceDarkText">true</item>
         <item name="workspaceStatusBarScrim">@null</item>
+		<item name="android:keyboardLayout">@layout/search_container_all_apps_google</item>
     </style>
 
     <style name="LauncherTheme.Dark" parent="@style/LauncherTheme">
@@ -73,6 +76,7 @@
         <item name="widgetsTheme">@style/WidgetContainerTheme.Dark</item>
         <item name="isMainColorDark">true</item>
         <item name="fastscrollerTextColor">#000000</item>
+		<item name="android:keyboardLayout">@layout/search_container_all_apps_google</item>
     </style>
 
     <style name="LauncherTheme.Dark.DarkText" parent="@style/LauncherTheme.Dark">
@@ -83,6 +87,7 @@
         <item name="workspaceKeyShadowColor">@android:color/transparent</item>
         <item name="isWorkspaceDarkText">true</item>
         <item name="workspaceStatusBarScrim">@null</item>
+		<item name="android:keyboardLayout">@layout/search_container_all_apps_google</item>
     </style>
 
     <style name="LauncherTheme.Black" parent="@style/LauncherTheme">
@@ -100,6 +105,7 @@
         <item name="popupColorTertiary">#757575</item> <!-- Gray 600 -->
         <item name="widgetsTheme">@style/WidgetContainerTheme.Black</item>
         <item name="isMainColorDark">true</item>
+		<item name="android:keyboardLayout">@layout/search_container_all_apps_google</item>
     </style>
 
     <style name="LauncherTheme.Black.DarkText" parent="@style/LauncherTheme.Black">
@@ -110,6 +116,7 @@
         <item name="workspaceKeyShadowColor">@android:color/transparent</item>
         <item name="isWorkspaceDarkText">true</item>
         <item name="workspaceStatusBarScrim">@null</item>
+		<item name="android:keyboardLayout">@layout/search_container_all_apps_google</item>
     </style>
 
     <!-- A derivative project can extend these themes to customize the application theme without
@@ -118,6 +125,15 @@
     <style name="AppTheme.DarkText" parent="@style/LauncherTheme.DarkText" />
     <style name="AppTheme.Dark" parent="@style/LauncherTheme.Dark" />
     <style name="AppTheme.Dark.DarkText" parent="@style/LauncherTheme.Dark.DarkText" />
+	
+	<style name="HotseatQsbTheme">
+        <item name="gIcon">@drawable/ic_super_g_shadow</item>
+        <item name="micIcon">@drawable/ic_mic_shadow</item>
+    </style>
+    <style name="HotseatQsbTheme.Colored" parent="@style/HotseatQsbTheme">
+        <item name="gIcon">@drawable/ic_super_g_color</item>
+        <item name="micIcon">@drawable/ic_mic_color</item>
+    </style>
 
     <!--
     Theme overrides to element on homescreen, i.e., which are drawn on top on wallpaper.
