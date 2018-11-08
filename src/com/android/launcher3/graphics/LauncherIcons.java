@@ -165,6 +165,26 @@ public class LauncherIcons implements AutoCloseable {
         return null;
     }
 
+	/**
+     * Returns a bitmap suitable for the all apps view. If the package or the resource do not
+     * exist, it returns null.
+     */
+    public static Bitmap createIconBitmap(ShortcutIconResource iconRes, Context context) {
+        PackageManager packageManager = context.getPackageManager();
+        // the resource
+        try {
+            Resources resources = packageManager.getResourcesForApplication(iconRes.packageName);
+            if (resources != null) {
+                final int id = resources.getIdentifier(iconRes.resourceName, null, null);
+                return createIconBitmap(resources.getDrawableForDensity(
+                        id, LauncherAppState.getIDP(context).fillResIconDpi), context);
+            }
+        } catch (Exception e) {
+            // Icon not found.
+        }
+        return null;
+    }
+
     /**
      * Returns a bitmap which is of the appropriate size to be displayed as an icon
      */

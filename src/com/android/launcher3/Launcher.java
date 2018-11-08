@@ -252,7 +252,7 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
     private final Runnable mLogOnDelayedResume = this::logOnDelayedResume;
 
     // Feed integration
-    private LauncherTab mLauncherTab;
+    public LauncherTab mLauncherTab;
     private boolean mFeedIntegrationEnabled;
 
     @Override

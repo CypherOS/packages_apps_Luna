@@ -50,7 +50,7 @@ public class LauncherTab {
         }
     }
 
-    protected LauncherClient getClient() {
+    public LauncherClient getClient() {
         return mLauncherClient;
     }
 

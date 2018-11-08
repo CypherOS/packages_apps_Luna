@@ -154,6 +154,7 @@ public class AlphabeticalAppsList implements AllAppsStore.OnUpdateListener {
     // The set of apps from the system not including predictions
     private final List<AppInfo> mApps = new ArrayList<>();
     private final AllAppsStore mAllAppsStore;
+	private final HashMap<ComponentKey, AppInfo> mComponentToAppMap = new HashMap<>();
 
     // The set of filtered apps with the current filter
     private final List<AppInfo> mFilteredApps = new ArrayList<>();
@@ -280,14 +281,14 @@ public class AlphabeticalAppsList implements AllAppsStore.OnUpdateListener {
     }
 
     private List<AppInfo> processPredictedAppComponents(List<ComponentKeyMapper<AppInfo>> components) {
-        if (mAllAppsStore.getApps().isEmpty()) {
+        if (mComponentToAppMap.isEmpty()) {
             // Apps have not been bound yet.
             return Collections.emptyList();
         }
 
         List<AppInfo> predictedApps = new ArrayList<>();
         for (ComponentKeyMapper<AppInfo> mapper : components) {
-            AppInfo info = mAllAppsStore.getApp(mapper);
+			AppInfo info = mapper.getItem(mComponentToAppMap);
             if (info != null) {
                 predictedApps.add(info);
             } else {
@@ -360,12 +361,7 @@ public class AlphabeticalAppsList implements AllAppsStore.OnUpdateListener {
     public void onAppsUpdated() {
         // Sort the list of apps
         mApps.clear();
-
-        for (AppInfo app : mAllAppsStore.getApps()) {
-            if (mItemFilter == null || mItemFilter.matches(app, null) || hasFilter()) {
-                mApps.add(app);
-            }
-        }
+        mApps.addAll(mComponentToAppMap.values());
 
         Collections.sort(mApps, mAppNameComparator);
 
@@ -578,12 +574,16 @@ public class AlphabeticalAppsList implements AllAppsStore.OnUpdateListener {
         }
         ArrayList<AppInfo> result = new ArrayList<>();
         for (ComponentKey key : mSearchResults) {
-            AppInfo match = mAllAppsStore.getApp(key);
+            AppInfo match = mComponentToAppMap.get(key);
             if (match != null) {
                 result.add(match);
             }
         }
         return result;
+    }
+	
+	public AppInfo findApp(ComponentKeyMapper<AppInfo> mapper) {
+        return mapper.getItem(mComponentToAppMap);
     }
 
     /**
