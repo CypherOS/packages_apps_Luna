@@ -2484,4 +2484,8 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
             }
         }
     }
+
+	public LauncherTab getClient() {
+		return mLauncherTab.getClient();
+	}
 }

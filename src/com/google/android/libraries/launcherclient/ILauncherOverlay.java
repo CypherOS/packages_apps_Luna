@@ -1,11 +1,14 @@
 package com.google.android.libraries.launcherclient;
 
 import android.os.Binder;
+import android.os.Bundle;
 import android.os.IBinder;
 import android.os.IInterface;
 import android.os.Parcel;
 import android.os.RemoteException;
 import android.view.WindowManager;
+
+import com.android.launcher3.qsb.hotseat.ConfigBuilder;
 
 public interface ILauncherOverlay extends IInterface {
     void closeOverlay(int options) throws RemoteException;
@@ -15,6 +18,8 @@ public interface ILauncherOverlay extends IInterface {
     String getVoiceSearchLanguage() throws RemoteException;
 
     boolean isVoiceDetectionRunning() throws RemoteException;
+	
+	boolean startSearch(byte[] data, Bundle bundle) throws RemoteException;
 
     void onPause() throws RemoteException;
 
@@ -46,6 +51,7 @@ public interface ILauncherOverlay extends IInterface {
         static final int REQUEST_VOICE_DETECTION_TRANSACTION = 10;
         static final int GET_VOICE_SEARCH_LANGUAGE_TRANSACTION = 11;
         static final int IS_VOICE_DETECTION_RUNNING_TRANSACTION = 12;
+		static final int START_SEARCH_TRANSACTION = 13;
 
 
         public static ILauncherOverlay asInterface(IBinder obj) {
@@ -131,6 +137,11 @@ public interface ILauncherOverlay extends IInterface {
                     reply.writeNoException();
                     reply.writeInt(running ? 1 : 0);
                     return true;
+				case START_SEARCH_TRANSACTION:
+				    final ConfigBuilder f = new ConfigBuilder(new AbstractQsbLayout(this), false);
+                    data.enforceInterface(ILauncherOverlay.class.getName());
+                    startSearch(f.build(), f.getExtras());
+                    return true;
                 default:
                     return super.onTransact(code, data, reply, flags);
             }
@@ -193,6 +204,22 @@ public interface ILauncherOverlay extends IInterface {
                     _data.writeInterfaceToken(ILauncherOverlay.class.getName());
 
                     mRemote.transact(IS_VOICE_DETECTION_RUNNING_TRANSACTION, _data, _reply, 0);
+                    _reply.readException();
+                    return _reply.readInt() != 0;
+                } finally {
+                    _data.recycle();
+                    _reply.recycle();
+                }
+            }
+
+			@Override
+            public boolean startSearch(byte[] data, Bundle bundle) throws RemoteException {
+                Parcel _data = Parcel.obtain();
+                Parcel _reply = Parcel.obtain();
+                try {
+                    _data.writeInterfaceToken(ILauncherOverlay.class.getName());
+
+                    mRemote.transact(START_SEARCH_TRANSACTION, _data, _reply, 0);
                     _reply.readException();
                     return _reply.readInt() != 0;
                 } finally {
