@@ -46,6 +46,10 @@ public class ShadowGenerator {
 
     private static final int AMBIENT_SHADOW_ALPHA = 30;
 
+	private static final Object LOCK = new Object();
+    // Singleton object guarded by {@link #LOCK}
+    private static ShadowGenerator sShadowGenerator;
+
     private final int mIconSize;
 
     private final Paint mBlurPaint;
@@ -80,6 +84,18 @@ public class ShadowGenerator {
         // Draw the icon
         mDrawPaint.setAlpha(255);
         out.drawBitmap(icon, 0, 0, mDrawPaint);
+    }
+	
+	public static ShadowGenerator getInstance(Context context) {
+        // TODO: This currently fails as the system default icon also needs a shadow as it
+        // uses adaptive icon.
+        // Preconditions.assertNonUiThread();
+        synchronized (LOCK) {
+            if (sShadowGenerator == null) {
+                sShadowGenerator = new ShadowGenerator(context);
+            }
+        }
+        return sShadowGenerator;
     }
 
     /**

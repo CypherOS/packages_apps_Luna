@@ -1,6 +1,7 @@
 package com.google.android.libraries.launcherclient;
 
 import android.os.Binder;
+import android.os.Bundle;
 import android.os.IBinder;
 import android.os.IInterface;
 import android.os.Parcel;
@@ -15,6 +16,8 @@ public interface ILauncherOverlay extends IInterface {
     String getVoiceSearchLanguage() throws RemoteException;
 
     boolean isVoiceDetectionRunning() throws RemoteException;
+
+	boolean startSearch(byte[] data, Bundle bundle) throws RemoteException;
 
     void onPause() throws RemoteException;
 

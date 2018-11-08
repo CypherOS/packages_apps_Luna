@@ -32,7 +32,13 @@ import com.android.launcher3.CellLayout.ContainerType;
 import com.android.launcher3.badge.BadgeRenderer;
 import com.android.launcher3.graphics.IconNormalizer;
 
+import java.util.ArrayList;
+
 public class DeviceProfile {
+	
+	public interface LauncherLayoutChangeListener {
+        void onLauncherLayoutChanged();
+    }
 
     public final InvariantDeviceProfile inv;
 
@@ -109,6 +115,7 @@ public class DeviceProfile {
 
     // All apps
     public int allAppsCellHeightPx;
+	public int allAppsNumCols;
     public int allAppsIconSizePx;
     public int allAppsIconDrawablePaddingPx;
     public float allAppsIconTextSizePx;
@@ -124,6 +131,9 @@ public class DeviceProfile {
     public final Rect workspacePadding = new Rect();
     private final Rect mHotseatPadding = new Rect();
     private boolean mIsSeascape;
+	
+	// Listeners
+    private ArrayList<LauncherLayoutChangeListener> mListeners = new ArrayList<>();
 
     // Icon badges
     public BadgeRenderer mBadgeRenderer;
@@ -135,6 +145,8 @@ public class DeviceProfile {
         this.inv = inv;
         this.isLandscape = isLandscape;
         this.isMultiWindowMode = isMultiWindowMode;
+		
+		allAppsNumCols = inv.numColumns;
 
         // Determine sizes.
         widthPx = width;
@@ -271,6 +283,18 @@ public class DeviceProfile {
      */
     public DeviceProfile getFullScreenProfile() {
         return isLandscape ? inv.landscapeProfile : inv.portraitProfile;
+    }
+	
+	public void addLauncherLayoutChangedListener(LauncherLayoutChangeListener listener) {
+        if (!mListeners.contains(listener)) {
+            mListeners.add(listener);
+        }
+    }
+
+    public void removeLauncherLayoutChangedListener(LauncherLayoutChangeListener listener) {
+        if (mListeners.contains(listener)) {
+            mListeners.remove(listener);
+        }
     }
 
     /**
@@ -468,6 +492,9 @@ public class DeviceProfile {
                         desiredWorkspaceLeftRightMarginPx,
                         paddingBottom);
             }
+        }
+		for (int i = mListeners.size() - 1; i >= 0; i--) {
+            mListeners.get(i).onLauncherLayoutChanged();
         }
     }
 
