@@ -133,6 +133,8 @@ import com.android.launcher3.widget.WidgetListRowEntry;
 import com.android.launcher3.widget.WidgetsFullSheet;
 import com.android.launcher3.widget.custom.CustomWidgetParser;
 
+import com.google.android.libraries.launcherclient.LauncherClient;
+
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -2484,4 +2486,8 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
             }
         }
     }
+
+	public LauncherClient getClient() {
+		return mLauncherTab.getClient();
+	}
 }
