@@ -176,6 +176,8 @@ LOCAL_FULL_LIBS_MANIFEST_FILES := \
 LOCAL_MANIFEST_FILE := quickstep/AndroidManifest.xml
 LOCAL_JACK_COVERAGE_INCLUDE_FILTER := com.android.launcher3.*
 
+LOCAL_AAPT_FLAGS := --rename-manifest-package com.google.android.apps.nexuslauncher
+
 include $(BUILD_PACKAGE)
 
 
