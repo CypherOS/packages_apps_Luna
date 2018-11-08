@@ -25,4 +25,5 @@
         android:layout_gravity="center"
         launcher:containerType="hotseat"
         android:importantForAccessibility="no" />
+	<include layout="@layout/search_container_hotseat" />
 </com.android.launcher3.Hotseat>

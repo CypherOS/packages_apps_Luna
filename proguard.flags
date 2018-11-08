@@ -125,6 +125,30 @@
   *;
 }
 
+-keep,allowshrinking,allowoptimization class com.google.android.apps.nexuslauncher.** {
+  *;
+}
+
+-keep class com.google.android.apps.nexuslauncher.CustomIconProvider {
+  *;
+}
+
+-keep class com.google.android.apps.nexuslauncher.CustomAppFilter {
+  *;
+}
+
+-keep class com.google.android.apps.nexuslauncher.CustomDrawableFactory {
+  *;
+}
+
+-keep class com.google.android.apps.nexuslauncher.CustomAppPredictor {
+  *;
+}
+
+-keep class com.android.launcher3.graphics.FixedScaleDrawable {
+  *;
+}
+
 # Discovery bounce animation
 -keep class com.android.launcher3.allapps.DiscoveryBounce$VerticalProgressWrapper {
   public void setProgress(float);

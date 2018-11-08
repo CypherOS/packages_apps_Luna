@@ -54,14 +54,15 @@ LOCAL_STATIC_ANDROID_LIBRARIES := \
 
 LOCAL_SRC_FILES := \
     $(call all-proto-files-under, protos) \
-    $(call all-proto-files-under, proto_overrides)
+    $(call all-proto-files-under, proto_overrides) \
+	$(call all-proto-files-under, proto_pixel)
 
 LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
 
 LOCAL_PROGUARD_ENABLED := disabled
 
 LOCAL_PROTOC_OPTIMIZE_TYPE := nano
-LOCAL_PROTOC_FLAGS := --proto_path=$(LOCAL_PATH)/protos/ --proto_path=$(LOCAL_PATH)/proto_overrides/
+LOCAL_PROTOC_FLAGS := --proto_path=$(LOCAL_PATH)/protos/ --proto_path=$(LOCAL_PATH)/proto_overrides/ --proto_path=$(LOCAL_PATH)/proto_pixel/
 LOCAL_PROTO_JAVA_OUTPUT_PARAMS := enum_style=java
 
 LOCAL_PRIVATE_PLATFORM_APIS := true
@@ -176,6 +177,8 @@ LOCAL_FULL_LIBS_MANIFEST_FILES := \
 LOCAL_MANIFEST_FILE := quickstep/AndroidManifest.xml
 LOCAL_JACK_COVERAGE_INCLUDE_FILTER := com.android.launcher3.*
 
+LOCAL_AAPT_FLAGS := --rename-manifest-package com.google.android.apps.nexuslauncher
+
 include $(BUILD_PACKAGE)
 
 
@@ -250,7 +253,8 @@ LOCAL_SRC_FILES := \
     $(call all-java-files-under, searchlauncher/src) \
     $(call all-java-files-under, src_flags) \
     $(call all-proto-files-under, protos) \
-    $(call all-proto-files-under, proto_overrides)
+    $(call all-proto-files-under, proto_overrides) \
+	$(call all-proto-files-under, proto_pixel)
 
 LOCAL_RESOURCE_DIR := \
     $(LOCAL_PATH)/quickstep/res \
@@ -260,7 +264,7 @@ LOCAL_RESOURCE_DIR := \
 LOCAL_PROGUARD_ENABLED := disabled
 
 LOCAL_PROTOC_OPTIMIZE_TYPE := nano
-LOCAL_PROTOC_FLAGS := --proto_path=$(LOCAL_PATH)/protos/ --proto_path=$(LOCAL_PATH)/proto_overrides/
+LOCAL_PROTOC_FLAGS := --proto_path=$(LOCAL_PATH)/protos/ --proto_path=$(LOCAL_PATH)/proto_overrides/ --proto_path=$(LOCAL_PATH)/proto_pixel/
 LOCAL_PROTO_JAVA_OUTPUT_PARAMS := enum_style=java
 
 LOCAL_USE_AAPT2 := true
