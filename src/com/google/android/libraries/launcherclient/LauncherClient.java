@@ -9,6 +9,7 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.graphics.Point;
 import android.net.Uri;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
@@ -21,6 +22,9 @@ import android.view.Window;
 import android.view.WindowManager;
 
 import com.android.launcher3.Utilities;
+
+import com.google.android.libraries.launcherclient.ILauncherOverlay;
+import com.google.android.libraries.launcherclient.ILauncherOverlayCallback;
 
 public class LauncherClient {
 
@@ -185,6 +189,17 @@ public class LauncherClient {
         catch (RemoteException ignored) {
 
         }
+    }
+
+	public final boolean startSearch(byte[] bArr, Bundle bundle) {
+        if (mOverlay != null) {
+            try {
+                return mOverlay.startSearch(bArr, bundle);
+            } catch (Throwable e) {
+                Log.e("DrawerOverlayClient", "Error starting session for search", e);
+            }
+        }
+        return false;
     }
 
     public final void onAttachedToWindow() {

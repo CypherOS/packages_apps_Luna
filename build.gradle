@@ -43,7 +43,7 @@ android {
     productFlavors {
         aosp {
             dimension "default"
-            applicationId 'com.android.launcher3'
+            applicationId 'com.google.android.apps.nexuslauncher'
             testApplicationId 'com.android.launcher3.tests'
         }
 
@@ -81,6 +81,7 @@ android {
             proto {
                 srcDir 'protos/'
                 srcDir 'proto_overrides/'
+                srcDir 'proto_pixel/'
             }
         }
 

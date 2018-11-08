@@ -9,7 +9,7 @@
 
     <!-- A string pointer to the original app name string. This allows derived projects to
      easily override the app name without providing all translations -->
-    <string name="derived_app_name" translatable="false">@string/app_name</string>
+    <string name="derived_app_name" translatable="false">@string/app_name_pixel_launcher</string>
 
     <!-- String representing the intent for search on the apps market. To specify a query, add
     q=<query> to the data to the intent -->
@@ -81,13 +81,13 @@
     <string name="app_filter_class" translatable="false"></string>
 
     <!-- Name of an icon provider class. -->
-    <string name="icon_provider_class" translatable="false"></string>
+    <string name="icon_provider_class" translatable="false">com.google.android.apps.nexuslauncher.DynamicIconProvider</string>
 
     <!-- Name of a drawable factory class. -->
     <string name="drawable_factory_class" translatable="false"></string>
 
     <!-- Name of a user event dispatcher class. -->
-    <string name="user_event_dispatcher_class" translatable="false"></string>
+    <string name="user_event_dispatcher_class" translatable="false">com.google.android.apps.nexuslauncher.CustomAppPredictor</string>
 
     <!-- Name of an app transition manager class. -->
     <string name="app_transition_manager_class" translatable="false"></string>

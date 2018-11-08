@@ -165,6 +165,26 @@ public class LauncherIcons implements AutoCloseable {
         return null;
     }
 
+	/**
+     * Returns a bitmap suitable for the all apps view. If the package or the resource do not
+     * exist, it returns null.
+     */
+    public static Bitmap createIconBitmap(ShortcutIconResource iconRes, Context context) {
+        PackageManager packageManager = context.getPackageManager();
+        // the resource
+        try {
+            Resources resources = packageManager.getResourcesForApplication(iconRes.packageName);
+            if (resources != null) {
+                final int id = resources.getIdentifier(iconRes.resourceName, null, null);
+                return createIconBitmap(resources.getDrawableForDensity(
+                        id, LauncherAppState.getIDP(context).fillResIconDpi), context);
+            }
+        } catch (Exception e) {
+            // Icon not found.
+        }
+        return null;
+    }
+
     /**
      * Returns a bitmap which is of the appropriate size to be displayed as an icon
      */
@@ -292,6 +312,88 @@ public class LauncherIcons implements AutoCloseable {
         badge.setBounds(mIconBitmapSize - badgeSize, mIconBitmapSize - badgeSize,
                 mIconBitmapSize, mIconBitmapSize);
         badge.draw(target);
+    }
+	
+	/**
+     * Returns a bitmap suitable for the all apps view.
+     */
+    public static Bitmap createIconBitmap(Drawable icon, Context context) {
+        float scale = 1f;
+        if (FeatureFlags.ADAPTIVE_ICON_SHADOW && Utilities.ATLEAST_OREO &&
+                icon instanceof AdaptiveIconDrawable) {
+            scale = ShadowGenerator.getScaleForBounds(new RectF(0, 0, 0, 0));
+        }
+        Bitmap bitmap =  createIconBitmap(icon, context, scale);
+        if (FeatureFlags.ADAPTIVE_ICON_SHADOW && Utilities.ATLEAST_OREO &&
+                icon instanceof AdaptiveIconDrawable) {
+            bitmap = ShadowGenerator.getInstance(context).recreateIcon(bitmap);
+        }
+        return bitmap;
+    }
+	
+	/**
+     * @param scale the scale to apply before drawing {@param icon} on the canvas
+     */
+    public static Bitmap createIconBitmap(Drawable icon, Context context, float scale) {
+        synchronized (sCanvas) {
+            final int iconBitmapSize = LauncherAppState.getIDP(context).iconBitmapSize;
+            int width = iconBitmapSize;
+            int height = iconBitmapSize;
+
+            if (icon instanceof PaintDrawable) {
+                PaintDrawable painter = (PaintDrawable) icon;
+                painter.setIntrinsicWidth(width);
+                painter.setIntrinsicHeight(height);
+            } else if (icon instanceof BitmapDrawable) {
+                // Ensure the bitmap has a density.
+                BitmapDrawable bitmapDrawable = (BitmapDrawable) icon;
+                Bitmap bitmap = bitmapDrawable.getBitmap();
+                if (bitmap != null && bitmap.getDensity() == Bitmap.DENSITY_NONE) {
+                    bitmapDrawable.setTargetDensity(context.getResources().getDisplayMetrics());
+                }
+            }
+
+            int sourceWidth = icon.getIntrinsicWidth();
+            int sourceHeight = icon.getIntrinsicHeight();
+            if (sourceWidth > 0 && sourceHeight > 0) {
+                // Scale the icon proportionally to the icon dimensions
+                final float ratio = (float) sourceWidth / sourceHeight;
+                if (sourceWidth > sourceHeight) {
+                    height = (int) (width / ratio);
+                } else if (sourceHeight > sourceWidth) {
+                    width = (int) (height * ratio);
+                }
+            }
+            // no intrinsic size --> use default size
+            int textureWidth = iconBitmapSize;
+            int textureHeight = iconBitmapSize;
+
+            Bitmap bitmap = Bitmap.createBitmap(textureWidth, textureHeight,
+                    Bitmap.Config.ARGB_8888);
+            final Canvas canvas = sCanvas;
+            canvas.setBitmap(bitmap);
+
+            final int left = (textureWidth-width) / 2;
+            final int top = (textureHeight-height) / 2;
+
+            sOldBounds.set(icon.getBounds());
+            if (Utilities.ATLEAST_OREO && icon instanceof AdaptiveIconDrawable) {
+                int offset = Math.max((int)(ShadowGenerator.BLUR_FACTOR * iconBitmapSize),
+                        Math.min(left, top));
+                int size = Math.max(width, height);
+                icon.setBounds(offset, offset, size, size);
+            } else {
+                icon.setBounds(left, top, left+width, top+height);
+            }
+            canvas.save(Canvas.MATRIX_SAVE_FLAG);
+            canvas.scale(scale, scale, textureWidth / 2, textureHeight / 2);
+            icon.draw(canvas);
+            canvas.restore();
+            icon.setBounds(sOldBounds);
+            canvas.setBitmap(null);
+
+            return bitmap;
+        }
     }
 
     /**
