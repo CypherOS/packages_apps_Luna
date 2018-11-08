@@ -200,6 +200,26 @@ public class AppsSearchContainerLayout extends ExtendedEditText
         mAppsView.onSearchResultsChanged();
     }
 
+	@Override
+    public void addOnScrollRangeChangeListener(final OnScrollRangeChangeListener listener) {
+        mLauncher.getHotseat().addOnLayoutChangeListener(new OnLayoutChangeListener() {
+            @Override
+            public void onLayoutChange(View v, int left, int top, int right, int bottom,
+                    int oldLeft, int oldTop, int oldRight, int oldBottom) {
+                DeviceProfile dp = mLauncher.getDeviceProfile();
+                if (!dp.isVerticalBarLayout()) {
+                    Rect insets = mLauncher.getDragLayer().getInsets();
+                    int hotseatBottom = bottom - dp.hotseatBarBottomPaddingPx - insets.bottom;
+                    int searchTopMargin = insets.top + (mMinHeight - mSearchBoxHeight)
+                            + ((MarginLayoutParams) getLayoutParams()).bottomMargin;
+                    listener.onScrollRangeChanged(hotseatBottom - searchTopMargin);
+                } else {
+                    listener.onScrollRangeChanged(bottom);
+                }
+            }
+        });
+    }
+
     @Override
     public void setInsets(Rect insets) {
         MarginLayoutParams mlp = (MarginLayoutParams) getLayoutParams();
