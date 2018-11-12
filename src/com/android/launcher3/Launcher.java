@@ -343,6 +343,7 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
         setDefaultKeyMode(DEFAULT_KEYS_SEARCH_LOCAL);
 
         mQuickSpace = findViewById(R.id.reserved_container_workspace);
+		mQuickSpace.createQuickSpace(this);
 
         mFeedIntegrationEnabled = isFeedIntegrationEnabled();
         mLauncherTab = new LauncherTab(this, mFeedIntegrationEnabled);
