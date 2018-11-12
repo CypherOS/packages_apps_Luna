@@ -161,6 +161,11 @@ LOCAL_MODULE_TAGS := optional
 LOCAL_STATIC_ANDROID_LIBRARIES := Launcher3QuickStepLib
 LOCAL_PROGUARD_ENABLED := disabled
 
+LOCAL_AIDL_INCLUDES := src/com/google/android/libraries/launcherclient
+LOCAL_SRC_FILES += \
+    src/com/google/android/libraries/launcherclient/ILauncherOverlayCallback.aidl \
+    src/com/google/android/libraries/launcherclient/ILauncherOverlay.aidl
+
 LOCAL_PRIVATE_PLATFORM_APIS := true
 LOCAL_CERTIFICATE := platform
 LOCAL_PACKAGE_NAME := LunaQuickStep
