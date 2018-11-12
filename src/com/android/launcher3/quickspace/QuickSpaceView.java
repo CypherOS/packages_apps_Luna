@@ -65,15 +65,6 @@ public class QuickSpaceView extends FrameLayout implements ValueAnimator.Animato
 
     public QuickSpaceView(Context context, AttributeSet set) {
         super(context, set);
-        mHandler = new Handler();
-        if (WeatherClient.isAvailable(context)) {
-            mWeatherSettingsObserver = new WeatherSettingsObserver(
-                  mHandler, context.getContentResolver());
-            mWeatherSettingsObserver.register();
-            mWeatherSettingsObserver.updateLockscreenUnit();
-            mWeatherClient = new WeatherClient(getContext());
-            mWeatherClient.addObserver(this);
-        }
     }
 
     private void initListeners() {
@@ -166,6 +157,18 @@ public class QuickSpaceView extends FrameLayout implements ValueAnimator.Animato
             }
         });
         mBubbleTextView.setContentDescription("");
+    }
+
+	public void createQuickSpace(Context context) {
+		mHandler = new Handler();
+		if (WeatherClient.isAvailable(context)) {
+            mWeatherSettingsObserver = new WeatherSettingsObserver(
+                  mHandler, context.getContentResolver());
+            mWeatherSettingsObserver.register();
+            mWeatherSettingsObserver.updateLockscreenUnit();
+            mWeatherClient = new WeatherClient(getContext());
+            mWeatherClient.addObserver(this);
+        }
     }
 
     public void onResume() {
