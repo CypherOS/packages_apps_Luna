@@ -549,4 +549,8 @@ public class AllAppsContainerView extends SpringRelativeLayout implements DragSo
                     && verticalFadingEdge);
         }
     }
+
+	public boolean isUsingTabs() {
+		return mUsingTabs;
+	}
 }
