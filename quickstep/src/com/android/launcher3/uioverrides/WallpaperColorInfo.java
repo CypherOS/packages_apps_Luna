@@ -51,7 +51,7 @@ public class WallpaperColorInfo implements OnColorsChangedListener {
     private final WallpaperManager mWallpaperManager;
     private final TonalCompat mTonalCompat;
 
-    private ExtractionInfo mExtractionInfo;
+    public ExtractionInfo mExtractionInfo;
 
     private OnChangeListener[] mTempListeners = new OnChangeListener[0];
 
