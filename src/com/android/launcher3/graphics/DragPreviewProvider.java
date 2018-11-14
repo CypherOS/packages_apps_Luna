@@ -112,6 +112,34 @@ public class DragPreviewProvider {
         destCanvas.restore();
     }
 
+	public final void createDragBitmap(Canvas canvas, float pos) {
+        canvas.save();
+        canvas.scale(pos, pos);
+        if (mView instanceof BubbleTextView) {
+            Drawable drawable = ((BubbleTextView) mView).mIcon;
+            Rect drawableBounds = getDrawableBounds(drawable);
+            canvas.translate((float) ((blurSizeOutline / 2) - drawableBounds.left), (float) ((blurSizeOutline / 2) - drawableBounds.top));
+            drawable.draw(canvas);
+        } else {
+            Rect rect = mTempRect;
+            mView.getDrawingRect(rect);
+            boolean isFolderNameGone = false;
+            if (mView instanceof FolderIcon) {
+                if (((FolderIcon) mView).mFolderName.getVisibility() == 0) {
+                    ((FolderIcon) mView).setTextVisible(false);
+                    isFolderNameGone = true;
+                }
+            }
+            canvas.translate((float) ((-mView.getScrollX()) + (blurSizeOutline / 2)), (float) ((-mView.getScrollY()) + (blurSizeOutline / 2)));
+            canvas.clipRect(rect);
+            mView.draw(canvas);
+            if (isFolderNameGone) {
+                ((FolderIcon) mView).setTextVisible(true);
+            }
+        }
+        canvas.restore();
+    }
+
     /**
      * Returns a new bitmap to show when the {@link #mView} is being dragged around.
      * Responsibility for the bitmap is transferred to the caller.
