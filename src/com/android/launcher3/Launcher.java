@@ -185,7 +185,7 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
     // Type: SparseArray<Parcelable>
     private static final String RUNTIME_STATE_WIDGET_PANEL = "launcher.widget_panel";
 
-    private LauncherStateManager mStateManager;
+    public LauncherStateManager mStateManager;
 
     private static final int ON_ACTIVITY_RESULT_ANIMATION_DELAY = 500;
 
@@ -197,10 +197,10 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
     private LauncherAppTransitionManager mAppTransitionManager;
     private Configuration mOldConfig;
 
-    @Thunk Workspace mWorkspace;
+    public Workspace mWorkspace;
     private View mLauncherView;
     @Thunk DragLayer mDragLayer;
-    private DragController mDragController;
+    public DragController mDragController;
 
     private AppWidgetManagerCompat mAppWidgetManager;
     private LauncherAppWidgetHost mAppWidgetHost;
@@ -213,7 +213,7 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
     private DropTargetBar mDropTargetBar;
 
     // Main container view for the all apps screen.
-    @Thunk AllAppsContainerView mAppsView;
+    public AllAppsContainerView mAppsView;
     AllAppsTransitionController mAllAppsController;
 
     // UI and state for the overview panel

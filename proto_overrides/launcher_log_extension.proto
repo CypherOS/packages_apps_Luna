@@ -27,4 +27,5 @@ message LauncherEventExtension {
 }
 
 message TargetExtension {
+  optional bool is_action_suggestion = 1;
 }
