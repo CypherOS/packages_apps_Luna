@@ -179,7 +179,7 @@ public class Workspace extends PagedView<WorkspacePageIndicator>
 
     private SpringLoadedDragController mSpringLoadedDragController;
 
-    private boolean mIsSwitchingState = false;
+    public boolean mIsSwitchingState = false;
 
     boolean mChildrenLayersEnabled = true;
 

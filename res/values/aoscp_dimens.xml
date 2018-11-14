@@ -31,4 +31,12 @@
     <dimen name="status_bar_height">24dp</dimen>
     <dimen name="all_apps_search_bar_height">60dp</dimen>
 
+	<!-- App actions -->
+	<dimen name="action_view_compound_drawable_padding">5.0dip</dimen>
+	<dimen name="all_apps_action_spacing">8.0dip</dimen>
+	<dimen name="all_apps_label_top_padding">16.0dip</dimen>
+	<dimen name="all_apps_label_bottom_padding">8.0dip</dimen>
+	<dimen name="all_apps_label_text_size">14.0sp</dimen>
+	<dimen name="all_apps_prediction_row_divider_height">17.0dip</dimen>
+
 </resources>

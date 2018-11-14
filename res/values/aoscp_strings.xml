@@ -28,4 +28,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <!-- QuickSpace -->
     <string name="abbrev_wday_month_day_no_year">EEEEMMMd</string>
 
+	<!-- App actions -->
+	<string name="all_apps_label">All apps</string>
+	<string name="dismiss_drop_target_label">"Don't show"</string>
+	<string name="suggested_action_content_description">%1$s opens in %2$s</string>
+
 </resources>

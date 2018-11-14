@@ -90,7 +90,7 @@ public class FolderIcon extends FrameLayout implements FolderListener {
     // Delay when drag enters until the folder opens, in miliseconds.
     private static final int ON_OPEN_DELAY = 800;
 
-    @Thunk BubbleTextView mFolderName;
+    public BubbleTextView mFolderName;
 
     PreviewBackground mBackground = new PreviewBackground();
     private boolean mBackgroundIsVisible = true;
