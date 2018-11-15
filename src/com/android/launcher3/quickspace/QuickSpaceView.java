@@ -20,6 +20,8 @@ import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.database.ContentObserver;
 import android.graphics.Typeface;
 import android.graphics.drawable.Icon;
@@ -40,8 +42,12 @@ import com.android.internal.ambient.weather.WeatherClient;
 
 import com.android.launcher3.BubbleTextView;
 import com.android.launcher3.ItemInfo;
+import com.android.launcher3.Launcher;
+import com.android.launcher3.LauncherTab;
 import com.android.launcher3.R;
 import com.android.launcher3.quickspace.views.DateTextView;
+
+import java.net.URISyntaxException;
 
 public class QuickSpaceView extends FrameLayout implements ValueAnimator.AnimatorUpdateListener, WeatherClient.WeatherObserver, Runnable {
 
@@ -56,6 +62,7 @@ public class QuickSpaceView extends FrameLayout implements ValueAnimator.Animato
     private View mSeparator;
     private ViewGroup mQuickspaceContent;
     private ViewGroup mWeatherContent;
+	private View.OnClickListener mWeatherClickListener;
 
     private final Handler mHandler;
     private WeatherClient mWeatherClient;
@@ -74,6 +81,15 @@ public class QuickSpaceView extends FrameLayout implements ValueAnimator.Animato
             mWeatherClient = new WeatherClient(getContext());
             mWeatherClient.addObserver(this);
         }
+		
+		mWeatherClickListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+				if (hasPackage(LauncherTab.SEARCH_PACKAGE)) {
+                    showWeatherInfo(view);
+                }
+            }
+        };
     }
 
     private void initListeners() {
@@ -110,6 +126,7 @@ public class QuickSpaceView extends FrameLayout implements ValueAnimator.Animato
 
         mSeparator.setVisibility(View.VISIBLE);
         mWeatherContent.setVisibility(View.VISIBLE);
+		mWeatherContent.setOnClickListener(mWeatherClickListener);
         mWeatherTemp.setText(temperatureText);
         mWeatherIcon.setImageIcon(conditionIcon);
     }
@@ -180,6 +197,32 @@ public class QuickSpaceView extends FrameLayout implements ValueAnimator.Animato
     @Override
     public void setPadding(final int n, final int n2, final int n3, final int n4) {
         super.setPadding(0, 0, 0, 0);
+    }
+	
+	private boolean hasPackage(String pkgName) {
+        try {
+            ApplicationInfo ai = getContext().getPackageManager()
+                    .getApplicationInfo(pkgName, 0);
+            return ai.enabled;
+        } catch (PackageManager.NameNotFoundException e) {
+            return false;
+        }
+    }
+
+	private void showWeatherInfo(View view) {
+		Launcher launcher = Launcher.getLauncher(view.getContext());
+        Intent intent = new Intent(launcher.getIntent());
+		try {
+            Intent weatherInfo = Intent.parseUri(intent.getExtras()
+                    .getString("com.google.android.apps.gsa.smartspace.extra.SMARTSPACE_INTENT"), Intent.URI_INTENT_SCHEME);
+            launcher.startActivity(weatherInfo);
+            return;
+		} catch (URISyntaxException | NullPointerException | SecurityException e) {
+            e.printStackTrace();
+		}
+		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        intent.setSourceBounds(launcher.getViewBounds(view));
+        view.getContext().sendBroadcast(intent);
     }
 
     private class WeatherSettingsObserver extends ContentObserver {
