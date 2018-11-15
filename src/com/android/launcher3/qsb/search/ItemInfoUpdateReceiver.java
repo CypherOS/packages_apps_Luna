@@ -26,25 +26,24 @@ import com.android.launcher3.LauncherCallbacks;
 import com.android.launcher3.R;
 import com.android.launcher3.allapps.AllAppsRecyclerView;
 import com.android.launcher3.allapps.AlphabeticalAppsList;
-//import com.android.launcher3.util.ComponentKeyMapper;
+import com.android.launcher3.util.ComponentKeyMapper;
 
 import java.util.Iterator;
 
 public class ItemInfoUpdateReceiver implements IconCache.ItemInfoUpdateReceiver, SharedPreferences.OnSharedPreferenceChangeListener {
-    private final LauncherCallbacks mCallbacks;
-    private final int eD;
+
+    private int mAllAppsNumCols;
     private final Launcher mLauncher;
     
-    public ItemInfoUpdateReceiver(final Launcher launcher, final LauncherCallbacks callbacks) {
-        this.mLauncher = launcher;
-        this.mCallbacks = callbacks;
-        this.eD = launcher.getDeviceProfile().allAppsNumCols;
+    public ItemInfoUpdateReceiver(Launcher launcher, LauncherCallbacks callbacks) {
+        mLauncher = launcher;
+        mAllAppsNumCols = launcher.getDeviceProfile().allAppsNumCols;
     }
-/*
-    public void di() {
-        final AlphabeticalAppsList apps = ((AllAppsRecyclerView)this.mLauncher.findViewById(R.id.apps_list_view)).getApps();
-        final IconCache iconCache = LauncherAppState.getInstance(this.mLauncher).getIconCache();
-        final Iterator<ComponentKeyMapper<AppInfo>> iterator = this.mCallbacks.getPredictedApps().iterator();
+
+    public void updateItemInfo() {
+        final AlphabeticalAppsList apps = ((AllAppsRecyclerView)mLauncher.findViewById(R.id.apps_list_view)).getApps();
+        final IconCache iconCache = LauncherAppState.getInstance(mLauncher).getIconCache();
+        final Iterator<ComponentKeyMapper<AppInfo>> iterator = mLauncher.getPredictedApps().iterator();
         int n = 0;
         while (iterator.hasNext()) {
             final AppInfo app = apps.findApp(iterator.next());
@@ -54,7 +53,7 @@ public class ItemInfoUpdateReceiver implements IconCache.ItemInfoUpdateReceiver,
                     iconCache.updateIconInBackground(this, app);
                 }
                 n2 = n + 1;
-                if (n2 >= this.eD) {
+                if (n2 >= mAllAppsNumCols) {
                     break;
                 }
             }
@@ -64,7 +63,7 @@ public class ItemInfoUpdateReceiver implements IconCache.ItemInfoUpdateReceiver,
             n = n2;
         }
     }
-    
+
     public void onCreate() {
         mLauncher.getSharedPrefs().registerOnSharedPreferenceChangeListener(this);
     }
@@ -72,11 +71,11 @@ public class ItemInfoUpdateReceiver implements IconCache.ItemInfoUpdateReceiver,
     public void onDestroy() {
         mLauncher.getSharedPrefs().unregisterOnSharedPreferenceChangeListener(this);
     }
-*/
-    public void onSharedPreferenceChanged(final SharedPreferences sharedPreferences, final String s) {
-        /*if ("reflection_last_predictions".equals(s) || "pref_show_predictions".equals(s)) {
-            this.di();
-        }*/
+
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        if ("pref_show_predictions".equals(key)) {
+            updateItemInfo();
+        }
     }
     
     public void reapplyItemInfo(final ItemInfoWithIcon itemInfoWithIcon) {
