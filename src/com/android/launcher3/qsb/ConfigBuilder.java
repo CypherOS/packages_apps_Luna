@@ -41,7 +41,7 @@ import com.android.launcher3.allapps.AllAppsRecyclerView;
 import com.android.launcher3.allapps.AlphabeticalAppsList;
 import com.android.launcher3.compat.UserManagerCompat;
 import com.android.launcher3.uioverrides.WallpaperColorInfo;
-//import com.android.launcher3.util.ComponentKeyMapper;
+import com.android.launcher3.util.ComponentKeyMapper;
 import com.android.launcher3.util.Themes;
 import com.android.launcher3.qsb.search.AppSearchProvider;
 import com.android.launcher3.qsb.search.nano.SearchProto.a_search;
@@ -280,12 +280,12 @@ public class ConfigBuilder {
             mNano.ez = viewBounds3;
         }
         bW();
-        /*List predictedApps = appsView.getApps().getPredictedApps();
+        List predictedApps = appsView.getApps().getPredictedApps();
         int i = Math.min(predictedApps.size(), allAppsCols);
         mNano.eo = new b_search[i];
         for (int i2 = 0; i2 < i; i2++) {
             mNano.eo[i2] = bZ((AppInfo) predictedApps.get(i2), i2);
-        }*/
+        }
     }
 
     private void cf() {
@@ -310,7 +310,7 @@ public class ConfigBuilder {
         mBubbleTextView.measure(View.MeasureSpec.makeMeasureSpec(layoutParams.width, View.MeasureSpec.EXACTLY), View.MeasureSpec.makeMeasureSpec(layoutParams.height, View.MeasureSpec.EXACTLY));
         mBubbleTextView.layout(0, 0, layoutParams.width, layoutParams.height);
         final ArrayList<b_search> list = new ArrayList<>(mNano.es);
-        /*for (ComponentKeyMapper<AppInfo> cmp : mLauncher.getPredictedApps()) {
+        for (ComponentKeyMapper<AppInfo> cmp : mLauncher.getPredictedApps()) {
             final AppInfo app = apps.findApp(cmp);
             int n3;
             if (app != null) {
@@ -323,7 +323,7 @@ public class ConfigBuilder {
                 n3 = n2;
             }
             n2 = n3;
-        }*/
+        }
 
         mNano.eo = list.toArray(new b_search[list.size()]);
     }

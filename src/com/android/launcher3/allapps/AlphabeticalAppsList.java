@@ -586,6 +586,10 @@ public class AlphabeticalAppsList implements AllAppsStore.OnUpdateListener {
         return result;
     }
 
+	public AppInfo findApp(ComponentKeyMapper<AppInfo> mapper) {
+        return mAllAppsStore.getApp(mapper);
+    }
+
     /**
      * Returns the cached section name for the given title, recomputing and updating the cache if
      * the title has no cached section name.
