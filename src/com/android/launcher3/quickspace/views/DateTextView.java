@@ -27,21 +27,24 @@ import android.util.AttributeSet;
 
 import com.android.launcher3.R;
 import com.android.launcher3.Utilities;
+import com.android.launcher3.quickspace.QuickEvents;
 
 import java.util.Locale;
 
 public class DateTextView extends DoubleShadowTextView {
 
     private DateFormat mDateFormat;
+	private QuickEvents mQuickEvents;
     private final BroadcastReceiver mTimeChangeReceiver;
     private boolean mIsVisible = false;
 
-    public DateTextView(final Context context) {
+    public DateTextView(Context context) {
         this(context, null);
     }
 
     public DateTextView(final Context context, final AttributeSet set) {
         super(context, set, 0);
+		mQuickEvents = new QuickEvents(context);
         mTimeChangeReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -51,6 +54,7 @@ public class DateTextView extends DoubleShadowTextView {
     }
 
     public void reloadDateFormat(boolean forcedChange) {
+		if (mQuickEvents.isQuickEvent()) return;
         String format;
         if (Utilities.ATLEAST_NOUGAT) {
             if (mDateFormat == null || forcedChange) {
@@ -80,9 +84,7 @@ public class DateTextView extends DoubleShadowTextView {
     }
 
     public void onVisibilityAggregated(boolean isVisible) {
-        if (Utilities.ATLEAST_NOUGAT) {
-            super.onVisibilityAggregated(isVisible);
-        }
+        super.onVisibilityAggregated(isVisible);
         if (!mIsVisible && isVisible) {
             mIsVisible = true;
             registerReceiver();
