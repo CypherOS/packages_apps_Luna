@@ -24,6 +24,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.content.res.ColorStateList;
 import android.database.ContentObserver;
 import android.graphics.Typeface;
 import android.graphics.drawable.Icon;
@@ -33,6 +34,7 @@ import android.os.Process;
 import android.os.UserHandle;
 import android.provider.CalendarContract;
 import android.provider.Settings;
+import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -51,6 +53,8 @@ import com.android.launcher3.LauncherTab;
 import com.android.launcher3.R;
 import com.android.launcher3.compat.LauncherAppsCompat;
 import com.android.launcher3.quickspace.views.DateTextView;
+import com.android.launcher3.uioverrides.WallpaperColorInfo;
+import com.android.launcher3.util.Themes;
 
 import java.net.URISyntaxException;
 
@@ -68,6 +72,14 @@ public class QuickSpaceView extends FrameLayout implements ValueAnimator.Animato
     private View mSeparator;
     private ViewGroup mQuickspaceContent;
     private ViewGroup mWeatherContent;
+	
+	private TextView mEventTitle;
+	private TextView mEventTitleSub;
+	private ImageView mEventSubIcon;
+	private ViewGroup mWeatherContentSub;
+	private TextView mWeatherTempSub;
+	private ImageView mWeatherIconSub;
+	private boolean mIsQuickEvent;
 
     private final Handler mHandler;
     private WeatherClient mWeatherClient;
@@ -75,10 +87,17 @@ public class QuickSpaceView extends FrameLayout implements ValueAnimator.Animato
     private WeatherSettingsObserver mWeatherSettingsObserver;
     private boolean mUseImperialUnit;
     private boolean mHasGoogleCalendar = hasPackage("com.google.android.calendar");
+	
+	private ColorStateList mColorStateList;
+	private QuickEvents mQuickEvents;
+	private int mQuickspaceBackgroundRes;
+	
+	private View.OnClickListener mQuickEventClickListener;
 
     public QuickSpaceView(Context context, AttributeSet set) {
         super(context, set);
         mHandler = new Handler();
+		mQuickEvents = new QuickEvents(context);
         if (WeatherClient.isAvailable(context)) {
             mWeatherSettingsObserver = new WeatherSettingsObserver(
                   mHandler, context.getContentResolver());
@@ -105,10 +124,29 @@ public class QuickSpaceView extends FrameLayout implements ValueAnimator.Animato
                 }
             }
         };
+		
+		mColorStateList = ColorStateList.valueOf(Themes.getAttrColor(getContext(), R.attr.workspaceTextColor));
+		mQuickspaceBackgroundRes = R.drawable.bg_quickspace;
+
+		mQuickEventClickListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+				mQuickEvents.setOnClickTask(view);
+            }
+        };
     }
 
     private void initListeners() {
-        loadSingleLine();
+		final boolean isQuickEvent = mQuickEvents.isQuickEvent();
+		if (mIsQuickEvent != isQuickEvent) {
+            mIsQuickEvent = isQuickEvent;
+            prepareLayout();
+        }
+		if (mIsQuickEvent) {
+            loadDoubleLine();
+        } else {
+            loadSingleLine();
+        }
     }
 
     private void loadSingleLine() {
@@ -133,28 +171,55 @@ public class QuickSpaceView extends FrameLayout implements ValueAnimator.Animato
             return;
         }
 
-        int temperatureMetric = mWeatherInfo.getTemperature(true);
-        int temperatureImperial = mWeatherInfo.getTemperature(false);
-        String temperatureText = mUseImperialUnit ?
-                Integer.toString(temperatureImperial) + "°F" :
-                Integer.toString(temperatureMetric) + "°C";
-        Icon conditionIcon = Icon.createWithResource(getContext(), mWeatherInfo.getWeatherConditionImage());
-
         mSeparator.setVisibility(View.VISIBLE);
         mWeatherContent.setVisibility(View.VISIBLE);
-        mWeatherTemp.setText(temperatureText);
-        mWeatherIcon.setImageIcon(conditionIcon);
+        mWeatherTemp.setText(getWeatherTemp());
+        mWeatherIcon.setImageIcon(getWeatherIcon());
+    }
+
+	private void loadDoubleLine() {
+        setBackgroundResource(mQuickspaceBackgroundRes);
+		ColorStateList colorStateList = null;
+
+		mEventTitle.setText(mQuickEvents.getEventTitle());
+		mEventTitleSub.setText(mQuickEvents.getEventSubTitle());
+		mEventTitleSub.setEllipsize(TextUtils.TruncateAt.END);
+		mEventTitleSub.setOnClickListener(mQuickEventClickListener);
+		if (WallpaperColorInfo.getInstance(getContext()).supportsDarkText()) {
+            colorStateList = mColorStateList;
+        }
+		final int eventIcon = mQuickEvents.getEventSubIcon();
+		mEventSubIcon.setImageTintList(colorStateList);
+        mEventSubIcon.setImageResource(eventIcon != 0 ? eventIcon : R.drawable.ic_info_no_shadow);
+
+        if (WeatherClient.isAvailable(getContext()) && mWeatherInfo != null 
+		        && mWeatherInfo.getStatus() == WeatherClient.WEATHER_UPDATE_SUCCESS) {
+            mWeatherContentSub.setVisibility(View.VISIBLE);
+            mWeatherTempSub.setText(getWeatherTemp());
+            mWeatherIconSub.setImageIcon(getWeatherIcon());
+        } else {
+            mWeatherContentSub.setVisibility(View.GONE);
+        }
     }
 
     private void loadViews() {
-        mClockView = findViewById(R.id.clock_view);
-        mQuickspaceContent = findViewById(R.id.quickspace_content);
-        mSeparator = findViewById(R.id.separator);
-        mWeatherIcon = findViewById(R.id.weather_icon);
-        mWeatherContent = findViewById(R.id.weather_content);
-        mWeatherTemp = findViewById(R.id.weather_temp);
+		if (!mIsQuickEvent) {
+			mClockView = findViewById(R.id.clock_view);
+			mQuickspaceContent = findViewById(R.id.quickspace_content);
+			mSeparator = findViewById(R.id.separator);
+			mWeatherIcon = findViewById(R.id.weather_icon);
+			mWeatherContent = findViewById(R.id.weather_content);
+			mWeatherTemp = findViewById(R.id.weather_temp);
+		} else {
+			mEventTitle = findViewById(R.id.quick_event_title);
+			mEventTitleSub = findViewById(R.id.quick_event_title_sub);
+			mEventSubIcon = findViewById(R.id.quick_event_icon_sub);
+			mWeatherContentSub = findViewById(R.id.quick_event_weather_content);
+			mWeatherTempSub = findViewById(R.id.quick_event_weather_temp);
+			mWeatherIconSub = findViewById(R.id.quick_event_weather_icon);
+		}
 
-        setTypeface(mClockView, mWeatherTemp);
+        setTypeface(mClockView, mWeatherTemp, mEventTitle, mEventTitleSub, mWeatherTempSub);
     }
 
     private void setTypeface(TextView... views) {
@@ -164,6 +229,16 @@ public class QuickSpaceView extends FrameLayout implements ValueAnimator.Animato
                 view.setTypeface(tf);
             }
         }
+    }
+
+	private void prepareLayout() {
+        final int indexOfChild = indexOfChild(mQuickspaceContent);
+        removeView(mQuickspaceContent);
+        final LayoutInflater from = LayoutInflater.from(getContext());
+        addView(from.inflate(mIsQuickEvent ?
+                R.layout.quickspace_doubleline :
+                R.layout.quickspace_singleline, this, false), indexOfChild);
+        loadViews();
     }
 
     public void getQuickSpaceView() {
@@ -201,11 +276,13 @@ public class QuickSpaceView extends FrameLayout implements ValueAnimator.Animato
     }
 
     public void onResume() {
+		mQuickEvents.initQuickEvents();
         getQuickSpaceView();
     }
 
     @Override
     public void run() {
+		mQuickEvents.initQuickEvents();
         getQuickSpaceView();
     }
 
@@ -213,6 +290,16 @@ public class QuickSpaceView extends FrameLayout implements ValueAnimator.Animato
     public void setPadding(final int n, final int n2, final int n3, final int n4) {
         super.setPadding(0, 0, 0, 0);
     }
+	
+	private String getWeatherTemp() {
+		int temperatureImperial = mWeatherInfo.getTemperature(false);
+		int temperatureMetric = mWeatherInfo.getTemperature(true);
+		return mUseImperialUnit ? Integer.toString(temperatureImperial) + "°F" : Integer.toString(temperatureMetric) + "°C";
+	}
+	
+	private Icon getWeatherIcon() {
+		return Icon.createWithResource(getContext(), mWeatherInfo.getWeatherConditionImage());
+	}
 
     private boolean hasPackage(String pkgName) {
         try {
