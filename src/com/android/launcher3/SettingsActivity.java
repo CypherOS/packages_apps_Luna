@@ -43,6 +43,7 @@ import android.preference.PreferenceScreen;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.SwitchPreference;
 import android.provider.Settings;
+import android.support.v7.preference.TwoStatePreference;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.Adapter;
@@ -73,6 +74,7 @@ public class SettingsActivity extends Activity {
     private static final String SAVE_HIGHLIGHTED_KEY = "android:preference_highlighted";
 
     static final String KEY_FEED_INTEGRATION = "pref_feed_integration";
+	static final String KEY_SHOW_PREDICTIONS = "pref_show_predictions";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,6 +101,8 @@ public class SettingsActivity extends Activity {
 
         private String mPreferenceKey;
         private boolean mPreferenceHighlighted = false;
+		
+		private SwitchPreference mShowPredictions;
 
         @Override
         public void onCreate(Bundle savedInstanceState) {
@@ -133,6 +137,9 @@ public class SettingsActivity extends Activity {
             if (!hasPackageInstalled(LauncherTab.SEARCH_PACKAGE)) {
                 getPreferenceScreen().removePreference(feedIntegration);
             }
+			
+			mShowPredictions = (SwitchPreference) findPreference(KEY_SHOW_PREDICTIONS);
+            mShowPredictions.setOnPreferenceChangeListener(this);
 
             Preference iconShapeOverride = findPreference(IconShapeOverride.KEY_PREFERENCE);
             if (iconShapeOverride != null) {
@@ -152,6 +159,21 @@ public class SettingsActivity extends Activity {
                 // Initialize the UI once
                 rotationPref.setDefaultValue(getAllowRotationDefaultValue());
             }
+        }
+		
+		@Override
+        public boolean onPreferenceChange(Preference preference, Object newValue) {
+            switch (preference.getKey()) {
+                case KEY_SHOW_PREDICTIONS:
+                    if ((boolean) newValue) {
+                        return true;
+                    }
+                    SettingsActivity.SuggestionConfirmationFragment confirmationFragment = new SettingsActivity.SuggestionConfirmationFragment();
+                    confirmationFragment.setTargetFragment(this, 0);
+                    confirmationFragment.show(getFragmentManager(), preference.getKey());
+                    break;
+            }
+            return false;
         }
 
         @Override
@@ -320,6 +342,26 @@ public class SettingsActivity extends Activity {
                     .putExtra(EXTRA_FRAGMENT_ARG_KEY, cn.flattenToString())
                     .putExtra(EXTRA_SHOW_FRAGMENT_ARGS, showFragmentArgs);
             getActivity().startActivity(intent);
+        }
+    }
+	
+	public static class SuggestionConfirmationFragment extends DialogFragment implements DialogInterface.OnClickListener {
+
+        public void onClick(DialogInterface dialogInterface, int n) {
+            if (getTargetFragment() instanceof LauncherSettingsFragment) {
+                Preference preference = ((LauncherSettingsFragment) getTargetFragment()).findPreference(KEY_SHOW_PREDICTIONS);
+                if (preference instanceof TwoStatePreference) {
+                    ((TwoStatePreference) preference).setChecked(false);
+                }
+            }
+        }
+
+        public Dialog onCreateDialog(Bundle bundle) {
+            return new AlertDialog.Builder(getActivity())
+                    .setTitle(R.string.app_suggestions_disable_prompt)
+                    .setMessage(R.string.app_suggestions_disable_msg_prompt)
+                    .setNegativeButton(android.R.string.cancel, null)
+                    .setPositiveButton(R.string.app_suggestions_turn_off, this).create();
         }
     }
 }

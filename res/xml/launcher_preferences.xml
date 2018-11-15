@@ -35,6 +35,13 @@
         android:persistent="true"
         android:title="@string/settings_feed" />
 
+	<SwitchPreference
+        android:key="pref_show_predictions"
+        android:title="@string/app_suggestions_title"
+        android:summary="@string/app_suggestions_summary"
+        android:defaultValue="true"
+        />
+
     <SwitchPreference
         android:key="pref_add_icon_to_home"
         android:title="@string/auto_add_shortcuts_label"
