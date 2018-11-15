@@ -28,4 +28,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <!-- QuickSpace -->
     <string name="abbrev_wday_month_day_no_year">EEEEMMMd</string>
 
+	<!-- App Suggestions -->
+	<string name="app_suggestions_title">Display app suggestions</string>
+    <string name="app_suggestions_summary">At the top of your All Apps list</string>
+	<string name="app_suggestions_disable_prompt">Turn off app suggestions?</string>
+    <string name="app_suggestions_disable_msg_prompt">"Suggestions won't appear at the top of your apps list, and the usage data used to create them will be permanently erased."</string>
+    <string name="app_suggestions_turn_off">TURN OFF</string>
+
 </resources>
