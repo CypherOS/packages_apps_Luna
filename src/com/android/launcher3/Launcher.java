@@ -98,6 +98,7 @@ import com.android.launcher3.model.ModelWriter;
 import com.android.launcher3.notification.NotificationListener;
 import com.android.launcher3.popup.PopupContainerWithArrow;
 import com.android.launcher3.popup.PopupDataProvider;
+import com.android.launcher3.quickspace.QuickEvents;
 import com.android.launcher3.quickspace.QuickSpaceView;
 import com.android.launcher3.shortcuts.DeepShortcutManager;
 import com.android.launcher3.states.InternalStateHandler;
@@ -260,6 +261,7 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
 
     // QuickSpace
     private QuickSpaceView mQuickSpace;
+	private QuickEvents mQuickSpaceEvents;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -343,6 +345,7 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
         setDefaultKeyMode(DEFAULT_KEYS_SEARCH_LOCAL);
 
         mQuickSpace = findViewById(R.id.reserved_container_workspace);
+		mQuickSpaceEvents = new QuickEvents(this);
 
         mFeedIntegrationEnabled = isFeedIntegrationEnabled();
         mLauncherTab = new LauncherTab(this, mFeedIntegrationEnabled);

@@ -27,5 +27,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     <!-- QuickSpace -->
     <string name="abbrev_wday_month_day_no_year">EEEEMMMd</string>
+	<!-- QuickSpace: QuickEvent: Device Intro Event -->
+	<string name="quick_event_device_intro_welcome">Welcome to your device</string>
+	<string name="quick_event_device_intro_learn">Tap for tips</string>
 
 </resources>
