@@ -27,5 +27,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     <!-- QuickSpace -->
     <string name="abbrev_wday_month_day_no_year">EEEEMMMd</string>
+	<!-- QuickSpace: QuickEvent: Device Intro Event -->
+	<string name="quick_event_aoscp_intro_welcome">Welcome to CypherOS</string>
+	<string name="quick_event_aoscp_intro_learn">Tap to get started</string>
 
 </resources>
