@@ -80,9 +80,7 @@ public class DateTextView extends DoubleShadowTextView {
     }
 
     public void onVisibilityAggregated(boolean isVisible) {
-        if (Utilities.ATLEAST_NOUGAT) {
-            super.onVisibilityAggregated(isVisible);
-        }
+        super.onVisibilityAggregated(isVisible);
         if (!mIsVisible && isVisible) {
             mIsVisible = true;
             registerReceiver();
