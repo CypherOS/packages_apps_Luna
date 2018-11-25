@@ -199,10 +199,10 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
     private LauncherAppTransitionManager mAppTransitionManager;
     private Configuration mOldConfig;
 
-    @Thunk Workspace mWorkspace;
+    public Workspace mWorkspace;
     private View mLauncherView;
-    @Thunk DragLayer mDragLayer;
-    private DragController mDragController;
+    public DragLayer mDragLayer;
+    public DragController mDragController;
 
     private AppWidgetManagerCompat mAppWidgetManager;
     private LauncherAppWidgetHost mAppWidgetHost;
@@ -215,7 +215,7 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
     private DropTargetBar mDropTargetBar;
 
     // Main container view for the all apps screen.
-    @Thunk AllAppsContainerView mAppsView;
+    public AllAppsContainerView mAppsView;
     AllAppsTransitionController mAllAppsController;
 
     // UI and state for the overview panel
@@ -266,6 +266,9 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
     // QSB Assistant
     private AssistantIconView mAssistantView;
     private HotseatQsbWidget mHotseatQsbView;
+
+	// App Suggestions
+	private PredictionsUiStateManager mPredictionsUiStateMgr;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -371,6 +374,9 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
         mRotationHelper.initialize();
 
         mSharedPrefs.registerOnSharedPreferenceChangeListener(this);
+		
+		mPredictionsUiStateMgr = new PredictionsUiStateManager(this);
+		mPredictionsUiStateMgr.register();
 
         TraceHelper.endSection("Launcher-onCreate");
     }
@@ -1407,6 +1413,8 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
         }
 
         mSharedPrefs.unregisterOnSharedPreferenceChangeListener(this);
+		
+		mPredictionsUiStateMgr.unregister();
     }
 
     public LauncherAccessibilityDelegate getAccessibilityDelegate() {

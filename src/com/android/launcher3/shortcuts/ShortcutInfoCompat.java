@@ -36,7 +36,7 @@ public class ShortcutInfoCompat {
     private static final String INTENT_CATEGORY = "com.android.launcher3.DEEP_SHORTCUT";
     private static final String EXTRA_BADGEPKG = "badge_package";
     public static final String EXTRA_SHORTCUT_ID = "shortcut_id";
-    private ShortcutInfo mShortcutInfo;
+    public ShortcutInfo mShortcutInfo;
 
     public ShortcutInfoCompat(ShortcutInfo shortcutInfo) {
         mShortcutInfo = shortcutInfo;

@@ -47,9 +47,9 @@ public class LauncherAppState {
 
     private final Context mContext;
     private final LauncherModel mModel;
-    private final IconCache mIconCache;
+    public final IconCache mIconCache;
     private final WidgetPreviewLoader mWidgetCache;
-    private final InvariantDeviceProfile mInvariantDeviceProfile;
+    public final InvariantDeviceProfile mInvariantDeviceProfile;
     private final SettingsObserver mNotificationBadgingObserver;
 
     public static LauncherAppState getInstance(final Context context) {

@@ -31,4 +31,8 @@
     <dimen name="status_bar_height">24dp</dimen>
     <dimen name="all_apps_search_bar_height">60dp</dimen>
 
+	<!-- App Predictions -->
+	<dimen name="all_apps_action_spacing">8.0dip</dimen>
+	<dimen name="all_apps_prediction_row_divider_height">17.0dip</dimen>
+
 </resources>
