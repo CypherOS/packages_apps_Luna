@@ -37,7 +37,7 @@ import java.util.Set;
 public class AllAppsStore {
 
     private PackageUserKey mTempKey = new PackageUserKey(null, null);
-    private final HashMap<ComponentKey, AppInfo> mComponentToAppMap = new HashMap<>();
+    public final HashMap<ComponentKey, AppInfo> mComponentToAppMap = new HashMap<>();
     private final List<OnUpdateListener> mUpdateListeners = new ArrayList<>();
     private final ArrayList<ViewGroup> mIconContainers = new ArrayList<>();
 

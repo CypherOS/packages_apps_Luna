@@ -68,7 +68,7 @@ public class FloatingHeaderView extends LinearLayout implements
     private int mSnappedScrolledY;
     private int mTranslationY;
 
-    private boolean mAllowTouchForwarding;
+    public boolean mAllowTouchForwarding;
     private boolean mForwardToRecyclerView;
 
     protected boolean mTabsHidden;
