@@ -71,7 +71,7 @@ public class AllAppsContainerView extends SpringRelativeLayout implements DragSo
     public final AdapterHolder[] mAH;
     private final ItemInfoMatcher mPersonalMatcher = ItemInfoMatcher.ofUser(Process.myUserHandle());
     private final ItemInfoMatcher mWorkMatcher = ItemInfoMatcher.not(mPersonalMatcher);
-    private final AllAppsStore mAllAppsStore = new AllAppsStore();
+    public final AllAppsStore mAllAppsStore = new AllAppsStore();
 
     private final Paint mNavBarScrimPaint;
     private int mNavBarScrimHeight = 0;
@@ -79,7 +79,7 @@ public class AllAppsContainerView extends SpringRelativeLayout implements DragSo
     private SearchUiManager mSearchUiManager;
     private View mSearchContainer;
     private AllAppsPagedView mViewPager;
-    private FloatingHeaderView mHeader;
+    public FloatingHeaderView mHeader;
 
     private SpannableStringBuilder mSearchQueryBuilder = null;
 

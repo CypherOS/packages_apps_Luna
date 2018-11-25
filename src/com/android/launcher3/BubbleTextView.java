@@ -94,7 +94,7 @@ public class BubbleTextView extends TextView implements ItemInfoUpdateReceiver, 
     };
 
     private final BaseDraggingActivity mActivity;
-    private Drawable mIcon;
+    public Drawable mIcon;
     private final boolean mCenterVertically;
 
     private final CheckLongPressHelper mLongPressHelper;
@@ -102,7 +102,7 @@ public class BubbleTextView extends TextView implements ItemInfoUpdateReceiver, 
     private final float mSlop;
 
     private final boolean mLayoutHorizontal;
-    private final int mIconSize;
+    public final int mIconSize;
 
     @ViewDebug.ExportedProperty(category = "launcher")
     private boolean mIsIconVisible = true;
@@ -433,7 +433,7 @@ public class BubbleTextView extends TextView implements ItemInfoUpdateReceiver, 
         setTextAlpha(visible ? 1 : 0);
     }
 
-    private void setTextAlpha(float alpha) {
+    public void setTextAlpha(float alpha) {
         mTextAlpha = alpha;
         super.setTextColor(getModifiedColor());
     }
