@@ -69,9 +69,13 @@ public class UserEventDispatcher {
     private static final boolean IS_VERBOSE =
             FeatureFlags.IS_DOGFOOD_BUILD && Utilities.isPropertyEnabled(LogConfig.USEREVENT);
     private static final String UUID_STORAGE = "uuid";
+	
+	private static Context mContext;
+	private static PredictionsEvent mPredicitonsEvent = null;
 
     public static UserEventDispatcher newInstance(Context context, DeviceProfile dp,
             UserEventDelegate delegate) {
+		mContext = context;
         SharedPreferences sharedPrefs = Utilities.getDevicePrefs(context);
         String uuidStr = sharedPrefs.getString(UUID_STORAGE, null);
         if (uuidStr == null) {
@@ -433,6 +437,11 @@ public class UserEventDispatcher {
     }
 
     public void dispatchUserEvent(LauncherEvent ev, Intent intent) {
+		ComponentKey componentKey = (ComponentKey) new ThreadLocal().get();
+		PredictionsEvent predictionsEvent = getPredictionsEvent(mContext);
+        if (componentKey != null && predictionsEvent.mIsPredictionsEnabled) {
+            ev.srcTarget[0].predictedRank = predictionsEvent.mApps.indexOf(componentKey);
+        }
         mAppOrTaskLaunch = false;
         ev.isInLandscapeMode = mIsInLandscapeMode;
         ev.isInMultiWindowMode = mIsInMultiWindowMode;
@@ -467,5 +476,19 @@ public class UserEventDispatcher {
             result += "\tparent:" + LoggerUtils.getTargetStr(targets[i]);
         }
         return result;
+    }
+
+	private static synchronized PredictionsEvent getPredictionsEvent(Context context) {
+        PredictionsEvent predictionsEvent;
+        synchronized (UserEventDispatcher.class) {
+            if (mPredicitonsEvent == null) {
+                PredictionsEvent predictionsEvent2 = new PredictionsEvent(context.getApplicationContext());
+                mPredicitonsEvent = predictionsEvent2;
+                predictionsEvent2.register();
+                mPredicitonsEvent.mo3142B(false);
+            }
+            predictionsEvent = mPredicitonsEvent;
+        }
+        return predictionsEvent;
     }
 }

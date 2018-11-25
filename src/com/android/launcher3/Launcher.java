@@ -267,6 +267,9 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
     private AssistantIconView mAssistantView;
     private HotseatQsbWidget mHotseatQsbView;
 
+	// App Suggestions
+	private PredictionsUiStateManager mPredictionsUiStateMgr;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         if (DEBUG_STRICT_MODE) {
@@ -371,6 +374,9 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
         mRotationHelper.initialize();
 
         mSharedPrefs.registerOnSharedPreferenceChangeListener(this);
+		
+		mPredictionsUiStateMgr = new PredictionsUiStateManager(this);
+		mPredictionsUiStateMgr.register();
 
         TraceHelper.endSection("Launcher-onCreate");
     }
@@ -1407,6 +1413,8 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
         }
 
         mSharedPrefs.unregisterOnSharedPreferenceChangeListener(this);
+		
+		mPredictionsUiStateMgr.unregister();
     }
 
     public LauncherAccessibilityDelegate getAccessibilityDelegate() {
