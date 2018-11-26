@@ -32,7 +32,7 @@ import android.widget.LinearLayout;
 import com.android.launcher3.R;
 import com.android.launcher3.anim.PropertySetter;
 
-public class FloatingHeaderView extends LinearLayout implements
+public class FloatingHeaderView extends RelativeLayout implements
         ValueAnimator.AnimatorUpdateListener {
 
     private final Rect mClip = new Rect(0, 0, Integer.MAX_VALUE, Integer.MAX_VALUE);
@@ -59,6 +59,7 @@ public class FloatingHeaderView extends LinearLayout implements
         }
     };
 
+	private PredictionRowView mPredictionRow;
     protected ViewGroup mTabLayout;
     private AllAppsRecyclerView mMainRV;
     private AllAppsRecyclerView mWorkRV;
@@ -86,12 +87,15 @@ public class FloatingHeaderView extends LinearLayout implements
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
+		mPredictionRow = findViewById(R.id.predictions_row);
         mTabLayout = findViewById(R.id.tabs);
     }
 
-    public void setup(AllAppsContainerView.AdapterHolder[] mAH, boolean tabsHidden) {
+    public void setup(AllAppsContainerView.AdapterHolder[] mAH, boolean tabsHidden, int numPredictedAppsPerRow) {
         mTabsHidden = tabsHidden;
         mTabLayout.setVisibility(tabsHidden ? View.GONE : View.VISIBLE);
+		mPredictionRow.setup(mAH[AllAppsContainerView.AdapterHolder.MAIN].adapter, numPredictedAppsPerRow);
+        mPredictionRow.setShowDivider(tabsHidden);
         mMainRV = setupRV(mMainRV, mAH[AllAppsContainerView.AdapterHolder.MAIN].recyclerView);
         mWorkRV = setupRV(mWorkRV, mAH[AllAppsContainerView.AdapterHolder.WORK].recyclerView);
         mParent = (ViewGroup) mMainRV.getParent();
@@ -111,7 +115,13 @@ public class FloatingHeaderView extends LinearLayout implements
         mMainRVActive = active;
     }
 
+	public PredictionRowView getPredictionRow() {
+        return mPredictionRow;
+	}
+
     public int getMaxTranslation() {
+		// Return predictions row forcefully until we add configuration
+		return mPredictionRow.getExpectedHeight();
         if (mMaxTranslation == 0 && mTabsHidden) {
             return getResources().getDimensionPixelSize(R.dimen.all_apps_search_bar_bottom_padding);
         } else if (mMaxTranslation > 0 && mTabsHidden) {
@@ -122,7 +132,7 @@ public class FloatingHeaderView extends LinearLayout implements
     }
 
     private boolean canSnapAt(int currentScrollY) {
-        return Math.abs(currentScrollY) <= mMaxTranslation;
+        return Math.abs(currentScrollY) <= mPredictionRow.getHeight(); // ? : mMaxTranslation;
     }
 
     private void moved(final int currentScrollY) {
@@ -149,7 +159,13 @@ public class FloatingHeaderView extends LinearLayout implements
         }
     }
 
-    protected void applyScroll(int uncappedY, int currentY) { }
+    protected void applyScroll(int uncappedY, int currentY) {
+		boolean translationCapped = currentY != uncappedY;
+		mPredictionRow.setVisibility(translationCapped ? View.INVISIBLE : View.VISIBLE);
+		if (!translationCapped) {
+			mPredictionRow.setTranslationY(uncappedY);
+		}
+	}
 
     protected void apply() {
         int uncappedTranslationY = mTranslationY;
