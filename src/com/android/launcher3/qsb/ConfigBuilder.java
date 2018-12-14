@@ -35,13 +35,14 @@ import android.widget.RemoteViews;
 import com.android.launcher3.AppInfo;
 import com.android.launcher3.BubbleTextView;
 import com.android.launcher3.Launcher;
+import com.android.launcher3.PredictionUiStateManager;
 import com.android.launcher3.R;
 import com.android.launcher3.Utilities;
 import com.android.launcher3.allapps.AllAppsRecyclerView;
 import com.android.launcher3.allapps.AlphabeticalAppsList;
 import com.android.launcher3.compat.UserManagerCompat;
 import com.android.launcher3.uioverrides.WallpaperColorInfo;
-//import com.android.launcher3.util.ComponentKeyMapper;
+import com.android.launcher3.util.ComponentKeyMapper;
 import com.android.launcher3.util.Themes;
 import com.android.launcher3.qsb.search.AppSearchProvider;
 import com.android.launcher3.qsb.search.nano.SearchProto.a_search;
@@ -280,12 +281,23 @@ public class ConfigBuilder {
             mNano.ez = viewBounds3;
         }
         bW();
-        /*List predictedApps = appsView.getApps().getPredictedApps();
+		List<ComponentKeyMapper> predictedApps = PredictionUiStateManager.getInstance(mLauncher).getCurrentState().apps;
         int i = Math.min(predictedApps.size(), allAppsCols);
         mNano.eo = new b_search[i];
-        for (int i2 = 0; i2 < i; i2++) {
-            mNano.eo[i2] = bZ((AppInfo) predictedApps.get(i2), i2);
-        }*/
+		int i2 = 0;
+		while (true) {
+			int i23 = i2;
+            int allAppsCols2;
+			if (i23 < i) {
+				allAppsCols2 = allAppsCols;
+				mNano.eo[i2] = bZ(mLauncher.getAppsView().getAppsStore().getApp(((ComponentKeyMapper) predictedApps.get(i23)).getComponentKey()), i23);
+				allAppsCols = allAppsCols2;
+				i2 = i23 + 1;
+			} else {
+                allAppsCols2 = allAppsCols;
+                return;
+            }
+        }
     }
 
     private void cf() {

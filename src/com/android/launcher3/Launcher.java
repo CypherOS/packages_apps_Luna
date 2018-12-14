@@ -75,6 +75,7 @@ import android.view.animation.OvershootInterpolator;
 import android.widget.Toast;
 
 import com.android.launcher3.DropTarget.DragObject;
+import com.android.launcher3.PredictionUiStateManager.Client;
 import com.android.launcher3.Workspace.ItemOperator;
 import com.android.launcher3.accessibility.LauncherAccessibilityDelegate;
 import com.android.launcher3.allapps.AllAppsContainerView;
@@ -365,6 +366,11 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
         if (mLauncherCallbacks != null) {
             mLauncherCallbacks.onCreate(savedInstanceState);
         }
+
+		PredictionUiStateManager predictionUiStateManager = PredictionUiStateManager.getInstance(this);
+        predictionUiStateManager.setTargetAppsView(getAppsView());
+        predictionUiStateManager.switchClient(Client.OVERVIEW);
+
         mRotationHelper.initialize();
 
         mSharedPrefs.registerOnSharedPreferenceChangeListener(this);
@@ -1377,6 +1383,7 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
             mModel.stopLoader();
             LauncherAppState.getInstance(this).setLauncher(null);
         }
+		PredictionUiStateManager.getInstance(this).setTargetAppsView(null);
         mRotationHelper.destroy();
 
         try {
@@ -2243,6 +2250,7 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
      */
     public void bindAllApplications(ArrayList<AppInfo> apps) {
         mAppsView.getAppsStore().setApps(apps);
+		PredictionUiStateManager.getInstance(this).dispatchOnChange();
 
         if (mLauncherCallbacks != null) {
             mLauncherCallbacks.bindAllApplications(apps);
