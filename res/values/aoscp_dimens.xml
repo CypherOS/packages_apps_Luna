@@ -30,5 +30,11 @@
     <!-- Approximates the system status bar height. Not guaranteed to be always be correct. -->
     <dimen name="status_bar_height">24dp</dimen>
     <dimen name="all_apps_search_bar_height">60dp</dimen>
+	
+	<!-- Predictions -->
+	<dimen name="all_apps_label_bottom_padding">8.0dip</dimen>
+    <dimen name="all_apps_label_text_size">14.0sp</dimen>
+    <dimen name="all_apps_label_top_padding">16.0dip</dimen>
+	<dimen name="all_apps_prediction_row_divider_height">17.0dip</dimen>
 
 </resources>

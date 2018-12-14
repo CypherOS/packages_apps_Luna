@@ -22,20 +22,24 @@ import android.util.AttributeSet;
 
 import com.android.launcher3.ExtendedEditText;
 import com.android.launcher3.Launcher;
+import com.android.launcher3.allapps.AllAppsContainerView;
 import com.android.launcher3.allapps.AllAppsGridAdapter;
 import com.android.launcher3.allapps.AllAppsRecyclerView;
 import com.android.launcher3.allapps.AlphabeticalAppsList;
+import com.android.launcher3.allapps.PredictionsFloatingHeader;
 import com.android.launcher3.allapps.search.AllAppsSearchBarController;
 import com.android.launcher3.qsb.search.SearchThread;
 
 import java.util.ArrayList;
 
 public class FallbackAppsSearchView extends ExtendedEditText implements AllAppsSearchBarController.Callbacks {
+
     private AllAppsQsbLayout mQsbLayout;
     private AllAppsGridAdapter mAdapter;
     private AlphabeticalAppsList mApps;
     private AllAppsRecyclerView mAppsRecyclerView;
     private final AllAppsSearchBarController mSearchBarController;
+	public AllAppsContainerView mAppsView;
 
     public FallbackAppsSearchView(Context context) {
         this(context, null);
@@ -66,6 +70,7 @@ public class FallbackAppsSearchView extends ExtendedEditText implements AllAppsS
     public void clearSearchResult() {
         if (getParent() != null && mApps.setOrderedFilter(null)) {
             notifyResultChanged();
+			setFloatingHeaderCollapsed(false);
         }
     }
 
@@ -73,11 +78,16 @@ public class FallbackAppsSearchView extends ExtendedEditText implements AllAppsS
         if (orderedFilter != null && getParent() != null) {
             mApps.setOrderedFilter(orderedFilter);
             notifyResultChanged();
+			setFloatingHeaderCollapsed(true);
             mAdapter.setLastSearchQuery(lastSearchQuery);
         }
     }
 
     public void refreshSearchResult() {
         mSearchBarController.refreshSearchResult();
+    }
+	
+	public void setFloatingHeaderCollapsed(boolean collapsed) {
+        ((PredictionsFloatingHeader) mAppsView.getFloatingHeaderView()).setCollapsed(collapsed);
     }
 }
