@@ -40,6 +40,8 @@ import android.view.ViewParent;
 import com.android.launcher3.DeviceProfile;
 import com.android.launcher3.DropTarget;
 import com.android.launcher3.ItemInfo;
+import com.android.launcher3.PredictionUiStateManager;
+import com.android.launcher3.PredictionUiStateManager.PredictionState;
 import com.android.launcher3.R;
 import com.android.launcher3.Utilities;
 import com.android.launcher3.config.FeatureFlags;
@@ -69,6 +71,9 @@ public class UserEventDispatcher {
     private static final boolean IS_VERBOSE =
             FeatureFlags.IS_DOGFOOD_BUILD && Utilities.isPropertyEnabled(LogConfig.USEREVENT);
     private static final String UUID_STORAGE = "uuid";
+	
+	protected final ThreadLocal<ComponentKey> mLocalThread = new ThreadLocal();
+	protected PredictionUiStateManager mPredictionUiState;
 
     public static UserEventDispatcher newInstance(Context context, DeviceProfile dp,
             UserEventDelegate delegate) {
@@ -433,6 +438,11 @@ public class UserEventDispatcher {
     }
 
     public void dispatchUserEvent(LauncherEvent ev, Intent intent) {
+		ComponentKey componentKey = (ComponentKey) mLocalThread.get();
+		PredictionState currentState = mPredictionUiState.getCurrentState();
+		if (componentKey != null && currentState.isEnabled) {
+            ev.srcTarget[0].predictedRank = currentState.orderedApps.indexOf(componentKey);
+        }
         mAppOrTaskLaunch = false;
         ev.isInLandscapeMode = mIsInLandscapeMode;
         ev.isInMultiWindowMode = mIsInMultiWindowMode;
