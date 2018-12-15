@@ -79,7 +79,7 @@ public class AllAppsContainerView extends SpringRelativeLayout implements DragSo
     private SearchUiManager mSearchUiManager;
     private View mSearchContainer;
     private AllAppsPagedView mViewPager;
-    private FloatingHeaderView mHeader;
+    private PredictionsFloatingHeader mHeader;
 
     private SpannableStringBuilder mSearchQueryBuilder = null;
 
@@ -249,7 +249,7 @@ public class AllAppsContainerView extends SpringRelativeLayout implements DragSo
             }
         });
 
-        mHeader = findViewById(R.id.all_apps_header);
+        mHeader = (PredictionsFloatingHeader) findViewById(R.id.all_apps_header);
         rebindAdapters(mUsingTabs, true /* force */);
 
         mSearchContainer = findViewById(R.id.search_container_all_apps);
@@ -392,7 +392,7 @@ public class AllAppsContainerView extends SpringRelativeLayout implements DragSo
         return mAH[AdapterHolder.MAIN].appsList;
     }
 
-    public FloatingHeaderView getFloatingHeaderView() {
+    public PredictionsFloatingHeader getFloatingHeaderView() {
         return mHeader;
     }
 
@@ -410,13 +410,24 @@ public class AllAppsContainerView extends SpringRelativeLayout implements DragSo
     }
 
     public void setupHeader() {
+		int i = 0;
         mHeader.setVisibility(View.VISIBLE);
-        mHeader.setup(mAH, mAH[AllAppsContainerView.AdapterHolder.WORK].recyclerView == null);
-
+        AdapterHolder[] aH = mAH;
+        boolean tabsHidden = true;
+        if (aH[AdapterHolder.WORK].recyclerView != null) {
+            tabsHidden = false;
+        }
+        mHeader.setup(aH, tabsHidden);
         int padding = mHeader.getMaxTranslation();
-        for (int i = 0; i < mAH.length; i++) {
-            mAH[i].padding.top = padding;
-            mAH[i].applyPadding();
+        while (true) {
+            aH = mAH;
+            if (i < aH.length) {
+                aH[i].padding.top = padding;
+                aH[i].applyPadding();
+                i++;
+            } else {
+                return;
+            }
         }
     }
 
