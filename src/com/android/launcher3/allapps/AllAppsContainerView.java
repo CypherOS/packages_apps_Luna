@@ -249,7 +249,7 @@ public class AllAppsContainerView extends SpringRelativeLayout implements DragSo
             }
         });
 
-        mHeader = findViewById(R.id.all_apps_header);
+        mHeader = (FloatingHeaderView) findViewById(R.id.all_apps_header);
         rebindAdapters(mUsingTabs, true /* force */);
 
         mSearchContainer = findViewById(R.id.search_container_all_apps);
@@ -410,13 +410,24 @@ public class AllAppsContainerView extends SpringRelativeLayout implements DragSo
     }
 
     public void setupHeader() {
+		int i = 0;
         mHeader.setVisibility(View.VISIBLE);
-        mHeader.setup(mAH, mAH[AllAppsContainerView.AdapterHolder.WORK].recyclerView == null);
-
+        AdapterHolder[] aH = mAH;
+        boolean tabsHidden = true;
+        if (aH[AdapterHolder.WORK].recyclerView != null) {
+            tabsHidden = false;
+        }
+        mHeader.setup(aH, tabsHidden);
         int padding = mHeader.getMaxTranslation();
-        for (int i = 0; i < mAH.length; i++) {
-            mAH[i].padding.top = padding;
-            mAH[i].applyPadding();
+        while (true) {
+            aH = mAH;
+            if (i < aH.length) {
+                aH[i].padding.top = padding;
+                aH[i].applyPadding();
+                i++;
+            } else {
+                return;
+            }
         }
     }
 
