@@ -17,7 +17,12 @@ package com.android.launcher3.util;
  */
 
 import android.content.ComponentName;
+import android.content.Context;
+import android.os.Process;
 import android.os.UserHandle;
+
+import com.android.launcher3.Utilities;
+import com.android.launcher3.compat.UserManagerCompat;
 
 import java.util.Arrays;
 
@@ -35,6 +40,22 @@ public class ComponentKey {
         this.user = user;
         mHashCode = Arrays.hashCode(new Object[] {componentName, user});
 
+    }
+	
+	public ComponentKey(Context context, String componentKeyStr) {
+        int userDelimiterIndex = componentKeyStr.indexOf("#");
+        if (userDelimiterIndex != -1) {
+            String componentStr = componentKeyStr.substring(0, userDelimiterIndex);
+            Long componentUser = Long.valueOf(componentKeyStr.substring(userDelimiterIndex + 1));
+            this.componentName = ComponentName.unflattenFromString(componentStr);
+            this.user = (UserHandle) Utilities.notNullOrDefault(UserManagerCompat.getInstance(context).getUserForSerialNumber(componentUser.longValue()), Process.myUserHandle());
+        } else {
+            this.componentName = ComponentName.unflattenFromString(componentKeyStr);
+            this.user = Process.myUserHandle();
+        }
+        Preconditions.assertNotNull(componentName);
+        Preconditions.assertNotNull(user);
+        mHashCode = Arrays.hashCode(new Object[]{componentName, user});
     }
 
     @Override
