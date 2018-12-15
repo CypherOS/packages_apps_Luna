@@ -111,6 +111,7 @@ import com.android.launcher3.userevent.nano.LauncherLogProto.ContainerType;
 import com.android.launcher3.userevent.nano.LauncherLogProto.Target;
 import com.android.launcher3.util.ActivityResultInfo;
 import com.android.launcher3.util.ComponentKey;
+import com.android.launcher3.util.ComponentKeyMapper;
 import com.android.launcher3.util.ItemInfoMatcher;
 import com.android.launcher3.util.MultiHashMap;
 import com.android.launcher3.util.MultiValueAlpha;
@@ -828,6 +829,10 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
         if (mLauncherCallbacks != null) {
             mLauncherCallbacks.onResume();
         }
+
+		if (!isInState(ALL_APPS)) {
+			tryAndUpdatePredictedApps();
+		}
         UiFactory.onLauncherStateOrResumeChanged(this);
 
         TraceHelper.endSection("ON_RESUME");
@@ -1777,6 +1782,17 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
         UiFactory.onTrimMemory(this, level);
     }
 
+	/**
+     * Updates the set of predicted apps if it hasn't been updated since the last time Launcher was
+     * resumed.
+     */
+    public void tryAndUpdatePredictedApps() {
+        List<ComponentKeyMapper<AppInfo>> apps = getUserEventDispatcher().getPredictedApps();
+        if (apps != null) {
+            mAppsView.setPredictedApps(apps);
+        }
+    }
+
     @Override
     public boolean dispatchPopulateAccessibilityEvent(AccessibilityEvent event) {
         final boolean result = super.dispatchPopulateAccessibilityEvent(event);
@@ -2317,6 +2333,7 @@ public class Launcher extends BaseDraggingActivity implements LauncherExterns,
     @Override
     public void bindAppInfosRemoved(final ArrayList<AppInfo> appInfos) {
         mAppsView.getAppsStore().removeApps(appInfos);
+		tryAndUpdatePredictedApps();
     }
 
     @Override
