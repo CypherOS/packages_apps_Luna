@@ -38,4 +38,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="statusbar_expand_title">Swipe for notifications</string>
     <string name="statusbar_expand_summary">On the homescreen</string>
 
+	<!-- Predictions -->
+	<string name="app_suggestions_title">Display app suggestions</string>
+    <string name="app_suggestions_summary">At the top of your All Apps list</string>
+	<string name="all_apps_label">All apps</string>
+
 </resources>
