@@ -174,6 +174,33 @@ LOCAL_JACK_COVERAGE_INCLUDE_FILTER := com.android.launcher3.*
 
 include $(BUILD_PACKAGE)
 
+#
+# Build rule for Luna Launcher base on Quickstep app.
+#
+include $(CLEAR_VARS)
+LOCAL_USE_AAPT2 := true
+LOCAL_MODULE_TAGS := optional
+
+LOCAL_STATIC_ANDROID_LIBRARIES := Launcher3QuickStepLib
+LOCAL_PROGUARD_ENABLED := disabled
+
+LOCAL_PRIVATE_PLATFORM_APIS := true
+LOCAL_CERTIFICATE := platform
+LOCAL_PACKAGE_NAME := LunaQuickStep
+LOCAL_PRIVILEGED_MODULE := true
+LOCAL_OVERRIDES_PACKAGES := Home Launcher2 Launcher3 Launcher3QuickStep
+
+LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/aoscp/res
+
+LOCAL_FULL_LIBS_MANIFEST_FILES := \
+    $(LOCAL_PATH)/aoscp/AndroidManifest.xml \
+    $(LOCAL_PATH)/AndroidManifest-common.xml
+
+LOCAL_MANIFEST_FILE := quickstep/AndroidManifest.xml
+LOCAL_JACK_COVERAGE_INCLUDE_FILTER := com.android.launcher3.*
+
+include $(BUILD_PACKAGE)
+
 
 #
 # Build rule for Launcher3 Go app with quickstep for Android Go devices.
