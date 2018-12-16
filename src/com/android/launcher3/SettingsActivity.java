@@ -73,6 +73,7 @@ public class SettingsActivity extends Activity {
     private static final String SAVE_HIGHLIGHTED_KEY = "android:preference_highlighted";
 
     static final String KEY_FEED_INTEGRATION = "pref_feed_integration";
+	public static final String KEY_APP_SUGGESTIONS = "pref_app_suggestions";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,8 +94,9 @@ public class SettingsActivity extends Activity {
     /**
      * This fragment shows the launcher preferences.
      */
-    public static class LauncherSettingsFragment extends PreferenceFragment {
+    public static class LauncherSettingsFragment extends PreferenceFragment implements OnPreferenceChangeListener {
 
+	    private SwitchPreference mAppSuggestions;
         private IconBadgingObserver mIconBadgingObserver;
 
         private String mPreferenceKey;
@@ -134,6 +136,9 @@ public class SettingsActivity extends Activity {
                 getPreferenceScreen().removePreference(feedIntegration);
             }
 
+			mAppSuggestions = (SwitchPreference) findPreference(KEY_APP_SUGGESTIONS);
+            mAppSuggestions.setOnPreferenceChangeListener(this);
+
             Preference iconShapeOverride = findPreference(IconShapeOverride.KEY_PREFERENCE);
             if (iconShapeOverride != null) {
                 if (IconShapeOverride.isSupported(getActivity())) {
@@ -169,6 +174,18 @@ public class SettingsActivity extends Activity {
             if (isAdded() && !mPreferenceHighlighted && !TextUtils.isEmpty(mPreferenceKey)) {
                 getView().postDelayed(this::highlightPreference, DELAY_HIGHLIGHT_DURATION_MILLIS);
             }
+        }
+
+		@Override
+        public boolean onPreferenceChange(Preference preference, Object newValue) {
+            switch (preference.getKey()) {
+                case KEY_APP_SUGGESTIONS:
+                    if ((boolean) newValue) {
+                        return true;
+                    }
+                    break;
+            }
+            return false;
         }
 
         private boolean hasPackageInstalled(String pkgName) {
