@@ -217,7 +217,7 @@ public abstract class BaseDraggingActivity extends BaseActivity
                 LauncherAppsCompat.getInstance(this).startActivityForProfile(
                         intent.getComponent(), user, intent.getSourceBounds(), optsBundle);
             }
-            getUserEventDispatcher().logAppLaunch(v, intent);
+            getUserEventDispatcher().logAppLaunch(v, intent, item.user);
             return true;
         } catch (ActivityNotFoundException|SecurityException e) {
             Toast.makeText(this, R.string.activity_not_found, Toast.LENGTH_SHORT).show();

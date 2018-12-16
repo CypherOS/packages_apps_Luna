@@ -32,6 +32,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.SystemClock;
+import android.os.UserHandle;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.View;
@@ -40,6 +41,7 @@ import android.view.ViewParent;
 import com.android.launcher3.DeviceProfile;
 import com.android.launcher3.DropTarget;
 import com.android.launcher3.ItemInfo;
+import com.android.launcher3.PredictionsUiManager;
 import com.android.launcher3.R;
 import com.android.launcher3.Utilities;
 import com.android.launcher3.config.FeatureFlags;
@@ -49,9 +51,11 @@ import com.android.launcher3.userevent.nano.LauncherLogProto.ContainerType;
 import com.android.launcher3.userevent.nano.LauncherLogProto.LauncherEvent;
 import com.android.launcher3.userevent.nano.LauncherLogProto.Target;
 import com.android.launcher3.util.ComponentKey;
+import com.android.launcher3.util.ComponentKeyMapper;
 import com.android.launcher3.util.InstantAppResolver;
 import com.android.launcher3.util.LogConfig;
 
+import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 
@@ -70,8 +74,11 @@ public class UserEventDispatcher {
             FeatureFlags.IS_DOGFOOD_BUILD && Utilities.isPropertyEnabled(LogConfig.USEREVENT);
     private static final String UUID_STORAGE = "uuid";
 
+	private static PredictionsUiManager mPredictionsUiManager;
+
     public static UserEventDispatcher newInstance(Context context, DeviceProfile dp,
             UserEventDelegate delegate) {
+		mPredictionsUiManager = new PredictionsUiManager(context);
         SharedPreferences sharedPrefs = Utilities.getDevicePrefs(context);
         String uuidStr = sharedPrefs.getString(UUID_STORAGE, null);
         if (uuidStr == null) {
@@ -168,7 +175,7 @@ public class UserEventDispatcher {
         return true;
     }
 
-    public void logAppLaunch(View v, Intent intent) {
+    public void logAppLaunch(View v, Intent intent, UserHandle user) {
         LauncherEvent event = newLauncherEvent(newTouchAction(Action.Touch.TAP),
                 newItemTarget(v, mInstantAppResolver), newTarget(Target.Type.CONTAINER));
 
@@ -180,6 +187,7 @@ public class UserEventDispatcher {
         }
         dispatchUserEvent(event, intent);
         mAppOrTaskLaunch = true;
+		mPredictionsUiManager.logAppLaunch(v, intent, user);
     }
 
     public void logActionTip(int actionType, int viewType) { }
@@ -210,6 +218,10 @@ public class UserEventDispatcher {
             target.componentHash = (mUuidStr + cn.flattenToString()).hashCode();
         }
     }
+
+	public List<ComponentKeyMapper> getPredictedApps() {
+		return mPredictionsUiManager.getPredictedApps();
+	}
 
     public void logNotificationLaunch(View v, PendingIntent intent) {
         LauncherEvent event = newLauncherEvent(newTouchAction(Action.Touch.TAP),

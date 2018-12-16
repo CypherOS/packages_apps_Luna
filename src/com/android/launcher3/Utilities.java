@@ -624,4 +624,8 @@ public final class Utilities {
         SharedPreferences prefs = getPrefs(context.getApplicationContext());
         return prefs.getBoolean(SettingsActivity.KEY_FEED_INTEGRATION, true);
     }
+
+	public static <T> T notNullOrDefault(T value, T defValue) {
+        return value == null ? defValue : value;
+    }
 }

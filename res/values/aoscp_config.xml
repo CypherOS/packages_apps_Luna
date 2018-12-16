@@ -1,0 +1,9 @@
+<resources>
+
+    <!-- Additional components for the predictions watch list.
+         These components are generally priority apps that are
+         used as placeholders. -->
+    <string-array translatable="false" name="config_otherWatchedApps">
+    </string-array>
+
+</resources>
