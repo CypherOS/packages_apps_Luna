@@ -159,19 +159,21 @@ public class LunaLauncher extends Launcher {
         }
 
         @Override
-        public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-            if (SettingsFragment.KEY_MINUS_ONE.equals(key)) {
-                mLauncherClient.setClientOptions(getClientOptions(sharedPreferences));
-            }
+        public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
+			if (SettingsFragment.KEY_MINUS_ONE.equals(key)) {
+				ClientOptions clientOptions = new ClientOptions(((prefs.getBoolean(SettingsFragment.KEY_MINUS_ONE, true) | 2) | 4) | 8);
+				if (clientOptions.options != mLauncherClient.getClientOptions()) {
+					mLauncherClient.getClientOptions() = clientOptions.options;
+					if (mLauncherClient.getParams() != null) {
+						mLauncherClient.updateConfiguration();
+					}
+					mLauncherClient.getEventInfo().parse("setClientOptions ", mLauncherClient.getClientOptions());
+				}
+			}
         }
 
-        private LauncherClient.ClientOptions getClientOptions(SharedPreferences prefs) {
-            boolean hasPackage = Bits.hasPackageInstalled(mLauncher, SEARCH_PACKAGE);
-            boolean isEnabled = prefs.getBoolean(SettingsFragment.KEY_MINUS_ONE, true);
-            return new LauncherClient.ClientOptions(hasPackage && isEnabled,
-                    true, /* enableHotword */
-                    true /* enablePrewarming */
-            );
-        }
+		private LauncherClient getClient() {
+			return mLauncherClient;
+		}
     }
 }
