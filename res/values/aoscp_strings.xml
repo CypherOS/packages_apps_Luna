@@ -41,4 +41,7 @@
     <string name="statusbar_expand_title">Swipe for notifications</string>
     <string name="statusbar_expand_summary">On the homescreen</string>
 
+	<!-- QSB -->
+	<string name="hotseat_qsb_preferences">Preferences</string>
+
 </resources>
