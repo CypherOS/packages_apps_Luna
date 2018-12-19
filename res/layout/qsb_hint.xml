@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Copyright (C) 2018 CypherOS
+<!--
+     Copyright (C) 2018 CypherOS
 
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
@@ -13,20 +14,18 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-
-<resources>
-
-    <!-- QuickSpace -->
-    <dimen name="quickspace_title_size">24dp</dimen>
-
-	<!-- QSB -->
-	<dimen name="qsb_doodle_tap_target_logo_width">106.0dip</dimen>
-	<dimen name="qsb_max_hint_length">130.0dip</dimen>
-	<dimen name="qsb_mic_width">56.0dip</dimen>
-	<dimen name="qsb_hint_text_size">13.0sp</dimen>
-	<dimen name="qsb_shadow_margin">6.0dip</dimen>
-	<dimen name="qsb_text_spacing">20.0dip</dimen>
-	<dimen name="qsb_two_bubble_gap">8.0dip</dimen>
-	<dimen name="qsb_widget_height">56.0dip</dimen>
-
-</resources>
+<TextView
+    android:textSize="@dimen/qsb_hint_text_size"
+	android:textColor="#ff80868b"
+	android:ellipsize="end"
+	android:gravity="center"
+	android:layout_gravity="end|center"
+	android:id="@id/qsb_hint"
+	android:layout_width="wrap_content"
+	android:layout_height="wrap_content"
+	android:maxWidth="220.0dip"
+	android:maxLines="1"
+	android:includeFontPadding="false"
+	android:alpha="0.87"
+	android:importantForAccessibility="no"
+	style="@style/TextTitle" />
