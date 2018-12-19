@@ -13,20 +13,15 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-
-<resources>
-
-    <!-- QuickSpace -->
-    <dimen name="quickspace_title_size">24dp</dimen>
-
-	<!-- QSB -->
-	<dimen name="qsb_doodle_tap_target_logo_width">106.0dip</dimen>
-	<dimen name="qsb_max_hint_length">130.0dip</dimen>
-	<dimen name="qsb_mic_width">56.0dip</dimen>
-	<dimen name="qsb_hint_text_size">13.0sp</dimen>
-	<dimen name="qsb_shadow_margin">6.0dip</dimen>
-	<dimen name="qsb_text_spacing">20.0dip</dimen>
-	<dimen name="qsb_two_bubble_gap">8.0dip</dimen>
-	<dimen name="qsb_widget_height">56.0dip</dimen>
-
-</resources>
+<inset android:insetLeft="@dimen/qsb_shadow_margin" android:insetRight="@dimen/qsb_shadow_margin" android:insetTop="@dimen/qsb_shadow_margin" android:insetBottom="@dimen/qsb_shadow_margin"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <ripple android:color="@color/focused_background">
+        <item android:id="@android:id/mask">
+            <shape android:shape="rectangle">
+                <solid android:color="@android:color/white" />
+                <stroke android:width="0.0dip" />
+                <corners android:radius="100.0dip" />
+            </shape>
+        </item>
+    </ripple>
+</inset>
