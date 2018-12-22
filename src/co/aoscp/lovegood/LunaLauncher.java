@@ -20,7 +20,9 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.Bundle;
+import android.view.View;
 
+import co.aoscp.lovegood.qsb.QsbAnimationController;
 import co.aoscp.lovegood.quickspace.QuickSpaceView;
 
 import com.android.launcher3.AppInfo;
@@ -37,9 +39,20 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 
 public class LunaLauncher extends Launcher {
+  
+    private QsbAnimationController mQsbController;
 
     public LunaLauncher() {
+        mQsbController = new QsbAnimationController(this);
         setLauncherCallbacks(new LunaLauncherCallbacks(this));
+    }
+  
+    public LunaLauncherCallbacks getLauncherCallbacks() {
+        return new LunaLauncherCallbacks(this);
+    }
+
+    public QsbAnimationController getQsbController() {
+        return mQsbController;
     }
 
     public class LunaLauncherCallbacks implements LauncherCallbacks, OnSharedPreferenceChangeListener {
@@ -176,6 +189,17 @@ public class LunaLauncher extends Launcher {
 
         @Override
         public boolean startSearch(String initialQuery, boolean selectInitialQuery, Bundle appSearchData) {
+            View gIcon = mLauncher.findViewById(R.id.g_icon);
+            while (gIcon != null && !gIcon.isClickable()) {
+                if (gIcon.getParent() instanceof View) {
+                    gIcon = (View)gIcon.getParent();
+                } else {
+                    gIcon = null;
+                }
+            }
+            if (gIcon != null && gIcon.performClick()) {
+                return true;
+            }
             return false;
         }
 
@@ -198,7 +222,7 @@ public class LunaLauncher extends Launcher {
             }
         }
 
-        private LauncherClient getClient() {
+        public LauncherClient getClient() {
             return mLauncherClient;
         }
     }
