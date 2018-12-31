@@ -32,14 +32,14 @@ include $(BUILD_PREBUILT)
 #
 # Prebuilt Google Feed library
 #
-include $(CLEAR_VARS)
-LOCAL_MODULE := libGoogleFeed
-LOCAL_MODULE_TAGS := optional
-LOCAL_MODULE_CLASS := JAVA_LIBRARIES
-LOCAL_SRC_FILES := libs/libGoogleFeed.jar
-LOCAL_UNINSTALLABLE_MODULE := true
-LOCAL_SDK_VERSION := 27
-include $(BUILD_PREBUILT)
+#include $(CLEAR_VARS)
+#LOCAL_MODULE := libGoogleFeed
+#LOCAL_MODULE_TAGS := optional
+#LOCAL_MODULE_CLASS := JAVA_LIBRARIES
+#LOCAL_SRC_FILES := libs/libGoogleFeed.jar
+#LOCAL_UNINSTALLABLE_MODULE := true
+#LOCAL_SDK_VERSION := 27
+#include $(BUILD_PREBUILT)
 
 #
 # Prebuilt Luna Launcher shared system
@@ -94,7 +94,6 @@ LOCAL_USE_AAPT2 := true
 LOCAL_MODULE_TAGS := optional
 
 LOCAL_STATIC_JAVA_LIBRARIES := \
-    libGoogleFeed \
     libLunaShared
 LOCAL_STATIC_ANDROID_LIBRARIES := Launcher3CommonDepsLib
 LOCAL_SRC_FILES := \
@@ -123,7 +122,6 @@ include $(CLEAR_VARS)
 LOCAL_USE_AAPT2 := true
 LOCAL_MODULE_TAGS := optional
 LOCAL_STATIC_JAVA_LIBRARIES := \
-    libGoogleFeed \
     libLunaShared
 LOCAL_STATIC_ANDROID_LIBRARIES := Launcher3CommonDepsLib
 
@@ -160,7 +158,6 @@ LOCAL_MODULE_TAGS := optional
 
 LOCAL_STATIC_JAVA_LIBRARIES := \
     libSharedSystemUI \
-    libGoogleFeed \
     libLunaShared
 LOCAL_STATIC_ANDROID_LIBRARIES := Launcher3CommonDepsLib
 
@@ -217,7 +214,6 @@ LOCAL_MODULE_TAGS := optional
 
 LOCAL_STATIC_JAVA_LIBRARIES := \
     libSharedSystemUI \
-    libGoogleFeed \
     libLunaShared
 LOCAL_STATIC_ANDROID_LIBRARIES := Launcher3CommonDepsLib
 
