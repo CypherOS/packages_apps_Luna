@@ -39,6 +39,7 @@ import java.util.Objects;
 public class SettingsFragment extends SettingsActivity {
 
     public static final String KEY_MINUS_ONE = "pref_enable_minus_one";
+	public static final String KEY_APP_SUGGESTIONS = "pref_app_suggestions";
 
     @Override
     protected PreferenceFragment getNewFragment() {
@@ -48,7 +49,9 @@ public class SettingsFragment extends SettingsActivity {
     /**
      * This fragment shows the luna launcher preferences.
      */
-    public static class SettingsPreferenceFragment extends LauncherSettingsFragment {
+    public static class SettingsPreferenceFragment extends LauncherSettingsFragment implements OnPreferenceChangeListener {
+		
+		private SwitchPreference mAppSuggestions;
 
         @Override
         public void onCreate(Bundle savedInstanceState) {
@@ -59,6 +62,21 @@ public class SettingsFragment extends SettingsActivity {
                         LunaLauncherCallbacks.SEARCH_PACKAGE)) {
                 getPreferenceScreen().removePreference(minusOne);
             }
+			
+			mAppSuggestions = (SwitchPreference) findPreference(KEY_APP_SUGGESTIONS);
+            mAppSuggestions.setOnPreferenceChangeListener(this);
+        }
+
+		@Override
+        public boolean onPreferenceChange(Preference preference, Object newValue) {
+            switch (preference.getKey()) {
+                case KEY_APP_SUGGESTIONS:
+                    if ((boolean) newValue) {
+                        return true;
+                    }
+                    break;
+            }
+            return false;
         }
     }
 }

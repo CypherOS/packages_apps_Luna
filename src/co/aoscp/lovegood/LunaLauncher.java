@@ -30,6 +30,7 @@ import com.android.launcher3.Launcher;
 import com.android.launcher3.LauncherCallbacks;
 import com.android.launcher3.Utilities;
 import com.android.launcher3.R;
+import com.android.launcher3.util.ComponentKeyMapper;
 import com.google.android.libraries.gsa.launcherclient.ClientOptions;
 import com.google.android.libraries.gsa.launcherclient.ClientService;
 import com.google.android.libraries.gsa.launcherclient.LauncherClient;
@@ -37,6 +38,7 @@ import com.google.android.libraries.gsa.launcherclient.LauncherClient;
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.List;
 
 public class LunaLauncher extends Launcher {
 
@@ -90,6 +92,10 @@ public class LunaLauncher extends Launcher {
                 mAlreadyOnHome = true;
             }
             mLauncherClient.onResume();
+			
+			if (isInState(NORMAL)) {
+				tryAndUpdatePredictedApps();
+			}
         }
 
         @Override
@@ -185,7 +191,9 @@ public class LunaLauncher extends Launcher {
         public void onLauncherProviderChange() { }
 
         @Override
-        public void bindAllApplications(ArrayList<AppInfo> apps) { }
+        public void bindAllApplications(ArrayList<AppInfo> apps) {
+			tryAndUpdatePredictedApps();
+		}
 
         @Override
         public boolean startSearch(String initialQuery, boolean selectInitialQuery, Bundle appSearchData) {
@@ -221,5 +229,12 @@ public class LunaLauncher extends Launcher {
                 }
             }
         }
+
+		public void tryAndUpdatePredictedApps() {
+			List<ComponentKeyMapper> apps = ((PredictionsDispatcher) getUserEventDispatcher()).getPredictedApps();
+			if (apps != null) {
+				mAppsView.getFloatingHeaderView().setPredictedApps(apps);
+			}
+		}
     }
 }
