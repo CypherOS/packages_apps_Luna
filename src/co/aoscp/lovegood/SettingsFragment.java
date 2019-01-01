@@ -40,6 +40,7 @@ import android.provider.Settings;
 
 import co.aoscp.lovegood.LunaLauncher.LunaLauncherCallbacks;
 
+import com.android.launcher3.AbstractFloatingView;
 import com.android.launcher3.R;
 import com.android.launcher3.SettingsActivity;
 import com.android.launcher3.SettingsActivity.LauncherSettingsFragment;
@@ -49,7 +50,12 @@ import java.util.Objects;
 public class SettingsFragment extends SettingsActivity implements OnPreferenceStartFragmentCallback {
 
     public static final String KEY_MINUS_ONE = "pref_enable_minus_one";
+
+	public static final String AIAI_PACKAGE = "com.google.android.apps.miphone.aiai";
+	public static final String KEY_SUGGESTIONS = "pref_suggestions";
     public static final String KEY_APP_SUGGESTIONS = "pref_app_suggestions";
+	public static final String KEY_APP_ACTIONS = "pref_show_suggested_actions";
+	public static final String KEY_OVERVIEW_SELECTION = "pref_show_overview_selection";
 
     @Override
     protected PreferenceFragment getNewFragment() {
@@ -83,6 +89,13 @@ public class SettingsFragment extends SettingsActivity implements OnPreferenceSt
             }
 
             ((SwitchPreference) findPreference(KEY_APP_SUGGESTIONS)).setOnPreferenceChangeListener(this);
+			try {
+                getContext().getPackageManager().getPackageInfo(AIAI_PACKAGE, AbstractFloatingView.TYPE_TASK_MENU);
+            } catch (NameNotFoundException ex) {
+                PreferenceScreen prefScreen = (PreferenceScreen) findPreference(KEY_SUGGESTIONS);
+                prefScreen.removePreference(findPreference(KEY_APP_ACTIONS));
+                prefScreen.removePreference(findPreference(KEY_OVERVIEW_SELECTION));
+            }
         }
 
         @Override

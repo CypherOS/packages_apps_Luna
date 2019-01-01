@@ -12,4 +12,7 @@
     <item type="id" name="g_icon" />
     <item type="id" name="mic_icon" />
 
+	<!-- App actions -->
+	<item type="id" name="action_dismiss_suggestion" />
+
 </resources>
