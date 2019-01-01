@@ -55,5 +55,7 @@
     <string name="msg_disable_suggestions_prompt">"Suggestions won't appear at the top of your apps list, and the usage data used to create them will be permanently erased."</string>
     <string name="label_turn_off_suggestions">TURN OFF</string>
     <string name="all_apps_label">All apps</string>
+	<string name="dismiss_drop_target_label">"Don't show"</string>
+	<string name="suggested_action_content_description">%1$s opens in %2$s</string>
 
 </resources>
