@@ -15,6 +15,8 @@
  */
 package co.aoscp.lovegood;
 
+import static com.android.launcher3.LauncherState.NORMAL;
+
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -24,6 +26,7 @@ import android.view.View;
 
 import co.aoscp.lovegood.qsb.QsbAnimationController;
 import co.aoscp.lovegood.quickspace.QuickSpaceView;
+import co.aoscp.lovegood.util.ComponentKeyMapper;
 
 import com.android.launcher3.AppInfo;
 import com.android.launcher3.Launcher;
@@ -37,6 +40,7 @@ import com.google.android.libraries.gsa.launcherclient.LauncherClient;
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.List;
 
 public class LunaLauncher extends Launcher {
 
@@ -90,6 +94,10 @@ public class LunaLauncher extends Launcher {
                 mAlreadyOnHome = true;
             }
             mLauncherClient.onResume();
+			
+			if (isInState(NORMAL)) {
+				tryAndUpdatePredictedApps();
+			}
         }
 
         @Override
@@ -185,7 +193,9 @@ public class LunaLauncher extends Launcher {
         public void onLauncherProviderChange() { }
 
         @Override
-        public void bindAllApplications(ArrayList<AppInfo> apps) { }
+        public void bindAllApplications(ArrayList<AppInfo> apps) {
+			tryAndUpdatePredictedApps();
+		}
 
         @Override
         public boolean startSearch(String initialQuery, boolean selectInitialQuery, Bundle appSearchData) {
@@ -221,5 +231,12 @@ public class LunaLauncher extends Launcher {
                 }
             }
         }
+
+		public void tryAndUpdatePredictedApps() {
+			List<ComponentKeyMapper> apps = ((PredictionsDispatcher) getUserEventDispatcher()).getPredictedApps();
+			if (apps != null) {
+				mAppsView.getFloatingHeaderView().setPredictedApps(apps);
+			}
+		}
     }
 }
