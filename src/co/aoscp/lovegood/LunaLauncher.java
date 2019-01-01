@@ -15,15 +15,20 @@
  */
 package co.aoscp.lovegood;
 
+import static com.android.launcher3.LauncherState.NORMAL;
+
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.View;
 
+import co.aoscp.lovegood.logging.PredictionsDispatcher;
 import co.aoscp.lovegood.qsb.QsbAnimationController;
 import co.aoscp.lovegood.quickspace.QuickSpaceView;
+import co.aoscp.lovegood.util.ComponentKeyMapper;
 
 import com.android.launcher3.AppInfo;
 import com.android.launcher3.Launcher;
@@ -37,6 +42,7 @@ import com.google.android.libraries.gsa.launcherclient.LauncherClient;
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.List;
 
 public class LunaLauncher extends Launcher {
 
@@ -66,6 +72,12 @@ public class LunaLauncher extends Launcher {
         private boolean mStarted;
         private boolean mResumed;
         private boolean mAlreadyOnHome;
+        public Runnable mUpdatePredictionsIfResumed = new Runnable() {
+            @Override
+            public void run() {
+                updatePredictionsIfResumed();
+            }
+        };
 
         public LunaLauncherCallbacks(LunaLauncher launcher) {
             mLauncher = launcher;
@@ -90,6 +102,12 @@ public class LunaLauncher extends Launcher {
                 mAlreadyOnHome = true;
             }
             mLauncherClient.onResume();
+
+            Handler handler = mLauncher.getDragLayer().getHandler();
+            if (handler != null) {
+                handler.removeCallbacks(mUpdatePredictionsIfResumed);
+                Utilities.postAsyncCallback(handler, mUpdatePredictionsIfResumed);
+            }
         }
 
         @Override
@@ -185,7 +203,9 @@ public class LunaLauncher extends Launcher {
         public void onLauncherProviderChange() { }
 
         @Override
-        public void bindAllApplications(ArrayList<AppInfo> apps) { }
+        public void bindAllApplications(ArrayList<AppInfo> apps) {
+            updatePredictionsIfResumed();
+        }
 
         @Override
         public boolean startSearch(String initialQuery, boolean selectInitialQuery, Bundle appSearchData) {
@@ -218,6 +238,18 @@ public class LunaLauncher extends Launcher {
                         mLauncherClient.updateConfiguration();
                     }
                     mLauncherClient.getEventInfo().parse("setClientOptions ", mLauncherClient.mFlags);
+                }
+            } else if (SettingsFragment.KEY_APP_SUGGESTIONS.equals(key)) {
+				boolean isEnabled = prefs.getBoolean(SettingsFragment.KEY_APP_SUGGESTIONS, true);
+				mAppsView.getFloatingHeaderView().setPredictionsEnabled(isEnabled);
+			}
+        }
+
+        public void updatePredictionsIfResumed() {
+            if (hasBeenResumed()) {
+                List<ComponentKeyMapper> apps = ((PredictionsDispatcher) getUserEventDispatcher()).getPredictedApps();
+                if (apps != null) {
+                    mAppsView.getFloatingHeaderView().setPredictedApps(apps);
                 }
             }
         }
