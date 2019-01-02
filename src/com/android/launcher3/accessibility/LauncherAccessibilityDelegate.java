@@ -70,8 +70,8 @@ public class LauncherAccessibilityDelegate extends AccessibilityDelegate impleme
         public View item;
     }
 
-    protected final SparseArray<AccessibilityAction> mActions = new SparseArray<>();
-    @Thunk final Launcher mLauncher;
+    public final SparseArray<AccessibilityAction> mActions = new SparseArray<>();
+    public final Launcher mLauncher;
 
     private DragInfo mDragInfo = null;
 
