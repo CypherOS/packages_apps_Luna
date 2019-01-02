@@ -122,18 +122,22 @@ public class PredictionsDispatcher extends UserEventDispatcherExtension implemen
             for (String prediction : predictionList) {
                 list.add(getComponentFromString(prediction));
             }
-
-            for (int i = 0; i < WATCHED_APPS.length && list.size() < MAX_PREDICTIONS; i++) {
-                Intent intent = mPackageManager.getLaunchIntentForPackage(WATCHED_APPS[i]);
-                if (intent != null) {
-                    ComponentName componentInfo = intent.getComponent();
-                    if (componentInfo != null) {
-                        ComponentKey key = new ComponentKey(componentInfo, Process.myUserHandle());
-                        if (!predictionList.contains(key.toString())) {
-                            list.add(new ComponentKeyMapper(mContext, key));
+			
+			if (list.size() < MAX_PREDICTIONS) {
+                for (String watchedApps : WATCHED_APPS) {
+                    Intent intent = mPackageManager.getLaunchIntentForPackage(watchedApps);
+                    if (intent != null) {
+                        ComponentName componentInfo = intent.getComponent();
+                        String prediction = componentInfo.getPackageName() + '/' + componentInfo.getClassName();
+                        if (!predictionList.contains(prediction)) {
+                            list.add(new ComponentKeyMapper(mContext, new ComponentKey(componentInfo, Process.myUserHandle())));
                         }
                     }
                 }
+            }
+			
+			if (list.size() > MAX_PREDICTIONS) {
+                list = list.subList(0, MAX_PREDICTIONS);
             }
         }
         Log.d(TAG, "Got predicted apps");
@@ -141,24 +145,25 @@ public class PredictionsDispatcher extends UserEventDispatcherExtension implemen
     }
 
     @Override
-    public void logAppLaunch(View view, Intent intent, UserHandle user) {
-        super.logAppLaunch(view, intent, user);
+    public void logAppLaunch(View view, Intent intent) {
+        super.logAppLaunch(view, intent);
         if (isPredictorEnabled() && recursiveIsDrawer(view)) {
-            ComponentName componentInfo = intent.getComponent();
-            if (componentInfo != null) {//&& mAppFilter.shouldShowApp(componentInfo, user) <-- Add back for hidden apps
-                clearNonExistingComponents();
-                Set<String> predictionSet = getStringSetCopy();
-                Editor edit = mPrefs.edit();
-
-                String prediction = new ComponentKey(componentInfo, user).toString();
-                if (predictionSet.contains(prediction)) {
-                    edit.putInt(PREDICTION_PREFIX + prediction, getLaunchCount(prediction) + BOOST_ON_OPEN);
-                } else if (predictionSet.size() < MAX_PREDICTIONS || decayHasSpotFree(predictionSet, edit)) {
-                    predictionSet.add(prediction);
-                }
-                edit.putStringSet(PREDICTION_SET, predictionSet);
-                edit.apply();
+			clearNonExistingComponents();
+			
+			ComponentName componentInfo = intent.getComponent();
+			String prediction = componentInfo.getPackageName() + '/' + componentInfo.getClassName();
+			
+			Set<String> predictionSet = getStringSetCopy();
+            Editor edit = mPrefs.edit();
+			
+			if (predictionSet.contains(prediction)) {
+                edit.putInt(PREDICTION_PREFIX + prediction, getLaunchCount(prediction) + BOOST_ON_OPEN);
+            } else if (predictionSet.size() < MAX_PREDICTIONS || decayHasSpotFree(predictionSet, edit)) {
+                predictionSet.add(prediction);
             }
+			
+			edit.putStringSet(PREDICTION_SET, predictionSet);
+            edit.apply();
         }
     }
 
@@ -218,7 +223,8 @@ public class PredictionsDispatcher extends UserEventDispatcherExtension implemen
     }
 
     private ComponentKeyMapper getComponentFromString(String str) {
-        return new ComponentKeyMapper(mContext, new ComponentKey(mContext, str));
+		int index = str.indexOf('/');
+		return new ComponentKeyMapper(mContext, new ComponentKey(new ComponentName(str.substring(0, index), str.substring(index + 1)), Process.myUserHandle()));
     }
 
     private void clearNonExistingComponents() {
@@ -227,7 +233,7 @@ public class PredictionsDispatcher extends UserEventDispatcherExtension implemen
         Editor edit = mPrefs.edit();
         for (String prediction : originalSet) {
             try {
-                mPackageManager.getPackageInfo(new ComponentKey(mContext, prediction).componentName.getPackageName(), 0);
+				mPackageManager.getPackageInfo(prediction.substring(0, prediction.indexOf('/')), 0);
             } catch (NameNotFoundException | NumberFormatException e) {
                 predictionSet.remove(prediction);
                 edit.remove(PREDICTION_PREFIX + prediction);

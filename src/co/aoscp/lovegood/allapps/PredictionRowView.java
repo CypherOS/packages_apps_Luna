@@ -285,33 +285,33 @@ public class PredictionRowView extends LinearLayout implements LogContainerProvi
                 removeViewAt(0);
             }
             while (getChildCount() < mNumPredictedAppsPerRow) {
-                BubbleTextView bubbleTextView = (BubbleTextView) mLauncher.getLayoutInflater().inflate(R.layout.all_apps_icon, this, false);
-                bubbleTextView.setOnClickListener(ItemClickHandler.INSTANCE);
-                bubbleTextView.setOnLongClickListener(ItemLongClickListener.INSTANCE_ALL_APPS);
-                bubbleTextView.setLongPressTimeout(ViewConfiguration.getLongPressTimeout());
-                bubbleTextView.setOnFocusChangeListener(mFocusHelper);
-                LayoutParams layoutParams = (LayoutParams) bubbleTextView.getLayoutParams();
+                BubbleTextView predictionIcon = (BubbleTextView) mLauncher.getLayoutInflater().inflate(R.layout.all_apps_icon, this, false);
+                predictionIcon.setOnClickListener(ItemClickHandler.INSTANCE);
+                predictionIcon.setOnLongClickListener(ItemLongClickListener.INSTANCE_ALL_APPS);
+                predictionIcon.setLongPressTimeout(ViewConfiguration.getLongPressTimeout());
+                predictionIcon.setOnFocusChangeListener(mFocusHelper);
+                LayoutParams layoutParams = (LayoutParams) predictionIcon.getLayoutParams();
                 layoutParams.height = getExpectedHeight();
                 layoutParams.width = 0;
                 layoutParams.weight = 1.0f;
-                addView(bubbleTextView);
+                addView(predictionIcon);
             }
         }
         int size = mPredictedApps.size();
         int alphaComponent = ColorUtils.setAlphaComponent(mIconTextColor, mIconCurrentTextAlpha);
         for (int i = 0; i < getChildCount(); i++) {
-            BubbleTextView bubbleTextView2 = (BubbleTextView) getChildAt(i);
-            bubbleTextView2.reset();
+            BubbleTextView predictionsView = (BubbleTextView) getChildAt(i);
+            predictionsView.reset();
             if (size > i) {
-                bubbleTextView2.setVisibility(View.VISIBLE);
+                predictionsView.setVisibility(View.VISIBLE);
                 if (mPredictedApps.get(i) instanceof AppInfo) {
-                    bubbleTextView2.applyFromApplicationInfo((AppInfo) mPredictedApps.get(i));
+                    predictionsView.applyFromApplicationInfo((AppInfo) mPredictedApps.get(i));
                 } else if (mPredictedApps.get(i) instanceof ShortcutInfo) {
-                    bubbleTextView2.applyFromShortcutInfo((ShortcutInfo) mPredictedApps.get(i));
+                    predictionsView.applyFromShortcutInfo((ShortcutInfo) mPredictedApps.get(i));
                 }
-                bubbleTextView2.setTextColor(alphaComponent);
+                predictionsView.setTextColor(alphaComponent);
             } else {
-                bubbleTextView2.setVisibility(size == 0 ? View.GONE : View.VISIBLE);
+                predictionsView.setVisibility(size == 0 ? View.GONE : View.VISIBLE);
             }
         }
         if (size == 0) {
