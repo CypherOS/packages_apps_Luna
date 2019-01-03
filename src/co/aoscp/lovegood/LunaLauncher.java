@@ -25,6 +25,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
 
+import co.aoscp.lovegood.allapps.ShortcutsController;
 import co.aoscp.lovegood.logging.PredictionsDispatcher;
 import co.aoscp.lovegood.qsb.QsbAnimationController;
 import co.aoscp.lovegood.quickspace.QuickSpaceView;
@@ -67,6 +68,7 @@ public class LunaLauncher extends Launcher {
 
         private final LunaLauncher mLauncher;
         private QuickSpaceView mQuickSpace;
+		private ShortcutsController mShortcutsController;
 
         private SharedPreferences mPrefs;
         private OverlayCallbackImpl mOverlayCallbacks;
@@ -93,6 +95,7 @@ public class LunaLauncher extends Launcher {
             mLauncherClient = new LauncherClient(mLauncher, mOverlayCallbacks, new ClientOptions(((mPrefs.getBoolean(SettingsFragment.KEY_MINUS_ONE, true) ? 1 : 0) | 2 | 4 | 8)));
             mOverlayCallbacks.setClient(mLauncherClient);
             mQsbController = new QsbAnimationController(mLauncher);
+			mShortcutsController = ShortcutsController.get(mLauncher.getBaseContext());
             mPrefs.registerOnSharedPreferenceChangeListener(this);
         }
 
@@ -249,6 +252,7 @@ public class LunaLauncher extends Launcher {
                 if (apps != null) {
                     mAppsView.getFloatingHeaderView().setPredictedApps(mPrefs.getBoolean(SettingsFragment.KEY_APP_SUGGESTIONS, true), apps);
                 }
+				mShortcutsController.updateUi();
             }
         }
     }
