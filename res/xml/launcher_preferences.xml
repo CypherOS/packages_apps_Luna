@@ -68,6 +68,13 @@
             android:summary="@string/app_suggestions_summary"
             android:defaultValue="true" />
 
+        <SwitchPreference
+            android:persistent="true"
+            android:title="@string/app_actions_pref_title"
+            android:key="pref_show_suggested_actions"
+            android:summary="@string/app_actions_pref_desc"
+            android:defaultValue="true" />
+
     </PreferenceScreen>
 
     <ListPreference
