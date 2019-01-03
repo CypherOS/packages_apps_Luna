@@ -37,10 +37,13 @@ import co.aoscp.lovegood.util.ComponentKeyMapper;
 
 import com.android.launcher3.AppFilter;
 import com.android.launcher3.AppInfo;
+import com.android.launcher3.ItemInfo;
 import com.android.launcher3.R;
 import com.android.launcher3.SettingsActivity;
 import com.android.launcher3.Utilities;
 import com.android.launcher3.allapps.AllAppsContainerView;
+import com.android.launcher3.shortcuts.ShortcutInfo;
+import com.android.launcher3.shortcuts.ShortcutKey;
 import com.android.launcher3.userevent.nano.LauncherLogProto.LauncherEvent;
 import com.android.launcher3.util.ComponentKey;
 
@@ -59,6 +62,7 @@ public class PredictionsDispatcher extends UserEventDispatcherExtension implemen
 
     public static final int BOOST_ON_OPEN = 9;
     public static final Set<String> EMPTY_SET = new HashSet();
+	public static final Set<String> EMPTY_SHORTCUT_SET = new HashSet();
     public static final int MAX_PREDICTIONS = 10;
     public static final String[] WATCHED_APPS = new String[] {
         "com.android.contacts",
@@ -94,8 +98,16 @@ public class PredictionsDispatcher extends UserEventDispatcherExtension implemen
         "org.telegram.messenger",
         "com.discord"
     };
+	
+	public static final String[] WATCHED_SHORTCUTS = new String[] {
+        "com.android.documentsui",
+        "com.android.settings",
+    };
+	
     public static final String PREDICTION_PREFIX = "pref_prediction_count_";
     public static final String PREDICTION_SET = "pref_prediction_set";
+	public static final String SHORTCUT_PREDICTION_PREFIX = "pref_shortcut_prediction_count_";
+    public static final String SHORTCUT_PREDICTION_SET = "pref_shortcut_prediction_set";
     public AppFilter mAppFilter;
     public Context mContext;
     public PackageManager mPackageManager;
@@ -147,6 +159,44 @@ public class PredictionsDispatcher extends UserEventDispatcherExtension implemen
         return list;
     }
 
+	public List<ComponentKeyMapper> getPredictedShortcuts() {
+        List<ComponentKeyMapper> list = new ArrayList();
+        if (isShortcutPredictionsEnabled() && mItemInfo != null) {
+            clearNonExistingShortcuts();
+            List<String> predictionList = new ArrayList(getShortcutSetCopy());
+			String shortcutId = ((ShortcutInfo) mItemInfo).getDeepShortcutId();
+            Collections.sort(predictionList, new Comparator<String>() {
+                @Override
+                public int compare(String o1, String o2) {
+                    return Integer.compare(getShortcutLaunchCount(o2), getShortcutLaunchCount(o1));
+                }
+            });
+
+            for (String prediction : predictionList) {
+                list.add(getShortcutComponentFromString(prediction, shortcutId));
+            }
+
+            if (list.size() < MAX_PREDICTIONS) {
+                for (String watchedShortcuts : WATCHED_SHORTCUTS) {
+                    Intent intent = mPackageManager.getLaunchIntentForPackage(watchedShortcuts);
+                    if (intent != null) {
+                        ComponentName componentInfo = intent.getComponent();
+                        String prediction = componentInfo.getPackageName() + '/' + componentInfo.getClassName();
+                        if (!predictionList.contains(prediction)) {
+                            list.add(new ComponentKeyMapper(mContext, new ShortcutKey(componentInfo, Process.myUserHandle(), shortcutId)));
+                        }
+                    }
+                }
+            }
+
+            if (list.size() > MAX_PREDICTIONS) {
+                list = list.subList(0, MAX_PREDICTIONS);
+            }
+        }
+        Log.d(TAG, "Got predicted apps");
+        return list;
+    }
+
     @Override
     public void logAppLaunch(View view, Intent intent) {
         super.logAppLaunch(view, intent);
@@ -166,6 +216,29 @@ public class PredictionsDispatcher extends UserEventDispatcherExtension implemen
             }
 
             edit.putStringSet(PREDICTION_SET, predictionSet);
+            edit.apply();
+        }
+    }
+
+	@Override
+    public void logShortcutsLaunch(View view, Intent intent, ItemInfo info) {
+        super.logShortcutsLaunch(view, intent);
+		mItemInfo = info;
+        if (isShortcutPredictionsEnabled()) {
+            clearNonExistingShortcuts();
+
+			String shortcutPrediction = intent.getPackage();
+
+            Set<String> predictionSet = getShortcutSetCopy();
+            Editor edit = mPrefs.edit();
+
+            if (predictionSet.contains(shortcutPrediction)) {
+                edit.putInt(SHORTCUT_PREDICTION_PREFIX + shortcutPrediction, getShortcutLaunchCount(shortcutPrediction) + BOOST_ON_OPEN);
+            } else if (predictionSet.size() < MAX_PREDICTIONS || shortcutHasSpotFree(predictionSet, edit)) {
+                predictionSet.add(shortcutPrediction);
+            }
+
+            edit.putStringSet(SHORTCUT_PREDICTION_SET, predictionSet);
             edit.apply();
         }
     }
@@ -224,8 +297,31 @@ public class PredictionsDispatcher extends UserEventDispatcherExtension implemen
         return spotFree;
     }
 
+	private boolean shortcutHasSpotFree(Set<String> toDecay, Editor edit) {
+        boolean spotFree = false;
+        Set<String> toRemove = new HashSet<>();
+        for (String prediction : toDecay) {
+            int launchCount = getShortcutLaunchCount(prediction);
+            if (launchCount > 0) {
+                edit.putInt(SHORTCUT_PREDICTION_PREFIX + prediction, --launchCount);
+            } else if (!spotFree) {
+                edit.remove(SHORTCUT_PREDICTION_PREFIX + prediction);
+                toRemove.add(prediction);
+                spotFree = true;
+            }
+        }
+        for (String prediction : toRemove) {
+            toDecay.remove(prediction);
+        }
+        return spotFree;
+    }
+
     private int getLaunchCount(String component) {
         return mPrefs.getInt(PREDICTION_PREFIX + component, 0);
+    }
+
+	private int getShortcutLaunchCount(String pkg) {
+        return mPrefs.getInt(SHORTCUT_PREDICTION_PREFIX + pkg, 0);
     }
 
     private boolean recursiveIsDrawer(View view) {
@@ -244,6 +340,10 @@ public class PredictionsDispatcher extends UserEventDispatcherExtension implemen
     private boolean isPredictorEnabled() {
         return Utilities.getPrefs(mContext).getBoolean(SettingsFragment.KEY_APP_SUGGESTIONS, true);
     }
+
+	private boolean isShortcutPredictionsEnabled() {
+        return Utilities.getPrefs(mContext).getBoolean(SettingsFragment.KEY_SHORTCUT_SUGGESTIONS, true);
+    }
   
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
@@ -257,12 +357,27 @@ public class PredictionsDispatcher extends UserEventDispatcherExtension implemen
             }
             edit.putStringSet(PREDICTION_SET, EMPTY_SET);
             edit.apply();
-        }
+        } else if (!isShortcutPredictionsEnabled()) {
+			Set<String> predictionSet = getShortcutSetCopy();
+
+			Editor edit = mPrefs.edit();
+			for (String prediction : predictionSet) {
+                Log.i("Predictor", "Clearing " + prediction + " at " + getShortcutLaunchCount(prediction));
+                edit.remove(SHORTCUT_PREDICTION_PREFIX + prediction);
+            }
+			edit.putStringSet(SHORTCUT_PREDICTION_SET, EMPTY_SHORTCUT_SET);
+            edit.apply();
+		}
     }
 
     private ComponentKeyMapper getComponentFromString(String str) {
         int index = str.indexOf('/');
         return new ComponentKeyMapper(mContext, new ComponentKey(new ComponentName(str.substring(0, index), str.substring(index + 1)), Process.myUserHandle()));
+    }
+
+	private ComponentKeyMapper getShortcutComponentFromString(String str, String shortcutId) {
+        int index = str.indexOf('/');
+        return new ComponentKeyMapper(mContext, new ShortcutKey(new ComponentName(str.substring(0, index), str.substring(index + 1)), Process.myUserHandle(), shortcutId));
     }
 
     private void clearNonExistingComponents() {
@@ -282,9 +397,32 @@ public class PredictionsDispatcher extends UserEventDispatcherExtension implemen
         Log.d(TAG, "Components cleared!");
     }
 
+	private void clearNonExistingShortcuts() {
+        Set<String> originalSet = mPrefs.getStringSet(SHORTCUT_PREDICTION_SET, EMPTY_SHORTCUT_SET);
+        Set<String> predictionSet = new HashSet<>(originalSet);
+        Editor edit = mPrefs.edit();
+        for (String prediction : originalSet) {
+            try {
+                mPackageManager.getPackageInfo(prediction.substring(0, prediction.indexOf('/')), 0);
+            } catch (NameNotFoundException | NumberFormatException e) {
+                predictionSet.remove(prediction);
+                edit.remove(SHORTCUT_PREDICTION_PREFIX + prediction);
+            }
+        }
+        edit.putStringSet(SHORTCUT_PREDICTION_SET, predictionSet);
+        edit.apply();
+        Log.d(TAG, "Predicated shortcuts cleared!");
+    }
+
     private Set<String> getStringSetCopy() {
         Set<String> set = new HashSet<>();
         set.addAll(mPrefs.getStringSet(PREDICTION_SET, EMPTY_SET));
+        return set;
+    }
+
+	private Set<String> getShortcutSetCopy() {
+        Set<String> set = new HashSet<>();
+        set.addAll(mPrefs.getStringSet(SHORTCUT_PREDICTION_SET, EMPTY_SHORTCUT_SET));
         return set;
     }
 }

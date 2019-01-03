@@ -240,14 +240,20 @@ public class LunaLauncher extends Launcher {
                 }
             } else if (SettingsFragment.KEY_APP_SUGGESTIONS.equals(key)) {
                 updatePredictions(true);
+			} else if (SettingsFragment.KEY_SHORTCUT_SUGGESTIONS.equals(key)) {
+                updatePredictions(true);
             }
         }
 
         public void updatePredictions(boolean force) {
             if (hasBeenResumed() || force) {
                 List<ComponentKeyMapper> apps = ((PredictionsDispatcher) getUserEventDispatcher()).getPredictedApps();
+				List<ComponentKeyMapper> shortcuts = ((PredictionsDispatcher) getUserEventDispatcher()).getPredictedShortcuts();
                 if (apps != null) {
                     mAppsView.getFloatingHeaderView().setPredictedApps(mPrefs.getBoolean(SettingsFragment.KEY_APP_SUGGESTIONS, true), apps);
+                }
+				if (shortcuts != null) {
+                    mAppsView.getFloatingHeaderView().setPredictedShortcuts(mPrefs.getBoolean(SettingsFragment.KEY_SHORTCUT_SUGGESTIONS, true), shortcuts);
                 }
             }
         }
