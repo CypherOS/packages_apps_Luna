@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2018 CypherOS
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources>
+
+    <!-- Icon shapes -->
+    <string name="icon_shape_square_name">Quadrado</string>
+    <string name="icon_shape_circle_name">Círculo</string>
+    <string name="icon_shape_squircle_name">Quadrado arredondado</string>
+    <string name="icon_shape_teardrop_name">Gota</string>
+
+    <!-- QuickSpace -->
+    <string name="abbrev_wday_month_day_no_year">EEEEMMMd</string>
+    <!-- QuickSpace: QuickEvent: Device Intro Event -->
+    <string name="quick_event_aoscp_intro_welcome">Bem vindo à CypherOS</string>
+    <string name="quick_event_aoscp_intro_learn">Toque para começar</string>
+    <!-- QuickSpace: QuickEvent: Ambient Play -->
+    <string name="quick_event_ambient_now_playing">Tocando Agora</string>
+    <string name="quick_event_ambient_song_artist">%1$s por %2$s</string>
+
+    <!-- Settings title to show Google Now at -1 screen on launcher. [CHAR LIMIT=50] -->
+    <string name="pref_show_google_now_title">Exibir Google app</string>
+    <!-- Settings message explaining when the -1 screen is available on an LTR device. [CHAR LIMIT=100] -->
+    <string name="msg_minus_one_on_left">À esquerda da tela inicial</string>
+    <!-- Settings message explaining when the -1 screen is available on an RTL device. [CHAR LIMIT=100] -->
+    <string name="msg_minus_one_on_right">À direita da tela inicial</string>
+
+    <!-- Swipe for notifications -->
+    <string name="statusbar_expand_title">Deslize para notificações</string>
+    <string name="statusbar_expand_summary">Na tela inicial</string>
+
+    <!-- QSB -->
+    <string name="hotseat_qsb_preferences">Preferências</string>
+    <string name="label_search">Pesquisa</string>
+    <string name="label_voice_search">Pesquisa por voz</string>
+
+    <!-- Predictions -->
+    <string name="suggestion_pref_screen_title">Sugestões</string>
+    <string name="suggestion_pref_screen_desc">Para os Recentes &amp; Lista de aplicativos</string>
+    <string name="app_suggestions_title">Exibir sugestões</string>
+    <string name="app_suggestions_summary">No topo da lista de aplicativos</string>
+    <string name="title_disable_suggestions_prompt">Desativar sugestões de aplicativos?</string>
+    <string name="msg_disable_suggestions_prompt">"As sugestões não aparecerão no topo da sua lista de aplicativos, e os dados usados ​​para criá-las serão permanentemente apagados."</string>
+    <string name="label_turn_off_suggestions">DESATIVAR</string>
+    <string name="all_apps_label">Todos os aplicativos</string>
+
+</resources>
+
