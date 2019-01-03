@@ -31,6 +31,8 @@ import android.view.View;
 import android.view.ViewParent;
 
 import co.aoscp.lovegood.SettingsFragment;
+import co.aoscp.lovegood.allapps.Action;
+import co.aoscp.lovegood.allapps.ActionsController;
 import co.aoscp.lovegood.util.ComponentKeyMapper;
 
 import com.android.launcher3.AppFilter;
@@ -39,6 +41,7 @@ import com.android.launcher3.R;
 import com.android.launcher3.SettingsActivity;
 import com.android.launcher3.Utilities;
 import com.android.launcher3.allapps.AllAppsContainerView;
+import com.android.launcher3.userevent.nano.LauncherLogProto.LauncherEvent;
 import com.android.launcher3.util.ComponentKey;
 
 import com.android.quickstep.logging.UserEventDispatcherExtension;
@@ -166,6 +169,41 @@ public class PredictionsDispatcher extends UserEventDispatcherExtension implemen
             edit.apply();
         }
     }
+
+	@Override
+	public void dispatchUserEvent(LauncherEvent launcherEvent, Intent intent) {
+		super.dispatchUserEvent(launcherEvent, intent);
+		if (launcherEvent.action.command == 0 && launcherEvent.destTarget.length > 0 && launcherEvent.destTarget[0].containerType == 4) {
+            ActionsController actionsController = ActionsController.get(mContext);
+            SharedPreferences fileImp = actionsController.getImpressions();
+            long currentTimeMillis = System.currentTimeMillis();
+            int min = Math.min(actionsController.getActions().size(), 2);
+            for (int i = 0; i < min; i++) {
+                String str = ((Action) actionsController.getActions().get(i)).f42id;
+                if (str != null) {
+                    Editor putString;
+                    if (fileImp.contains(str)) {
+                        String string = fileImp.getString(str, "");
+                        String[] split = string.split(",");
+                        long parseLong = Long.parseLong(split[0]);
+                        for (int i2 = 1; i2 < split.length; i2++) {
+                            parseLong += Long.parseLong(split[i2]);
+                        }
+                        long expiredTime = currentTimeMillis - parseLong;
+                        Editor edit = fileImp.edit();
+                        StringBuilder stringBuilder = new StringBuilder();
+                        stringBuilder.append(string);
+                        stringBuilder.append(",");
+                        stringBuilder.append(expiredTime);
+                        putString = edit.putString(str, stringBuilder.toString());
+                    } else {
+                        putString = fileImp.edit().putString(str, String.valueOf(currentTimeMillis));
+                    }
+                    putString.apply();
+                }
+            }
+        }
+	}
 
     private boolean decayHasSpotFree(Set<String> toDecay, Editor edit) {
         boolean spotFree = false;
