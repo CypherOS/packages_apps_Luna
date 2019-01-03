@@ -52,6 +52,7 @@ public class PredictionsFloatingHeader extends FloatingHeaderView implements Ins
     public final int mHeaderTopPadding;
     public boolean mIsCollapsed;
     public boolean mIsVerticalLayout;
+    public ActionsRowView mActionsRowView;
     public PredictionRowView mPredictionRowView;
     public boolean mShowAllAppsLabel;
 
@@ -63,20 +64,24 @@ public class PredictionsFloatingHeader extends FloatingHeaderView implements Ins
     public void onFinishInflate() {
         super.onFinishInflate();
         mPredictionRowView = (PredictionRowView) findViewById(R.id.predictions_row);
+        mActionsRowView = (ActionsRowView) findViewById(R.id.actions_row);
         setShowAllAppsLabel(true);
     }
 
     public void setup(AdapterHolder[] adapterHolderArr, boolean tabsHidden) {
         mPredictionRowView.setup(this, Utilities.getPrefs(Launcher.getLauncher(
             getContext())).getBoolean(SettingsFragment.KEY_APP_SUGGESTIONS, true));
+        mActionsRowView.setup(this);
         mTabsHidden = tabsHidden;
+        boolean isDisabled = mIsVerticalLayout && !mTabsHidden;
+        mActionsRowView.setDisabled(isDisabled);
         updateExpectedHeight();
         super.setup(adapterHolderArr, tabsHidden);
     }
 
     public final void updateExpectedHeight() {
-        mPredictionRowView.setDividerType(DividerType.ALL_APPS_LABEL);
-        mMaxTranslation = mPredictionRowView.getExpectedHeight();
+        mPredictionRowView.setDividerType(mActionsRowView.shouldDraw() ? DividerType.NONE : DividerType.ALL_APPS_LABEL);
+        mMaxTranslation = mPredictionRowView.getExpectedHeight() + mActionsRowView.getExpectedHeight();
     }
 
     public int getMaxTranslation() {
@@ -96,12 +101,18 @@ public class PredictionsFloatingHeader extends FloatingHeaderView implements Ins
         return mPredictionRowView;
     }
 
+    public ActionsRowView getActionsRowView() {
+        return mActionsRowView;
+    }
+
     public void setInsets(Rect rect) {
         DeviceProfile deviceProfile = Launcher.getLauncher(getContext()).getDeviceProfile();
         int devicePadding = deviceProfile.desiredWorkspaceLeftRightMarginPx + deviceProfile.cellLayoutPaddingLeftRightPx;
         PredictionRowView predictionRowView = mPredictionRowView;
         predictionRowView.setPadding(devicePadding, predictionRowView.getPaddingTop(), devicePadding, mPredictionRowView.getPaddingBottom());
         mIsVerticalLayout = deviceProfile.isVerticalBarLayout();
+        boolean isDisabled = mIsVerticalLayout && !mTabsHidden;
+        mActionsRowView.setDisabled(isDisabled);
     }
 
     public void headerChanged() {
@@ -115,9 +126,12 @@ public class PredictionsFloatingHeader extends FloatingHeaderView implements Ins
     public void applyScroll(int uncappedY, int currentY) {
         if (uncappedY < currentY - mHeaderTopPadding) {
             mPredictionRowView.setScrolledOut(true);
+            mActionsRowView.setHidden(true);
             return;
         }
         float translationY = (float) uncappedY;
+        mActionsRowView.setHidden(false);
+        mActionsRowView.setTranslationY(translationY);
         mPredictionRowView.setScrolledOut(false);
         mPredictionRowView.setScrollTranslation(translationY);
     }
@@ -141,6 +155,7 @@ public class PredictionsFloatingHeader extends FloatingHeaderView implements Ins
     public final void setContentAlpha(float alpha) {
         mContentAlpha = alpha;
         mTabLayout.setAlpha(alpha);
+        mActionsRowView.setAlpha(alpha);
     }
 
     public boolean hasVisibleContent() {
@@ -151,6 +166,7 @@ public class PredictionsFloatingHeader extends FloatingHeaderView implements Ins
     public void setCollapsed(boolean collapsed) {
         if (collapsed != mIsCollapsed) {
             mIsCollapsed = collapsed;
+            mActionsRowView.setCollapsed(collapsed);
             mPredictionRowView.setCollapsed(collapsed);
             headerChanged();
         }
