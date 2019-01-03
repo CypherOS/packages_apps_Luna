@@ -57,6 +57,7 @@ public class SettingsFragment extends SettingsActivity implements OnPreferenceSt
     public static final String KEY_SUGGESTIONS = "pref_suggestions";
     public static final String KEY_APP_SUGGESTIONS = "pref_app_suggestions";
     public static final String KEY_APP_ACTIONS = "pref_show_suggested_actions";
+	public static final String KEY_SHORTCUT_SUGGESTIONS = "pref_show_suggested_shortcuts";
 
     @Override
     protected PreferenceFragment getNewFragment() {
@@ -91,6 +92,7 @@ public class SettingsFragment extends SettingsActivity implements OnPreferenceSt
 
             PreferenceScreen prefScreen = (PreferenceScreen) findPreference(KEY_SUGGESTIONS);
             ((SwitchPreference) findPreference(KEY_APP_SUGGESTIONS)).setOnPreferenceChangeListener(this);
+			(SwitchPreference) findPreference(KEY_SHORTCUT_SUGGESTIONS);
             try {
                 getContext().getPackageManager().getPackageInfo(ActionsController.AIAI_PACKAGE, AbstractFloatingView.TYPE_TASK_MENU);
             } catch (NameNotFoundException ex) {

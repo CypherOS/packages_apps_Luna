@@ -210,6 +210,7 @@ public abstract class BaseDraggingActivity extends BaseActivity
             if (isShortcut) {
                 // Shortcuts need some special checks due to legacy reasons.
                 startShortcutIntentSafely(intent, optsBundle, item);
+				getUserEventDispatcher().logShortcutsLaunch(v, intent, item);
             } else if (user == null || user.equals(Process.myUserHandle())) {
                 // Could be launching some bookkeeping activity
                 startActivity(intent, optsBundle);

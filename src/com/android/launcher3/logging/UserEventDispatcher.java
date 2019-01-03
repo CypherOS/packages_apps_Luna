@@ -182,6 +182,20 @@ public class UserEventDispatcher {
         mAppOrTaskLaunch = true;
     }
 
+	public void logShortcutsLaunch(View v, Intent intent, ItemInfo info) {
+        LauncherEvent event = newLauncherEvent(newTouchAction(Action.Touch.TAP),
+                newItemTarget(v, mInstantAppResolver), newTarget(Target.Type.CONTAINER));
+
+        if (fillInLogContainerData(event, v)) {
+            if (mDelegate != null) {
+                mDelegate.modifyUserEvent(event);
+            }
+            fillIntentInfo(event.srcTarget[0], intent);
+        }
+        dispatchUserEvent(event, intent);
+        mAppOrTaskLaunch = true;
+    }
+
     public void logActionTip(int actionType, int viewType) { }
 
     public void logTaskLaunchOrDismiss(int action, int direction, int taskIndex,

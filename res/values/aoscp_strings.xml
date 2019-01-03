@@ -55,6 +55,8 @@
     <string name="msg_disable_suggestions_prompt">"Suggestions won't appear at the top of your apps list, and the usage data used to create them will be permanently erased."</string>
     <string name="app_actions_pref_title">Actions</string>
     <string name="app_actions_pref_desc">At the top of your All Apps list</string>
+	<string name="shortcuts_suggestion_pref_screen_title">Shortcuts</string>
+    <string name="shortcuts_suggestion_pref_screen_desc">At the top of your All Apps list</string>
     <string name="label_turn_off_suggestions">TURN OFF</string>
     <string name="all_apps_label">All apps</string>
     <string name="dismiss_drop_target_label">"Don't show"</string>

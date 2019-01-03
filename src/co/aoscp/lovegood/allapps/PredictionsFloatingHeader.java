@@ -54,7 +54,9 @@ public class PredictionsFloatingHeader extends FloatingHeaderView implements Ins
     public boolean mIsVerticalLayout;
     public ActionsRowView mActionsRowView;
     public PredictionRowView mPredictionRowView;
+	public ShortcutsRowView mShortcutsRowView;
     public boolean mShowAllAppsLabel;
+	private boolean mShortcutPredictionsEnabled;
 
     public PredictionsFloatingHeader(Context context, AttributeSet attributeSet) {
         super(context, attributeSet);
@@ -65,23 +67,32 @@ public class PredictionsFloatingHeader extends FloatingHeaderView implements Ins
         super.onFinishInflate();
         mPredictionRowView = (PredictionRowView) findViewById(R.id.predictions_row);
         mActionsRowView = (ActionsRowView) findViewById(R.id.actions_row);
+		mShortcutsRowView = (ShortcutsRowView) findViewById(R.id.shortcuts_row);
         setShowAllAppsLabel(true);
     }
 
     public void setup(AdapterHolder[] adapterHolderArr, boolean tabsHidden) {
+		mShortcutPredictionsEnabled = Utilities.getPrefs(Launcher.getLauncher(
+            getContext())).getBoolean(SettingsFragment.KEY_SHORTCUT_SUGGESTIONS, true);
         mPredictionRowView.setup(this, Utilities.getPrefs(Launcher.getLauncher(
             getContext())).getBoolean(SettingsFragment.KEY_APP_SUGGESTIONS, true));
         mActionsRowView.setup(this);
+		mShortcutsRowView.setup(this);
         mTabsHidden = tabsHidden;
         boolean isDisabled = mIsVerticalLayout && !mTabsHidden;
         mActionsRowView.setDisabled(isDisabled);
+		mShortcutsRowView.setDisabled(isDisabled);
         updateExpectedHeight();
         super.setup(adapterHolderArr, tabsHidden);
     }
 
-    public final void updateExpectedHeight() {
-        mPredictionRowView.setDividerType(mActionsRowView.shouldDraw() ? DividerType.NONE : DividerType.ALL_APPS_LABEL);
-        mMaxTranslation = mPredictionRowView.getExpectedHeight() + mActionsRowView.getExpectedHeight();
+    public void updateExpectedHeight() {
+        mPredictionRowView.setDividerType(mShortcutPredictionsEnabled ? 
+		        mShortcutsRowView.shouldDraw() ? DividerType.NONE : DividerType.ALL_APPS_LABEL : 
+				mActionsRowView.shouldDraw() ? DividerType.NONE : DividerType.ALL_APPS_LABEL);
+        mMaxTranslation = mPredictionRowView.getExpectedHeight() 
+		        + mActionsRowView.getExpectedHeight() 
+				+ mShortcutsRowView.getExpectedHeight();
     }
 
     public int getMaxTranslation() {
@@ -104,6 +115,10 @@ public class PredictionsFloatingHeader extends FloatingHeaderView implements Ins
     public ActionsRowView getActionsRowView() {
         return mActionsRowView;
     }
+	
+	public ShortcutsRowView getShortcutsRowView() {
+        return mShortcutsRowView;
+    }
 
     public void setInsets(Rect rect) {
         DeviceProfile deviceProfile = Launcher.getLauncher(getContext()).getDeviceProfile();
@@ -113,6 +128,7 @@ public class PredictionsFloatingHeader extends FloatingHeaderView implements Ins
         mIsVerticalLayout = deviceProfile.isVerticalBarLayout();
         boolean isDisabled = mIsVerticalLayout && !mTabsHidden;
         mActionsRowView.setDisabled(isDisabled);
+		mShortcutsRowView.setDisabled(isDisabled);
     }
 
     public void headerChanged() {
@@ -127,6 +143,7 @@ public class PredictionsFloatingHeader extends FloatingHeaderView implements Ins
         if (uncappedY < currentY - mHeaderTopPadding) {
             mPredictionRowView.setScrolledOut(true);
             mActionsRowView.setHidden(true);
+			mShortcutsRowView.setHidden(true);
             return;
         }
         float translationY = (float) uncappedY;
@@ -134,6 +151,8 @@ public class PredictionsFloatingHeader extends FloatingHeaderView implements Ins
         mActionsRowView.setTranslationY(translationY);
         mPredictionRowView.setScrolledOut(false);
         mPredictionRowView.setScrollTranslation(translationY);
+		mShortcutsRowView.setHidden(false);
+        mShortcutsRowView.setTranslationY(translationY);
     }
 
     public void setContentVisibility(boolean hasHeader, boolean hasContent, PropertySetter propertySetter, Interpolator interpolator) {
@@ -152,15 +171,17 @@ public class PredictionsFloatingHeader extends FloatingHeaderView implements Ins
         }
     }
 
-    public final void setContentAlpha(float alpha) {
+    public void setContentAlpha(float alpha) {
         mContentAlpha = alpha;
         mTabLayout.setAlpha(alpha);
         mActionsRowView.setAlpha(alpha);
+		mShortcutsRowView.setAlpha(alpha);
     }
 
     public boolean hasVisibleContent() {
         return Utilities.getPrefs(Launcher.getLauncher(
-            getContext())).getBoolean(SettingsFragment.KEY_APP_SUGGESTIONS, true);
+            getContext())).getBoolean(SettingsFragment.KEY_APP_SUGGESTIONS, true)
+			|| mShortcutPredictionsEnabled;
     }
 
     public void setCollapsed(boolean collapsed) {
@@ -168,6 +189,7 @@ public class PredictionsFloatingHeader extends FloatingHeaderView implements Ins
             mIsCollapsed = collapsed;
             mActionsRowView.setCollapsed(collapsed);
             mPredictionRowView.setCollapsed(collapsed);
+			mShortcutsRowView.setCollapsed(collapsed);
             headerChanged();
         }
     }

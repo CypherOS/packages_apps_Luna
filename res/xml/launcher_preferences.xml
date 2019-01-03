@@ -75,6 +75,13 @@
             android:summary="@string/app_actions_pref_desc"
             android:defaultValue="true" />
 
+		<SwitchPreference
+            android:persistent="true"
+            android:title="@string/shortcuts_suggestion_pref_screen_title"
+            android:key="pref_show_suggested_shortcuts"
+            android:summary="@string/shortcuts_suggestion_pref_screen_desc"
+            android:defaultValue="true" />
+
     </PreferenceScreen>
 
     <ListPreference
