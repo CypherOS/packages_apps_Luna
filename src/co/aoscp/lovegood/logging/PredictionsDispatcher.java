@@ -33,6 +33,7 @@ import android.view.ViewParent;
 import co.aoscp.lovegood.SettingsFragment;
 import co.aoscp.lovegood.allapps.Action;
 import co.aoscp.lovegood.allapps.ActionsController;
+import co.aoscp.lovegood.allapps.ShortcutsController;
 import co.aoscp.lovegood.util.ComponentKeyMapper;
 
 import com.android.launcher3.AppFilter;
@@ -100,6 +101,7 @@ public class PredictionsDispatcher extends UserEventDispatcherExtension implemen
     public Context mContext;
     public PackageManager mPackageManager;
     public SharedPreferences mPrefs;
+	public ShortcutsController mShortcutsController;
 
     public PredictionsDispatcher(Context context) {
         super(context);
@@ -108,6 +110,7 @@ public class PredictionsDispatcher extends UserEventDispatcherExtension implemen
         mPrefs = Utilities.getPrefs(context);
         mPrefs.registerOnSharedPreferenceChangeListener(this);
         mPackageManager = context.getPackageManager();
+		mShortcutsController = ShortcutsController.get(context);
     }
 
     public List<ComponentKeyMapper> getPredictedApps() {
@@ -167,6 +170,14 @@ public class PredictionsDispatcher extends UserEventDispatcherExtension implemen
 
             edit.putStringSet(PREDICTION_SET, predictionSet);
             edit.apply();
+        }
+    }
+
+	@Override
+    public void logShortcutsLaunch(View view, Intent intent, ItemInfo info) {
+        super.logShortcutsLaunch(view, intent, info);
+        if (mShortcutsController.isEnabled()) {
+            mShortcutsController.setLoggedShortcutInfo(intent, info);
         }
     }
 
