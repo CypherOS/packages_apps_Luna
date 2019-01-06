@@ -27,6 +27,8 @@ import android.view.View;
 import android.view.View.OnLongClickListener;
 import android.view.ViewConfiguration;
 
+import co.aoscp.lovegood.SettingsFragment;
+
 import com.android.launcher3.BubbleTextView;
 import com.android.launcher3.DeviceProfile;
 import com.android.launcher3.DropTarget.DragObject;
@@ -97,7 +99,11 @@ public class ActionView extends BubbleTextView implements OnLongClickListener {
     }
 
     public boolean performClick() {
-        logClickEvent();
+		boolean isActionSuggest = Utilities.getPrefs(Launcher.getLauncher(
+                getContext())).getBoolean(SettingsFragment.KEY_APP_ACTIONS, true);
+		if (isActionSuggest) {
+			logClickEvent();
+		}
         return super.performClick();
     }
 

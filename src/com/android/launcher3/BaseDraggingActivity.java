@@ -35,6 +35,8 @@ import android.view.Surface;
 import android.view.View;
 import android.widget.Toast;
 
+import co.aoscp.lovegood.allapps.ShortcutsController;
+
 import com.android.launcher3.LauncherSettings.Favorites;
 import com.android.launcher3.badge.BadgeInfo;
 import com.android.launcher3.compat.LauncherAppsCompat;
@@ -241,6 +243,7 @@ public abstract class BaseDraggingActivity extends BaseActivity
                     String packageName = intent.getPackage();
                     DeepShortcutManager.getInstance(this).startShortcut(
                             packageName, id, intent.getSourceBounds(), optsBundle, info.user);
+					ShortcutsController.get(this).getLaunchedShortcuts(packageName, info);
                 } else {
                     // Could be launching some bookkeeping activity
                     startActivity(intent, optsBundle);

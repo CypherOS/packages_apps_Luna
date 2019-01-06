@@ -37,10 +37,12 @@ import android.view.accessibility.AccessibilityNodeInfo.AccessibilityAction;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
 
-import co.aoscp.lovegood.allapps.ActionsController.UpdateListener;
+import co.aoscp.lovegood.allapps.ShortcutsController.UpdateListener;
 
 import com.android.launcher3.DeviceProfile;
+import com.android.launcher3.DeviceProfile.OnDeviceProfileChangeListener;
 import com.android.launcher3.ItemInfo;
+import com.android.launcher3.ItemInfoWithIcon;
 import com.android.launcher3.Launcher;
 import com.android.launcher3.LauncherState;
 import com.android.launcher3.R;
@@ -53,25 +55,29 @@ import com.android.launcher3.util.Themes;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ActionsRowView extends LinearLayout implements UpdateListener, LogContainerProvider {
+public class ShortcutsRowView extends LinearLayout implements UpdateListener, LogContainerProvider {
+
+	public static final String TAG = "ShortcutsRowView";
 
     public LauncherAccessibilityDelegate mActionAccessibilityDelegate;
-    public ActionsController mActionsController;
-    public Layout mAllAppsLabelLayout;
+	public ShortcutsController mShortcutsController;
+	public Layout mAllAppsLabelLayout;
     public boolean mDisabled;
     public boolean mHidden;
     public boolean mIsCollapsed = false;
     public boolean mIsDarkTheme;
     public final Launcher mLauncher;
     public PredictionsFloatingHeader mParent;
-    public boolean mShowAllAppsLabel;
+	public boolean mShowAllAppsLabel;
     public int mSpacing;
+	public int mPredictionsMinSize = 0;
 
-    public ActionsRowView(Context context, AttributeSet attributeSet) {
+    public ShortcutsRowView(Context context, AttributeSet attributeSet) {
         super(context, attributeSet);
         setOrientation(0);
         mLauncher = Launcher.getLauncher(getContext());
         mIsDarkTheme = Themes.getAttrBoolean(mLauncher, R.attr.isMainColorDark);
+		mShortcutsController = ShortcutsController.get(getContext());
         mSpacing = context.getResources().getDimensionPixelSize(R.dimen.all_apps_action_spacing);
         mActionAccessibilityDelegate = mLauncher.getAccessibilityDelegate();
         mActionAccessibilityDelegate.addAccessibilityAction(R.id.action_dismiss_suggestion, R.string.dismiss_drop_target_label);
@@ -79,7 +85,7 @@ public class ActionsRowView extends LinearLayout implements UpdateListener, LogC
 
     public void setup(PredictionsFloatingHeader predictionsHeader) {
         mParent = predictionsHeader;
-        updateVisibility();
+		updateVisibility();
     }
 
     public int getExpectedHeight() {
@@ -113,25 +119,26 @@ public class ActionsRowView extends LinearLayout implements UpdateListener, LogC
     @Override
     public void onAttachedToWindow() {
         super.onAttachedToWindow();
-        mActionsController = ActionsController.get(getContext());
-        mActionsController.setListener(this);
-        onUpdated(mActionsController.getActions());
+        mShortcutsController.setListener(this);
+        onShortcutsUpdated(mShortcutsController.getPredictedShortcuts());
     }
 
-    @Override
+	@Override
     public void onDetachedFromWindow() {
         super.onDetachedFromWindow();
-        mActionsController.setListener(null);
+        mShortcutsController.setListener(null);
     }
 
-    public void onUpdated(ArrayList<Action> arrayList) {
+	@Override
+    public void onShortcutsUpdated(ArrayList<Shortcut> predictions) {
+		Log.d(TAG, "Updating shortcut predictions view");
         int i;
-        int min = Math.min(2, arrayList.size());
-        if (getChildCount() != min) {
-            while (getChildCount() > min) {
+        mPredictionsMinSize = Math.min(2, predictions.size());
+        if (getChildCount() != mPredictionsMinSize) {
+            while (getChildCount() > mPredictionsMinSize) {
                 removeViewAt(0);
             }
-            while (getChildCount() < min) {
+            while (getChildCount() < mPredictionsMinSize) {
                 ActionView actionView = (ActionView) LayoutInflater.from(getContext()).inflate(R.layout.all_apps_actions_view, this, false);
                 if (mIsDarkTheme) {
                     GradientDrawable gradientDrawable = (GradientDrawable) actionView.getBackground();
@@ -145,37 +152,41 @@ public class ActionsRowView extends LinearLayout implements UpdateListener, LogC
                 addView(actionView);
             }
             i = 0;
-            while (i < min) {
-                ((LayoutParams) getChildAt(i).getLayoutParams()).setMarginEnd(i < min + -1 ? mSpacing : 0);
+            while (i < mPredictionsMinSize) {
+                ((LayoutParams) getChildAt(i).getLayoutParams()).setMarginEnd(i < mPredictionsMinSize + -1 ? mSpacing : 0);
                 i++;
             }
         }
         for (i = 0; i < getChildCount(); i++) {
-            ActionView actionView2 = (ActionView) getChildAt(i);
-            actionView2.reset();
-            if (min > i) {
-                actionView2.setVisibility(View.VISIBLE);
-                Action action = (Action) arrayList.get(i);
-                ShortcutInfo shortcutInfo = action.shortcutInfo;
-                shortcutInfo.contentDescription = getContext().getString(R.string.suggested_action_content_description, new Object[]{action.contentDescription, action.openingPackageDescription});
-                actionView2.applyFromShortcutInfo(shortcutInfo);
-                actionView2.setAction(action, i);
-                if (TextUtils.isEmpty(actionView2.getText())) {
+            ActionView view = (ActionView) getChildAt(i);
+            view.reset();
+            if (mPredictionsMinSize > i) {
+				Log.d(TAG, "Predictions found making visible");
+                view.setVisibility(View.VISIBLE);
+                Shortcut shortcut = (Shortcut) predictions.get(i);
+                ShortcutInfo shortcutInfo = shortcut.shortcutInfo;
+                shortcutInfo.contentDescription = getContext().getString(R.string.suggested_action_content_description);
+                view.applyFromShortcutInfo(shortcutInfo);
+				StringBuilder details = new StringBuilder("Shortcut Predictions:");
+				details.append(shortcutInfo);
+				Log.d(TAG, details.toString());
+                if (TextUtils.isEmpty(view.getText())) {
                     StringBuilder sb = new StringBuilder();
                     sb.append("Empty ActionView text: action=");
-                    sb.append(action);
+                    sb.append(shortcut);
                     Log.e("ActionsRowView", sb.toString());
                 }
             } else {
-                actionView2.setVisibility(View.INVISIBLE);
-                actionView2.setAction(null, -1);
+				Log.d(TAG, "No predictions found, making invisible");
+                view.setVisibility(View.INVISIBLE);
             }
         }
         updateVisibility();
         mParent.headerChanged();
     }
 
-    public void onDraw(Canvas canvas) {
+	@Override
+	public void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         if (mShowAllAppsLabel) {
             drawAllAppsHeader(canvas);
@@ -192,7 +203,7 @@ public class ActionsRowView extends LinearLayout implements UpdateListener, LogC
         updateVisibility();
     }
 
-    public void setShowAllAppsLabel(boolean show) {
+	public void setShowAllAppsLabel(boolean show) {
         if (mShowAllAppsLabel != show) {
             mShowAllAppsLabel = show;
             setWillNotDraw(mShowAllAppsLabel);
@@ -217,28 +228,19 @@ public class ActionsRowView extends LinearLayout implements UpdateListener, LogC
     }
 
     public boolean shouldDraw() {
-        return (mDisabled || getChildCount() <= 0 || mIsCollapsed) ? false : true;
+        return !mDisabled && getChildCount() > 0 && !mIsCollapsed;
     }
 
-    public final void updateVisibility() {
-        int visibility = !shouldDraw() ? View.GONE : mHidden ? View.INVISIBLE : View.VISIBLE;
+    public void updateVisibility() {
+		int visibility = !shouldDraw() ? View.GONE : mHidden ? View.INVISIBLE : View.VISIBLE;
         setVisibility(visibility);
     }
 
-    public Action getAction(ItemInfo info) {
-        for (int i = 0; i < getChildCount(); i++) {
-            if (info == getChildAt(i).getTag()) {
-                return ((ActionView) getChildAt(i)).getAction();
-            }
-        }
-        return null;
-    }
-
-    public final void drawAllAppsHeader(Canvas canvas) {
+	public void drawAllAppsHeader(Canvas canvas) {
         PredictionRowView.drawAllAppsHeader(canvas, this, mAllAppsLabelLayout);
     }
 
-    public final int getAllAppsLayoutFullHeight() {
+    public int getAllAppsLayoutFullHeight() {
         return (mAllAppsLabelLayout.getHeight() + getResources().getDimensionPixelSize(R.dimen.all_apps_label_top_padding)) 
 		        + getResources().getDimensionPixelSize(R.dimen.all_apps_label_bottom_padding);
     }
