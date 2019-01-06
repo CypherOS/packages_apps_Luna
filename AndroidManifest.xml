@@ -136,5 +136,10 @@
             android:exported="true"
             android:name="co.aoscp.lovegood.search.AppSearchProvider" />
 
+		<provider
+            android:name="co.aoscp.lovegood.ShortcutProvider"
+            android:authorities="co.aoscp.minai.suggestprovider"
+            android:exported="true" />
+
     </application>
 </manifest>

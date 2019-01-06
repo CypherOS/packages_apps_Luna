@@ -16,15 +16,11 @@
 
 package co.aoscp.lovegood.allapps;
 
-import android.app.AlarmManager;
-import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
-import android.content.ContentProviderClient;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
@@ -75,6 +71,9 @@ public class ShortcutsController implements Callback, OnSharedPreferenceChangeLi
 
     public static final String TAG = "ShortcutsController";
 
+	private static final Uri SUGGEST_PROVIDER = new Builder().scheme("content").authority("co.aoscp.minai.suggestprovider" + "/shortcuts").build();
+	private static final String[] SUGGESTION_DATA = new String[] {"_suggest_id", "shortcut_package", "shortcut_id"};
+
     private static ShortcutsController sController;
     private final Handler mWorkerThread = new Handler(LauncherModel.getWorkerLooper(), this);
     private final Handler mUiThread = new Handler(Looper.getMainLooper(), this);
@@ -84,42 +83,24 @@ public class ShortcutsController implements Callback, OnSharedPreferenceChangeLi
 	private String mPackageName;
     private final ArrayList<Shortcut> mPredictedShortcuts = new ArrayList();
     private final ArrayList<Shortcut> mProccessedShortcuts = new ArrayList();
+	private final ContentObserver UI_OBSERVER = new ContentObserver(mUiThread) {
+		@Override
+        public void onChange(boolean enabled) {
+            updateUi();
+        }
+    };
 
 	private static final int MSG_CLEAR_TOP_SUGGESTION = 0;
 	private static final int MSG_LOAD_PREDICTIONS = 1;
 	private static final int MSG_UPDATE_PREDICTIONS = 2;
-	private static final long SUGGESTION_UPDATE_INTERVAL = 60000; // 1 min //3600000; // 1 Hour
 	private static final int MAX_SUGGESTIONS = 2;
 	private static final String KEY_SUGGESTIONS_LIST = "key_suggestions";
 	private static final String KEY_SUGGESTIONS_INITIALIZED = "key_suggestions_initialized";
 
 	private boolean mEnabled;
-	private boolean mIsScreenOn = true;
-	private long mLastUpdated;
-	private long mScheduledTime = 0;
-
-	private AlarmManager mAlarmManager;
-	private PendingIntent mPendingUpdate;
-	private String mUpdateAction;
-    private UpdateListener mListener;
-	private IntentFilter mUpdateFilter;
-	private BroadcastReceiver mUpdateReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if (intent == null) {
-                return;
-            }
-            if (Intent.ACTION_SCREEN_OFF.equals(intent.getAction())) {
-                onScreenOff();
-            } else if (Intent.ACTION_SCREEN_ON.equals(intent.getAction())) {
-                onScreenOn();
-            } else if (mUpdateAction.equals(intent.getAction())) {
-                updateUi();
-            }
-        }
-    };
 
     private static class ShortcutData {
+		String suggestId;
         String shortcutId;
         String publisherPkg;
 		String badgePkg;
@@ -158,25 +139,6 @@ public class ShortcutsController implements Callback, OnSharedPreferenceChangeLi
         mContext = context;
         mPrefs = Utilities.getPrefs(context);
         mPrefs.registerOnSharedPreferenceChangeListener(this);
-		addUpdateReceiver();
-    }
-
-	private void addUpdateReceiver() {
-		if (!mEnabled) return;
-		mUpdateAction = "updateAction_" + Integer.toString(new Random().nextInt((20000000 - 10000000) + 1) + 10000000);
-        mPendingUpdate = PendingIntent.getBroadcast(mContext, new Random().nextInt((20000000 - 10000000) + 1) + 10000000, new Intent(mUpdateAction), 0);
-		mUpdateFilter = new IntentFilter();
-        mUpdateFilter.addAction(Intent.ACTION_SCREEN_OFF);
-        mUpdateFilter.addAction(Intent.ACTION_SCREEN_ON);
-        mUpdateFilter.addAction(mUpdateAction);
-        mUpdateFilter.setPriority(IntentFilter.SYSTEM_HIGH_PRIORITY);
-        mContext.registerReceiver(mUpdateReceiver, mUpdateFilter);
-	}
-		
-
-	private boolean needsUpdate() {
-        boolean hasExpired = System.currentTimeMillis() - mLastUpdated > SUGGESTION_UPDATE_INTERVAL;
-        return hasExpired;
     }
 
 	@Override
@@ -186,11 +148,11 @@ public class ShortcutsController implements Callback, OnSharedPreferenceChangeLi
 			mEnabled = enabled;
 			Log.d(TAG, "Updated shortcut suggestion state");
 			if (!mEnabled) {
-				Log.d(TAG, "Removing update receiver");
-				mContext.unregisterReceiver(mUpdateReceiver);
+				Log.d(TAG, "Removing suggest observer");
+				mContext.getContentResolver().unregisterContentObserver(UI_OBSERVER);
 			} else {
-				Log.d(TAG, "Adding update receiver");
-				addUpdateReceiver();
+				Log.d(TAG, "Adding suggest observer");
+				mContext.getContentResolver().registerContentObserver(SUGGEST_PROVIDER, true, UI_OBSERVER);
 			}
         }
     }
@@ -207,22 +169,6 @@ public class ShortcutsController implements Callback, OnSharedPreferenceChangeLi
 
     public void updateUi() {
 		Message.obtain(mWorkerThread, MSG_LOAD_PREDICTIONS).sendToTarget();
-    }
-
-	private void onScreenOn() {
-		mIsScreenOn = true;
-        if (needsUpdate()) {
-            Log.d(TAG, "Needs update, triggering updateUi");
-            updateUi();
-        } else {
-            Log.d(TAG, "Scheduling update");
-            scheduleUpdateAlarm();
-        }
-    }
-
-	private void onScreenOff() {
-        mIsScreenOn = false;
-        cancelUpdateAlarm();
     }
 
     public boolean handleMessage(Message message) {
@@ -255,20 +201,29 @@ public class ShortcutsController implements Callback, OnSharedPreferenceChangeLi
             return mPredictedShortcuts;
         }
 
-		if (mShortcutId == null && mPackageName == null) {
-			Log.d(TAG, "No shortcut info was found");
-			return mPredictedShortcuts;
-		}
-
         try {
             LauncherIcons obtain = LauncherIcons.obtain(mContext);
-			try {
+			try (Cursor query = mContext.getContentResolver().query(SUGGEST_PROVIDER, SUGGESTION_DATA, null, null,
+                null)) {
+                if (query == null) {
+                    try {
+                        Log.e(TAG, "No cursor found");
+                        if (obtain != null) {
+                            obtain.close();
+                        }
+                        return mPredictedActions;
+                    } catch (Throwable unused) {
+                    }
+                }
 				MultiHashMap shortcutMap = new MultiHashMap();
-				ShortcutData data = new ShortcutData();
-				data.publisherPkg = mPackageName;
-				data.shortcutId = ((ShortcutInfo) mShortcutId).getDeepShortcutId();
-				data.badgePkg = mPackageName;
-				shortcutMap.addToList(data.publisherPkg, data);
+				while (query.moveToNext()) {
+					ShortcutData data = new ShortcutData();
+					data.suggestId = query.getString(0);
+				    data.publisherPkg = query.getString(1);
+				    data.shortcutId = query.getString(2);
+				    data.badgePkg = mPackageName;
+				    shortcutMap.addToList(data.publisherPkg, data);
+				}
 				DeepShortcutManager shortcuts = DeepShortcutManager.getInstance(mContext);
 				Iterator shortcutMapIt = shortcutMap.entrySet().iterator();
 				while (shortcutMapIt.hasNext()) {
@@ -293,16 +248,14 @@ public class ShortcutsController implements Callback, OnSharedPreferenceChangeLi
                             shortcutInfo.runtimeStatusFlags |= 512;
                             obtain.createShortcutIcon(infoCompat, true).applyTo(shortcutInfo);
                             try {
-                                Shortcut shortcut = new Shortcut(
-								        shortcutData.publisherPkg, shortcutData.shortcutId, shortcutData.badgePkg, infoCompat, shortcutInfo);
+                                Shortcut shortcut = new Shortcut(shortcutData.suggestId, shortcutData.publisherPkg, 
+								        shortcutData.shortcutId, shortcutData.badgePkg, infoCompat, shortcutInfo);
                                 mPredictedShortcuts.add(shortcut);
+								addToSuggestionList();
 								StringBuilder details = new StringBuilder("Adding shortcut: ");
 								details.append(shortcutData.publisherPkg);
 								details.append(shortcutData.shortcutId);
 								Log.d(TAG, details.toString());
-								addToSuggestionList();
-								mLastUpdated = System.currentTimeMillis();
-								resetUpdateAlarm();
                             } catch (Throwable ignored) {
 								Log.d(TAG, "Could not create shortcut data");
                             }
@@ -313,8 +266,7 @@ public class ShortcutsController implements Callback, OnSharedPreferenceChangeLi
 					if (obtain != null) {
                         obtain.close();
                     }
-					mPackageName = null;
-					mShortcutId = null;
+					mContext.getContentResolver().update(SUGGEST_PROVIDER, null, null, null);
 					return mPredictedShortcuts;
                 } catch (Throwable ignored) {
                 }
@@ -350,43 +302,30 @@ public class ShortcutsController implements Callback, OnSharedPreferenceChangeLi
         return mEnabled;
     }
 
-	public void getLaunchedShortcuts(String pkgName, ItemInfo info) {
+	public void getLaunchedShortcuts(String pkgName, ItemInfo id) {
         mPackageName = pkgName;
-		mShortcutId = info;
+		mShortcutId = id;
+		
 		boolean isInitialized = mPrefs.getBoolean(KEY_SUGGESTIONS_INITIALIZED, false);
 		if (mEnabled && !isInitialized) {
 			Log.d(TAG, "Beginning first setup");
+			addShortcutData(pkgName, id);
 			updateUi();
 			mPrefs.edit().putBoolean(KEY_SUGGESTIONS_INITIALIZED, true).apply();
+			return;
 		}
+
+		addShortcutData(pkgName, id);
     }
 
 	private void addToSuggestionList() {
 		mPrefs.edit().putInt(KEY_SUGGESTIONS_LIST, mPrefs.getInt(KEY_SUGGESTIONS_LIST, 0) + 1).apply();
 	}
 
-	private void scheduleUpdateAlarm() {
-        if (!mIsScreenOn) {
-            return;
-        }
-
-        if (System.currentTimeMillis() >= mScheduledTime){
-            mScheduledTime = System.currentTimeMillis() + SUGGESTION_UPDATE_INTERVAL;
-        }
-        mAlarmManager = (AlarmManager) mContext.getSystemService(Context.ALARM_SERVICE);
-        mAlarmManager.cancel(mPendingUpdate);
-        mAlarmManager.setExact(AlarmManager.RTC_WAKEUP, mScheduledTime, mPendingUpdate);
-        Log.d(TAG, "Update scheduled");
-    }
-
-	private void cancelUpdateAlarm() {
-        mAlarmManager = (AlarmManager) mContext.getSystemService(Context.ALARM_SERVICE);
-        mAlarmManager.cancel(mPendingUpdate);
-        Log.d(TAG, "Update scheduling canceled");
-    }
-
-	private void resetUpdateAlarm(){
-        mScheduledTime = 0;
-        scheduleUpdateAlarm();
+	private void addShortcutData(String pkgName, ItemInfo shortcutId) {
+        ContentValues data = new ContentValues();
+        data.put(KEY_SHORTCUT_PACKAGE, pkgName);
+        data.put(KEY_SHORTCUT_ID, ((ShortcutInfo) shortcutId).getDeepShortcutId());
+        mContext.getContentResolver().insert(SUGGEST_PROVIDER, data);
     }
 }
