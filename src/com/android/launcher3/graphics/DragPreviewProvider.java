@@ -76,7 +76,7 @@ public class DragPreviewProvider {
     /**
      * Draws the {@link #mView} into the given {@param destCanvas}.
      */
-    protected void drawDragView(Canvas destCanvas, float scale) {
+    public void drawDragView(Canvas destCanvas, float scale) {
         destCanvas.save();
         destCanvas.scale(scale, scale);
 
