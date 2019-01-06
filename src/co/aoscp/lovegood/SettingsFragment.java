@@ -27,6 +27,8 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
+import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;
@@ -39,10 +41,12 @@ import android.preference.TwoStatePreference;
 import android.provider.Settings;
 
 import co.aoscp.lovegood.LunaLauncher.LunaLauncherCallbacks;
+import co.aoscp.lovegood.allapps.ActionsController;
 import co.aoscp.lovegood.micode.MiBits;
 import co.aoscp.lovegood.micode.biometrics.AuthenticationCallback;
 import co.aoscp.lovegood.micode.biometrics.BiometricsManager;
 
+import com.android.launcher3.AbstractFloatingView;
 import com.android.launcher3.R;
 import com.android.launcher3.SettingsActivity;
 import com.android.launcher3.SettingsActivity.LauncherSettingsFragment;
@@ -52,8 +56,11 @@ import java.util.Objects;
 public class SettingsFragment extends SettingsActivity implements OnPreferenceStartFragmentCallback {
 
     public static final String KEY_MINUS_ONE = "pref_enable_minus_one";
+
+    public static final String KEY_SUGGESTIONS = "pref_suggestions";
     public static final String KEY_APP_SUGGESTIONS = "pref_app_suggestions";
     public static final String KEY_APP_LOCK = "pref_app_lock";
+    public static final String KEY_APP_ACTIONS = "pref_show_suggested_actions";
 
     @Override
     protected PreferenceFragment getNewFragment() {
@@ -88,6 +95,7 @@ public class SettingsFragment extends SettingsActivity implements OnPreferenceSt
                 getPreferenceScreen().removePreference(minusOne);
             }
 
+            PreferenceScreen prefScreen = (PreferenceScreen) findPreference(KEY_SUGGESTIONS);
             ((SwitchPreference) findPreference(KEY_APP_SUGGESTIONS)).setOnPreferenceChangeListener(this);
 
             mAppLock = (SwitchPreference) findPreference(KEY_APP_LOCK);
@@ -98,6 +106,12 @@ public class SettingsFragment extends SettingsActivity implements OnPreferenceSt
         public void onResume() {
             super.onResume();
             checkAppLockState();
+
+            try {
+                getContext().getPackageManager().getPackageInfo(ActionsController.AIAI_PACKAGE, AbstractFloatingView.TYPE_TASK_MENU);
+            } catch (NameNotFoundException ex) {
+                prefScreen.removePreference(findPreference(KEY_APP_ACTIONS));
+            }
         }
 
         @Override
