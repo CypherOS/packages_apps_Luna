@@ -25,6 +25,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
 
+import co.aoscp.lovegood.allapps.Shortcut;
+import co.aoscp.lovegood.allapps.ShortcutsController;
 import co.aoscp.lovegood.logging.PredictionsDispatcher;
 import co.aoscp.lovegood.qsb.QsbAnimationController;
 import co.aoscp.lovegood.quickspace.QuickSpaceView;
@@ -240,15 +242,21 @@ public class LunaLauncher extends Launcher {
                 }
             } else if (SettingsFragment.KEY_APP_SUGGESTIONS.equals(key)) {
                 updatePredictions(true);
+			} else if (SettingsFragment.KEY_SHORTCUT_SUGGESTIONS.equals(key)) {
+                updatePredictions(true);
             }
         }
 
         public void updatePredictions(boolean force) {
             if (hasBeenResumed() || force) {
                 List<ComponentKeyMapper> apps = ((PredictionsDispatcher) getUserEventDispatcher()).getPredictedApps();
+				ArrayList<Shortcut> shortcuts = ShortcutsController.get(this).getPredictedShortcuts();
                 if (apps != null) {
                     mAppsView.getFloatingHeaderView().setPredictedApps(mPrefs.getBoolean(SettingsFragment.KEY_APP_SUGGESTIONS, true), apps);
                 }
+				if (shortcuts != null) {
+					mAppsView.getFloatingHeaderView().setPredictedShortcuts(mPrefs.getBoolean(SettingsFragment.KEY_SHORTCUT_SUGGESTIONS, true), shortcuts);
+				}
             }
         }
     }

@@ -28,6 +28,14 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
+	<co.aoscp.lovegood.allapps.ShortcutsRowView
+        android:layout_gravity="center_horizontal"
+        android:id="@+id/shortcuts_row"
+        android:paddingTop="5.0dip"
+        android:paddingBottom="5.0dip"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content" />
+
     <com.android.launcher3.allapps.PersonalWorkSlidingTabStrip
         android:id="@+id/tabs"
         android:layout_width="match_parent"
