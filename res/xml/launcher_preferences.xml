@@ -68,6 +68,12 @@
             android:summary="@string/app_suggestions_summary"
             android:defaultValue="true" />
 
+		<SwitchPreference
+            android:title="@string/shortcuts_suggestion_pref_screen_title"
+            android:key="pref_show_suggested_shortcuts"
+            android:summary="@string/shortcuts_suggestion_pref_screen_desc"
+            android:defaultValue="true" />
+
     </PreferenceScreen>
 
     <ListPreference
