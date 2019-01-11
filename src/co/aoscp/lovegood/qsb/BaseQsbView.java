@@ -46,8 +46,10 @@ import android.widget.FrameLayout.LayoutParams;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import co.aoscp.lovegood.Bits;
 import co.aoscp.lovegood.LunaLauncher;
 import co.aoscp.lovegood.LunaLauncher.LunaLauncherCallbacks;
+import co.aoscp.lovegood.util.PackageStatusReceiver;
 
 import com.android.launcher3.DeviceProfile;
 import com.android.launcher3.Insettable;
@@ -74,6 +76,7 @@ public abstract class BaseQsbView extends FrameLayout implements OnClickListener
     public boolean mUseTwoBubbles;
     public float micStrokeWidth;
 
+	private PackageStatusReceiver mGsaStatus;
     public LunaLauncher mLauncher;
     private TextPaint mHint = new TextPaint();
     private String mHintText;
@@ -110,6 +113,12 @@ public abstract class BaseQsbView extends FrameLayout implements OnClickListener
         mQsbDelegate = new TransformingTouchDelegate(this);
         setTouchDelegate(mQsbDelegate);
         mShadowPaint.setColor(-1);
+		mGsaStatus = new PackageStatusReceiver(context) {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+				loadMicViews();
+            }
+        };
     }
 
     @Override
@@ -117,6 +126,13 @@ public abstract class BaseQsbView extends FrameLayout implements OnClickListener
         super.onAttachedToWindow();
         getBaseQsbView();
         mQsbDelegate.setDelegateView(mMicIconView);
+		mGsaStatus.register(LunaLauncherCallbacks.SEARCH_PACKAGE);
+    }
+
+	@Override
+    public void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        mGsaStatus.unregister();
     }
 
     public boolean onTouchEvent(MotionEvent motionEvent) {
@@ -146,9 +162,10 @@ public abstract class BaseQsbView extends FrameLayout implements OnClickListener
     }
 
     public void loadMicViews() {
-        mMicIconView = (ImageView) findViewById(R.id.mic_icon);
-        mMicIconView.setOnClickListener(this);
-        mMicIconView.setVisibility(View.VISIBLE);
+		boolean hasGsa = Bits.hasPackageInstalled(context, LunaLauncherCallbacks.SEARCH_PACKAGE);
+		mMicIconView = (ImageView) findViewById(R.id.mic_icon);
+        mMicIconView.setOnClickListener(hasGsa ? this : null);
+        mMicIconView.setVisibility(hasGsa ? View.VISIBLE : View.GONE);
         setTouchDelegate(mQsbDelegate);
         requestLayout();
     }
