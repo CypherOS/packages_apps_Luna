@@ -16,6 +16,7 @@
 package co.aoscp.lovegood.qsb;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -49,6 +50,7 @@ import co.aoscp.lovegood.qsb.configs.ConfigurationBuilder;
 import co.aoscp.lovegood.qsb.configs.QsbConfiguration;
 import co.aoscp.lovegood.qsb.search.DefaultSearchView;
 import co.aoscp.lovegood.search.SearchThread;
+import co.aoscp.lovegood.util.PackageStatusReceiver;
 
 public class AllAppsQsbView extends BaseQsbView implements SearchUiManager, OnChangeListener {
 
@@ -61,6 +63,7 @@ public class AllAppsQsbView extends BaseQsbView implements SearchUiManager, OnCh
     public boolean mKeepDefaultView;
     public DefaultSearchView mDefaultSearchView;
     public TextView mHint;
+	private PackageStatusReceiver mGsaStatus;
     public int mShadowAlpha;
     public boolean mUseDefaultSearch;
 
@@ -77,6 +80,14 @@ public class AllAppsQsbView extends BaseQsbView implements SearchUiManager, OnCh
         mMarginAdjusting = mContext.getResources().getDimensionPixelSize(R.dimen.qsb_margin_top_adjusting);
         mTranslationY = getTranslationY();
         setClipToPadding(false);
+		mGsaStatus = new PackageStatusReceiver(context) {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+				loadMicViews();
+				setSearchType();
+				updateHintVisibility();
+            }
+        };
     }
 
     @Override
@@ -101,6 +112,7 @@ public class AllAppsQsbView extends BaseQsbView implements SearchUiManager, OnCh
     @Override
     public void onAttachedToWindow() {
         super.onAttachedToWindow();
+		mGsaStatus.register(LunaLauncherCallbacks.SEARCH_PACKAGE);
         WallpaperColorInfo instance = WallpaperColorInfo.getInstance(getContext());
         instance.addOnChangeListener(this);
         onExtractedColorsChanged(instance);
@@ -109,6 +121,7 @@ public class AllAppsQsbView extends BaseQsbView implements SearchUiManager, OnCh
 
     @Override
     public void onDetachedFromWindow() {
+		mGsaStatus.unregister();
         WallpaperColorInfo.getInstance(getContext()).removeOnChangeListener(this);
         super.onDetachedFromWindow();
     }

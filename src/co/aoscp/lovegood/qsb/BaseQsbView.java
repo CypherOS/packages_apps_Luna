@@ -46,6 +46,7 @@ import android.widget.FrameLayout.LayoutParams;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import co.aoscp.lovegood.Bits;
 import co.aoscp.lovegood.LunaLauncher;
 import co.aoscp.lovegood.LunaLauncher.LunaLauncherCallbacks;
 
@@ -76,6 +77,7 @@ public abstract class BaseQsbView extends FrameLayout implements OnClickListener
 
     public LunaLauncher mLauncher;
     private TextPaint mHint = new TextPaint();
+	private TextView mHintView;
     private String mHintText;
 
     public boolean mIsMainColorDark;
@@ -146,9 +148,10 @@ public abstract class BaseQsbView extends FrameLayout implements OnClickListener
     }
 
     public void loadMicViews() {
-        mMicIconView = (ImageView) findViewById(R.id.mic_icon);
-        mMicIconView.setOnClickListener(this);
-        mMicIconView.setVisibility(View.VISIBLE);
+		boolean hasGsa = Bits.hasPackageInstalled(getContext(), LunaLauncherCallbacks.SEARCH_PACKAGE);
+		mMicIconView = (ImageView) findViewById(R.id.mic_icon);
+        mMicIconView.setOnClickListener(hasGsa ? this : null);
+        mMicIconView.setVisibility(hasGsa ? View.VISIBLE : View.GONE);
         setTouchDelegate(mQsbDelegate);
         requestLayout();
     }
@@ -350,7 +353,15 @@ public abstract class BaseQsbView extends FrameLayout implements OnClickListener
         textView.setGravity(gravity);
         ((LayoutParams) textView.getLayoutParams()).gravity = gravity;
         textView.setContentDescription(string);
+		mHintView = textView;
     }
+
+	public void updateHintVisibility() {
+		boolean hasGsa = Bits.hasPackageInstalled(getContext(), LunaLauncherCallbacks.SEARCH_PACKAGE);
+		if (mHintView != null) {
+			mHintView.setVisibility(hasGsa ? View.VISIBLE : View.GONE);
+		}
+	}
 
     public boolean hasTwoBubbles() {
         if (mUseTwoBubbles) {
