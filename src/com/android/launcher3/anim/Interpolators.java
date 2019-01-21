@@ -27,6 +27,9 @@ import android.view.animation.LinearInterpolator;
 import android.view.animation.OvershootInterpolator;
 import android.view.animation.PathInterpolator;
 
+import co.aoscp.lovegood.anim.ReverseInputInterpolator;
+import co.aoscp.lovegood.anim.ReverseOutputInterpolator;
+
 import com.android.launcher3.Utilities;
 
 
@@ -54,8 +57,10 @@ public class Interpolators {
 
     public static final Interpolator AGGRESSIVE_EASE = new PathInterpolator(0.2f, 0f, 0f, 1f);
     public static final Interpolator AGGRESSIVE_EASE_IN_OUT = new PathInterpolator(0.6f,0, 0.4f, 1);
+	public static final Interpolator AGGRESSIVE_EASE_REVERSED = new ReverseOutputInterpolator(AGGRESSIVE_EASE);
 
     public static final Interpolator EXAGGERATED_EASE;
+	public static final Interpolator EXAGGERATED_EASE_REVERSED = new ReverseOutputInterpolator(EXAGGERATED_EASE);
 
     private static final int MIN_SETTLE_DURATION = 200;
     private static final float OVERSHOOT_FACTOR = 0.9f;
