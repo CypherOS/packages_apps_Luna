@@ -63,10 +63,10 @@ import co.aoscp.lovegood.views.DateTextView;
 
 public class QuickSpaceView extends FrameLayout implements AnimatorUpdateListener, Runnable, OnDataListener {
 
-    public final ColorStateList mColorStateList;
+    public ColorStateList mColorStateList;
     public BubbleTextView mBubbleTextView;
-    public final Handler mHandler;
-    public final int mQuickspaceBackgroundRes;
+    public Handler mHandler;
+    public int mQuickspaceBackgroundRes;
 
     public DateTextView mClockView;
     public ViewGroup mQuickspaceContent;
@@ -105,7 +105,9 @@ public class QuickSpaceView extends FrameLayout implements AnimatorUpdateListene
             mIsQuickEvent = mController.isQuickEvent();
             prepareLayout();
         }
-        mWeatherAvailable = mController.isWeatherAvailable();
+		if (mWeatherAvailable != mController.isWeatherAvailable()) {
+			mWeatherAvailable = mController.isWeatherAvailable();
+		}
         getQuickSpaceView();
         if (mIsQuickEvent) {
             loadDoubleLine();
@@ -126,7 +128,7 @@ public class QuickSpaceView extends FrameLayout implements AnimatorUpdateListene
         bindWeather(mWeatherContentSub, mWeatherTempSub, mWeatherIconSub);
     }
 
-    public final void loadSingleLine() {
+    public void loadSingleLine() {
         LayoutTransition transition = mQuickspaceContent.getLayoutTransition();
         mQuickspaceContent.setLayoutTransition(transition == null ? new LayoutTransition() : null);
         setBackgroundResource(0);
@@ -134,7 +136,7 @@ public class QuickSpaceView extends FrameLayout implements AnimatorUpdateListene
         bindClockAndSeparator(false);
     }
 
-    public final void bindClockAndSeparator(boolean forced) {
+    public void bindClockAndSeparator(boolean forced) {
         boolean hasGoogleCalendar = Bits.hasPackageInstalled(Launcher.getLauncher(mContext), "com.google.android.calendar");
         mClockView.setVisibility(View.VISIBLE);
         mClockView.setOnClickListener(hasGoogleCalendar ? mActionReceiver.getCalendarAction() : null);
@@ -144,9 +146,8 @@ public class QuickSpaceView extends FrameLayout implements AnimatorUpdateListene
         mTitleSeparator.setVisibility(mWeatherAvailable ? View.VISIBLE : View.GONE);
     }
 
-    public final void bindWeather(View container, TextView title, ImageView icon) {
+    public void bindWeather(View container, TextView title, ImageView icon) {
         boolean hasGoogleApp = Bits.hasPackageInstalled(Launcher.getLauncher(mContext), LunaLauncherCallbacks.SEARCH_PACKAGE);
-        mWeatherAvailable = mController.isWeatherAvailable();
         if (mWeatherAvailable) {
             container.setVisibility(View.VISIBLE);
             container.setOnClickListener(hasGoogleApp ? mActionReceiver.getWeatherAction() : null);
@@ -163,7 +164,7 @@ public class QuickSpaceView extends FrameLayout implements AnimatorUpdateListene
         }
     }
 
-    public final void loadViews() {
+    public void loadViews() {
         mEventTitle = (TextView) findViewById(R.id.quick_event_title);
         mEventTitleSub = (TextView) findViewById(R.id.quick_event_title_sub);
         mEventSubIcon = (ImageView) findViewById(R.id.quick_event_icon_sub);

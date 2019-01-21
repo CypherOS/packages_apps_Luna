@@ -68,7 +68,7 @@ public class QuickspaceController implements WeatherObserver {
         mListeners.add(listener);
         addEventsController();
         addWeatherProvider();
-        listener.onDataUpdated();
+        notifyListeners();
     }
 
     public void removeListener(OnDataListener listener) {
@@ -90,7 +90,7 @@ public class QuickspaceController implements WeatherObserver {
     }
 
     public boolean isWeatherAvailable() {
-        return mWeatherInfo != null && mWeatherInfo.getStatus() == WeatherClient.WEATHER_UPDATE_SUCCESS;
+        return mWeatherInfo != null;
     }
 
     public Icon getWeatherIcon() {
@@ -116,8 +116,8 @@ public class QuickspaceController implements WeatherObserver {
         mHandler.post(new Runnable() {
             @Override
             public void run() {
-                for (OnDataListener list : mListeners) {
-                    list.onDataUpdated();
+                for (OnDataListener listener : mListeners) {
+                    listener.onDataUpdated();
                 }
             }
         });
