@@ -21,6 +21,8 @@ import android.content.Context;
 import android.content.BroadcastReceiver;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.SystemProperties;
 import android.provider.Settings;
 import android.view.View;
@@ -42,6 +44,8 @@ public class QuickEventsController {
 
     private static final int AMBIENT_INFO_MAX_DURATION = 120000; // 2 minutes
     private static final String SETTING_DEVICE_INTRO_COMPLETED = "device_introduction_completed";
+	public final ArrayList<EventListener> mListeners = new ArrayList();
+	private final Handler mHandler = new Handler();
     private Context mContext;
 
     private String mEventTitle;
@@ -69,18 +73,40 @@ public class QuickEventsController {
             }
             if (intent.getAction().equals(AmbientPlayHistoryManager.INTENT_SONG_MATCH.getAction())) {
                 initAmbientPlayEvent();
+				notifyListeners();
             }
         }
     };
 
+	public interface EventListener {
+        void onEventUpdated(boolean isQuickEvent);
+    }
+
     public QuickEventsController(Context context) {
         mContext = context;
-        context.registerReceiver(mAmbientReceiver, new IntentFilter(AmbientPlayHistoryManager.INTENT_SONG_MATCH.getAction()));
         initQuickEvents();
     }
 
-    public void destroy() {
+	public void addListener(EventListener listener) {
+		mContext.registerReceiver(mAmbientReceiver, new IntentFilter(AmbientPlayHistoryManager.INTENT_SONG_MATCH.getAction()));
+        mListeners.add(listener);
+        notifyListeners();
+    }
+
+	public void removeListener(EventListener listener) {
         mContext.unregisterReceiver(mAmbientReceiver);
+        mListeners.remove(listener);
+    }
+
+	public void notifyListeners() {
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                for (EventListener listener : mListeners) {
+                    listener.onEventUpdated(isQuickEvent());
+                }
+            }
+        });
     }
 
     public void initQuickEvents() {
