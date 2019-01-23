@@ -50,6 +50,7 @@ public class SettingsFragment extends SettingsActivity implements OnPreferenceSt
 
     public static final String KEY_MINUS_ONE = "pref_enable_minus_one";
     public static final String KEY_APP_SUGGESTIONS = "pref_app_suggestions";
+	public static final String KEY_APP_LOCK = "pref_app_lock";
 
     @Override
     protected PreferenceFragment getNewFragment() {

@@ -56,4 +56,8 @@
     <string name="label_turn_off_suggestions">TURN OFF</string>
     <string name="all_apps_label">All apps</string>
 
+	<!-- App lock -->
+	<string name="app_lock_title">Secured launch</string>
+	<string name="app_lock_summary">Apps will require fingerprint authentication to launch</string>
+
 </resources>
