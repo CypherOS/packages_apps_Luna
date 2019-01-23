@@ -105,7 +105,7 @@ public class QuickEventsController {
                 final Intent intent = new Intent(Settings.ACTION_DEVICE_INTRODUCTION)
                         .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
                 try {
-                    Launcher.getLauncher(mContext).startActivitySafely(view, intent, null);
+                    Launcher.getLauncher(mContext).startActivitySafely(view, intent, null, false);
                 } catch (ActivityNotFoundException ex) {
                 }
                 mIsQuickEvent = false;
@@ -145,7 +145,7 @@ public class QuickEventsController {
                 final Intent ambient = new Intent(Intent.ACTION_WEB_SEARCH)
                         .putExtra(SearchManager.QUERY, query);
                 try {
-                    Launcher.getLauncher(mContext).startActivitySafely(view, ambient, null);
+                    Launcher.getLauncher(mContext).startActivitySafely(view, ambient, null, false);
                 } catch (ActivityNotFoundException ex) {
                 }
             }

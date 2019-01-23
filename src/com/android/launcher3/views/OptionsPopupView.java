@@ -196,7 +196,7 @@ public class OptionsPopupView extends ArrowPopup
             // If there is no target package, use the default intent chooser animation
             intent.putExtra(INTENT_EXTRA_IGNORE_LAUNCH_ANIMATION, true);
         }
-        return launcher.startActivitySafely(v, intent, null);
+        return launcher.startActivitySafely(v, intent, null, false);
     }
 
     public static class OptionItem {
