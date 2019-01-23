@@ -34,6 +34,9 @@ import android.view.ActionMode;
 import android.view.Surface;
 import android.view.View;
 import android.widget.Toast;
+import android.hardware.biometric.BiometricPrompt;
+
+import co.aoscp.lovegood.SettingsFragment;
 
 import com.android.launcher3.LauncherSettings.Favorites;
 import com.android.launcher3.badge.BadgeInfo;
@@ -42,6 +45,8 @@ import com.android.launcher3.uioverrides.DisplayRotationListener;
 import com.android.launcher3.uioverrides.WallpaperColorInfo;
 import com.android.launcher3.shortcuts.DeepShortcutManager;
 import com.android.launcher3.views.BaseDragLayer;
+
+import java.util.concurrent.Executors;
 
 /**
  * Extension of BaseActivity allowing support for drag-n-drop
@@ -73,6 +78,11 @@ public abstract class BaseDraggingActivity extends BaseActivity
     private int mThemeRes = R.style.AppTheme;
 
     private DisplayRotationListener mRotationListener;
+
+	private View mAuthView;
+	private Intent mAuthIntent;
+	private ItemInfo mAuthItem;
+	private boolean mIsAuthorized = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -186,44 +196,50 @@ public abstract class BaseDraggingActivity extends BaseActivity
             return false;
         }
 
-        // Only launch using the new animation if the shortcut has not opted out (this is a
-        // private contract between launcher and may be ignored in the future).
-        boolean useLaunchAnimation = (v != null) &&
-                !intent.hasExtra(INTENT_EXTRA_IGNORE_LAUNCH_ANIMATION);
-        Bundle optsBundle = useLaunchAnimation
-                ? getActivityLaunchOptionsAsBundle(v)
-                : null;
+		boolean isAppLock = Utilities.getPrefs(getBaseContext()).getBoolean(SettingsFragment.KEY_APP_LOCK, false);
+		if (!isAppLock || mIsAuthorized) {
+			mIsAuthorized = false;
+            // Only launch using the new animation if the shortcut has not opted out (this is a
+            // private contract between launcher and may be ignored in the future).
+            boolean useLaunchAnimation = (v != null) &&
+                    !intent.hasExtra(INTENT_EXTRA_IGNORE_LAUNCH_ANIMATION);
+            Bundle optsBundle = useLaunchAnimation
+                    ? getActivityLaunchOptionsAsBundle(v)
+                    : null;
 
-        UserHandle user = item == null ? null : item.user;
+            UserHandle user = item == null ? null : item.user;
 
-        // Prepare intent
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        if (v != null) {
-            intent.setSourceBounds(getViewBounds(v));
-        }
-        try {
-            boolean isShortcut = Utilities.ATLEAST_MARSHMALLOW
-                    && (item instanceof ShortcutInfo)
-                    && (item.itemType == Favorites.ITEM_TYPE_SHORTCUT
-                    || item.itemType == Favorites.ITEM_TYPE_DEEP_SHORTCUT)
-                    && !((ShortcutInfo) item).isPromise();
-            if (isShortcut) {
-                // Shortcuts need some special checks due to legacy reasons.
-                startShortcutIntentSafely(intent, optsBundle, item);
-            } else if (user == null || user.equals(Process.myUserHandle())) {
-                // Could be launching some bookkeeping activity
-                startActivity(intent, optsBundle);
-            } else {
-                LauncherAppsCompat.getInstance(this).startActivityForProfile(
-                        intent.getComponent(), user, intent.getSourceBounds(), optsBundle);
+            // Prepare intent
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            if (v != null) {
+                intent.setSourceBounds(getViewBounds(v));
             }
-            getUserEventDispatcher().logAppLaunch(v, intent);
-            return true;
-        } catch (ActivityNotFoundException|SecurityException e) {
-            Toast.makeText(this, R.string.activity_not_found, Toast.LENGTH_SHORT).show();
-            Log.e(TAG, "Unable to launch. tag=" + item + " intent=" + intent, e);
-        }
-        return false;
+            try {
+                boolean isShortcut = Utilities.ATLEAST_MARSHMALLOW
+                        && (item instanceof ShortcutInfo)
+                        && (item.itemType == Favorites.ITEM_TYPE_SHORTCUT
+                        || item.itemType == Favorites.ITEM_TYPE_DEEP_SHORTCUT)
+                        && !((ShortcutInfo) item).isPromise();
+                if (isShortcut) {
+                    // Shortcuts need some special checks due to legacy reasons.
+                    startShortcutIntentSafely(intent, optsBundle, item);
+                } else if (user == null || user.equals(Process.myUserHandle())) {
+                    // Could be launching some bookkeeping activity
+                    startActivity(intent, optsBundle);
+                } else {
+                    LauncherAppsCompat.getInstance(this).startActivityForProfile(
+                            intent.getComponent(), user, intent.getSourceBounds(), optsBundle);
+                }
+                getUserEventDispatcher().logAppLaunch(v, intent);
+                return true;
+            } catch (ActivityNotFoundException|SecurityException e) {
+                Toast.makeText(this, R.string.activity_not_found, Toast.LENGTH_SHORT).show();
+                Log.e(TAG, "Unable to launch. tag=" + item + " intent=" + intent, e);
+            }
+            return false;
+		} else {
+			startActivityWithAuth(v, intent, item);
+		}
     }
 
     private void startShortcutIntentSafely(Intent intent, Bundle optsBundle, ItemInfo info) {
@@ -254,6 +270,41 @@ public abstract class BaseDraggingActivity extends BaseActivity
             }
         }
     }
+
+	private boolean startActivityWithAuth(View v, Intent intent, ItemInfo item) {
+		mAuthView = v;
+		mAuthIntent = intent;
+		mAuthItem = item;
+		final BiometricPrompt prompt = new BiometricPrompt(this, Executors.newSingleThreadExecutor(), new BiometricPrompt.AuthenticationCallback() {
+            @Override
+            public void onAuthenticationError(int errorCode, @NonNull CharSequence errString) {
+                super.onAuthenticationError(errorCode, errString);
+                if (errorCode == BiometricPrompt.ERROR_NEGATIVE_BUTTON) {
+                    prompt.cancelAuthentication();
+                }
+            }
+
+            @Override
+            public void onAuthenticationSucceeded(@NonNull BiometricPrompt.AuthenticationResult result) {
+                super.onAuthenticationSucceeded(result);
+				mIsAuthorized = true;
+                startActivitySafely(mAuthView, mAuthIntent, mAuthItem);
+            }
+
+            @Override
+            public void onAuthenticationFailed() {
+                super.onAuthenticationFailed();
+            }
+        });
+
+		final BiometricPrompt.PromptInfo authInfo = new BiometricPrompt.PromptInfo.Builder()
+                .setTitle("Authentication required")
+                .setSubtitle("Test")
+                .setDescription("Test")
+                .setNegativeButtonText("Cancel")
+                .build();
+		prompt.authenticate(authInfo);
+	}
 
     protected boolean onErrorStartingShortcut(Intent intent, ItemInfo info) {
         return false;
