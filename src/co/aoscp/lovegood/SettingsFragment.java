@@ -23,10 +23,12 @@ import android.app.Dialog;
 import android.app.DialogFragment;
 import android.app.Fragment;
 import android.app.FragmentManager;
+import android.app.KeyguardManager;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;
@@ -50,6 +52,7 @@ public class SettingsFragment extends SettingsActivity implements OnPreferenceSt
 
     public static final String KEY_MINUS_ONE = "pref_enable_minus_one";
     public static final String KEY_APP_SUGGESTIONS = "pref_app_suggestions";
+	public static final String KEY_APP_LOCK = "pref_app_lock";
 
     @Override
     protected PreferenceFragment getNewFragment() {
@@ -83,6 +86,11 @@ public class SettingsFragment extends SettingsActivity implements OnPreferenceSt
             }
 
             ((SwitchPreference) findPreference(KEY_APP_SUGGESTIONS)).setOnPreferenceChangeListener(this);
+
+			SwitchPreference appLock = (SwitchPreference) findPreference(KEY_APP_LOCK);
+			if (!hasBiometrics()) {
+				getPreferenceScreen().removePreference(appLock);
+			}
         }
 
         @Override
@@ -98,6 +106,19 @@ public class SettingsFragment extends SettingsActivity implements OnPreferenceSt
             suggestionConfirmationFragment.show(getFragmentManager(), preference.getKey());
             return false;
         }
+
+		public boolean hasBiometrics() {
+		    KeyguardManager keyguardMgr = (KeyguardManager) getContext().getSystemService(Context.KEYGUARD_SERVICE);
+            PackageManager pm = getContext().getPackageManager();
+		    if (!keyguardMgr.isKeyguardSecure()) {
+                return false;
+            }
+
+		    if (!pm.hasSystemFeature(PackageManager.FEATURE_FINGERPRINT)) {
+                return false;
+            }
+		    return true;
+	    }
     }
 
     public static class SuggestionConfirmationFragment extends DialogFragment implements OnClickListener {
