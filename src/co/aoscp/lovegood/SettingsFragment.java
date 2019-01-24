@@ -23,10 +23,12 @@ import android.app.Dialog;
 import android.app.DialogFragment;
 import android.app.Fragment;
 import android.app.FragmentManager;
+import android.app.KeyguardManager;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;
@@ -39,6 +41,8 @@ import android.preference.TwoStatePreference;
 import android.provider.Settings;
 
 import co.aoscp.lovegood.LunaLauncher.LunaLauncherCallbacks;
+import co.aoscp.lovegood.micode.biometrics.AuthenticationCallback;
+import co.aoscp.lovegood.micode.biometrics.BiometricsManager;
 
 import com.android.launcher3.R;
 import com.android.launcher3.SettingsActivity;
@@ -50,6 +54,7 @@ public class SettingsFragment extends SettingsActivity implements OnPreferenceSt
 
     public static final String KEY_MINUS_ONE = "pref_enable_minus_one";
     public static final String KEY_APP_SUGGESTIONS = "pref_app_suggestions";
+	public static final String KEY_APP_LOCK = "pref_app_lock";
 
     @Override
     protected PreferenceFragment getNewFragment() {
@@ -83,20 +88,67 @@ public class SettingsFragment extends SettingsActivity implements OnPreferenceSt
             }
 
             ((SwitchPreference) findPreference(KEY_APP_SUGGESTIONS)).setOnPreferenceChangeListener(this);
+
+			SwitchPreference appLock = (SwitchPreference) findPreference(KEY_APP_LOCK);
+			if (!hasBiometrics()) {
+				getPreferenceScreen().removePreference(appLock);
+			}
         }
 
         @Override
         public boolean onPreferenceChange(Preference preference, Object newValue) {
-            if (!KEY_APP_SUGGESTIONS.equals(preference.getKey())) {
+            if (KEY_APP_SUGGESTIONS.equals(preference.getKey())) {
+                if (((Boolean) newValue).booleanValue()) {
+                    return true;
+                }
+                SettingsFragment.SuggestionConfirmationFragment suggestionConfirmationFragment = new SettingsFragment.SuggestionConfirmationFragment();
+                suggestionConfirmationFragment.setTargetFragment(this, 0);
+                suggestionConfirmationFragment.show(getFragmentManager(), preference.getKey());
+                return false;
+            } else if (KEY_APP_LOCK.equals(preference.getKey())) {
+                if (((Boolean) newValue).booleanValue()) {
+                    return true;
+                }
+                disableWithAuth();
                 return false;
             }
-            if (((Boolean) newValue).booleanValue()) {
-                return true;
-            }
-            SettingsFragment.SuggestionConfirmationFragment suggestionConfirmationFragment = new SettingsFragment.SuggestionConfirmationFragment();
-            suggestionConfirmationFragment.setTargetFragment(this, 0);
-            suggestionConfirmationFragment.show(getFragmentManager(), preference.getKey());
             return false;
+        }
+
+		public boolean hasBiometrics() {
+		    KeyguardManager keyguardMgr = (KeyguardManager) getContext().getSystemService(Context.KEYGUARD_SERVICE);
+            PackageManager pm = getContext().getPackageManager();
+		    if (!keyguardMgr.isKeyguardSecure()) {
+                return false;
+            }
+
+		    if (!pm.hasSystemFeature(PackageManager.FEATURE_FINGERPRINT)) {
+                return false;
+            }
+		    return true;
+	    }
+
+        private void disableWithAuth() {
+            BiometricsManager manager = new BiometricsManager(getContext());
+            final AuthenticationCallback callback = new AuthenticationCallback() {
+                @Override
+                public void onAuthenticationError(int errorCode, CharSequence errString) {
+                }
+
+                @Override
+                public void onAuthenticationHelp(int helpCode, CharSequence helpString) {
+                }
+
+                @Override
+                public void onAuthenticationSucceeded() {
+                    ((SwitchPreference) findPreference(KEY_APP_LOCK)).setChecked(false);
+                }
+
+                @Override
+                public void onAuthenticationFailed() {
+                }
+            };
+            manager.show(getContext(), callback);
         }
     }
 
