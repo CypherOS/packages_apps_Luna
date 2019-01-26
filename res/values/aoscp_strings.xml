@@ -56,4 +56,13 @@
     <string name="label_turn_off_suggestions">TURN OFF</string>
     <string name="all_apps_label">All apps</string>
 
+    <!-- App lock -->
+    <string name="app_lock_title">Secured launch</string>
+    <string name="app_lock_summary">Apps will require fingerprint authentication to launch</string>
+    <string name="app_lock_disable_prompt">Verify it\'s you</string>
+    <string name="app_lock_disable_prompt_desc">Your device seems to have biometric security in place. For security purposes, scan your fingerprint to disable secured launch</string>
+    <string name="app_lock_authentication_desc">Place your finger on the sensor</string>
+    <string name="app_lock_authentication_status_unrecognized">Not recognized</string>
+    <string name="app_lock_authentication_status_retry">Try again</string>
+
 </resources>
