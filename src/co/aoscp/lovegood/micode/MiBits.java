@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 CypherOS
+ * Copyright (C) 2019 CypherOS
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,27 +14,23 @@
  * limitations under the License.
  */
 
-package co.aoscp.lovegood;
+package co.aoscp.lovegood.micode;
 
 import android.app.KeyguardManager;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.os.Build;
 
-public class Bits {
-
-    public static boolean hasPackageInstalled(Context context, String pkgName) {
-        try {
-            ApplicationInfo ai = context.getPackageManager().getApplicationInfo(pkgName, 0);
-            return ai.enabled;
-        } catch (PackageManager.NameNotFoundException e) {
-            return false;
-        }
-    }
+public class MiBits {
 
     public static boolean hasBiometricsSupport(Context context) {
         KeyguardManager keyguardMgr = (KeyguardManager) context.getSystemService(Context.KEYGUARD_SERVICE);
         PackageManager pm = context.getPackageManager();
+		if (!"Poundcake".equals(Build.LUNA.VERSION_CODE)) {
+            return false;
+        }
+
 		if (!keyguardMgr.isKeyguardSecure()) {
             return false;
         }
@@ -44,8 +40,4 @@ public class Bits {
         }
 		return true;
 	}
-
-    public static <T> T notNullOrDefault(T value, T defValue) {
-        return value == null ? defValue : value;
-    }
 }
