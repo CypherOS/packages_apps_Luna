@@ -66,6 +66,7 @@ public class QuickSpaceActionReceiver {
                 .setData(appendPath.build())
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
         try {
+			Launcher.getLauncher(mContext).setAuthorized(true);
             Launcher.getLauncher(mContext).startActivitySafely(view, addFlags, null);
         } catch (ActivityNotFoundException ex) {
             LauncherAppsCompat.getInstance(mContext).showAppDetailsForProfile(new ComponentName(LunaLauncherCallbacks.SEARCH_PACKAGE, ""), Process.myUserHandle());
@@ -77,6 +78,7 @@ public class QuickSpaceActionReceiver {
         intent.setData(Uri.parse("dynact://velour/weather/ProxyActivity"));
         intent.setComponent(new ComponentName(LunaLauncherCallbacks.SEARCH_PACKAGE, "com.google.android.apps.gsa.velour.DynamicActivityTrampoline"));
         try {
+			Launcher.getLauncher(mContext).setAuthorized(true);
             Launcher.getLauncher(mContext).startActivitySafely(view, intent, null);
         } catch (ActivityNotFoundException ex) {
             LauncherAppsCompat.getInstance(mContext).showAppDetailsForProfile(new ComponentName(LunaLauncherCallbacks.SEARCH_PACKAGE, 

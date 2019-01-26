@@ -79,4 +79,10 @@
         android:defaultValue="@string/icon_shape_default"
         android:persistent="false" />
 
+    <SwitchPreference
+        android:title="@string/app_lock_title"
+        android:key="pref_app_lock"
+        android:summary="@string/app_lock_summary"
+        android:defaultValue="false" />
+
 </PreferenceScreen>
