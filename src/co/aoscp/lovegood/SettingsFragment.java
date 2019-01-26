@@ -39,6 +39,9 @@ import android.preference.TwoStatePreference;
 import android.provider.Settings;
 
 import co.aoscp.lovegood.LunaLauncher.LunaLauncherCallbacks;
+import co.aoscp.lovegood.micode.MiBits;
+import co.aoscp.lovegood.micode.biometrics.AuthenticationCallback;
+import co.aoscp.lovegood.micode.biometrics.BiometricsManager;
 
 import com.android.launcher3.R;
 import com.android.launcher3.SettingsActivity;
@@ -50,6 +53,7 @@ public class SettingsFragment extends SettingsActivity implements OnPreferenceSt
 
     public static final String KEY_MINUS_ONE = "pref_enable_minus_one";
     public static final String KEY_APP_SUGGESTIONS = "pref_app_suggestions";
+	public static final String KEY_APP_LOCK = "pref_app_lock";
 
     @Override
     protected PreferenceFragment getNewFragment() {
@@ -72,6 +76,8 @@ public class SettingsFragment extends SettingsActivity implements OnPreferenceSt
      */
     public static class SettingsPreferenceFragment extends LauncherSettingsFragment implements OnPreferenceChangeListener {
 
+		private SwitchPreference mAppLock;
+
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
@@ -83,21 +89,49 @@ public class SettingsFragment extends SettingsActivity implements OnPreferenceSt
             }
 
             ((SwitchPreference) findPreference(KEY_APP_SUGGESTIONS)).setOnPreferenceChangeListener(this);
+
+			mAppLock = (SwitchPreference) findPreference(KEY_APP_LOCK);
+			checkAppLockState();
         }
+
+		@Override
+        public void onResume() {
+			super.onResume();
+			checkAppLockState();
+		}
 
         @Override
         public boolean onPreferenceChange(Preference preference, Object newValue) {
-            if (!KEY_APP_SUGGESTIONS.equals(preference.getKey())) {
+            if (KEY_APP_SUGGESTIONS.equals(preference.getKey())) {
+                if (((Boolean) newValue).booleanValue()) {
+                    return true;
+                }
+                SettingsFragment.SuggestionConfirmationFragment suggestionConfirmationFragment = new SettingsFragment.SuggestionConfirmationFragment();
+                suggestionConfirmationFragment.setTargetFragment(this, 0);
+                suggestionConfirmationFragment.show(getFragmentManager(), preference.getKey());
+                return false;
+            } else if (KEY_APP_LOCK.equals(preference.getKey())) {
+                if (((Boolean) newValue).booleanValue()) {
+                    return true;
+                }
+                if (MiBits.hasBiometricsSupport(getContext())) {
+                    SettingsFragment.AppLockSecureDisable secureDisable = new SettingsFragment.AppLockSecureDisable();
+                    secureDisable.setTargetFragment(this, 0);
+                    secureDisable.show(getFragmentManager(), preference.getKey());
+                }
                 return false;
             }
-            if (((Boolean) newValue).booleanValue()) {
-                return true;
-            }
-            SettingsFragment.SuggestionConfirmationFragment suggestionConfirmationFragment = new SettingsFragment.SuggestionConfirmationFragment();
-            suggestionConfirmationFragment.setTargetFragment(this, 0);
-            suggestionConfirmationFragment.show(getFragmentManager(), preference.getKey());
             return false;
         }
+
+		private void checkAppLockState() {
+			// Check to ensure the preference is removed on any state
+			if (!MiBits.hasBiometricsSupport(getContext())) {
+				getPreferenceScreen().removePreference(mAppLock);
+			} else {
+                mAppLock.setOnPreferenceChangeListener(this);
+            }
+		}
     }
 
     public static class SuggestionConfirmationFragment extends DialogFragment implements OnClickListener {
@@ -117,6 +151,47 @@ public class SettingsFragment extends SettingsActivity implements OnPreferenceSt
                     ((TwoStatePreference) findPreference).setChecked(false);
                 }
             }
+        }
+    }
+
+    public static class AppLockSecureDisable extends DialogFragment {
+        public Dialog onCreateDialog(Bundle bundle) {
+            openAuth();
+            return new Builder(getContext())
+                .setTitle(R.string.app_lock_disable_prompt)
+                .setMessage(R.string.app_lock_disable_prompt_desc)
+                .setNegativeButton("", null)
+                .setPositiveButton(android.R.string.cancel, null)
+                .create();
+        }
+
+        private void openAuth() {
+            BiometricsManager manager = new BiometricsManager(getContext());
+            final AuthenticationCallback callback = new AuthenticationCallback() {
+                @Override
+                public void onAuthenticationError(int errorCode, CharSequence errString) {
+                }
+
+                @Override
+                public void onAuthenticationHelp(int helpCode, CharSequence helpString) {
+                }
+
+                @Override
+                public void onAuthenticationSucceeded() {
+                    if (getTargetFragment() instanceof PreferenceFragment) {
+                        Preference findPreference = ((PreferenceFragment) getTargetFragment()).findPreference(KEY_APP_LOCK);
+                        if (findPreference instanceof TwoStatePreference) {
+                            ((TwoStatePreference) findPreference).setChecked(false);
+                            dismiss();
+                        }
+                    }
+                }
+
+                @Override
+                public void onAuthenticationFailed() {
+                }
+            };
+            manager.beginAuth(callback);
         }
     }
 }
