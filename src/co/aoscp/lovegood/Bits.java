@@ -16,6 +16,7 @@
 
 package co.aoscp.lovegood;
 
+import android.app.KeyguardManager;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
@@ -30,6 +31,19 @@ public class Bits {
             return false;
         }
     }
+
+    public static boolean hasBiometricsSupport(Context context) {
+        KeyguardManager keyguardMgr = (KeyguardManager) context.getSystemService(Context.KEYGUARD_SERVICE);
+        PackageManager pm = context.getPackageManager();
+		if (!keyguardMgr.isKeyguardSecure()) {
+            return false;
+        }
+
+		if (!pm.hasSystemFeature(PackageManager.FEATURE_FINGERPRINT)) {
+            return false;
+        }
+		return true;
+	}
 
     public static <T> T notNullOrDefault(T value, T defValue) {
         return value == null ? defValue : value;
