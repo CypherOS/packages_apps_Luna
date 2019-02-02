@@ -58,6 +58,9 @@ import android.os.Looper;
 import android.util.Pair;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
+
+import co.aoscp.lovegood.views.DateTextView;
 
 import com.android.launcher3.DeviceProfile.OnDeviceProfileChangeListener;
 import com.android.launcher3.InsettableFrameLayout.LayoutParams;
@@ -549,7 +552,8 @@ public class LauncherAppTransitionManagerImpl extends LauncherAppTransitionManag
         }
         alpha.setInterpolator(LINEAR);
         appOpenAnimator.play(alpha);
-        if (!(v instanceof BubbleTextView)) {
+        if (!(v instanceof BubbleTextView) && !(v instanceof DateTextView) 
+			        && !(v instanceof LinearLayout) && !(v instanceof DeepShortcutView)) {
             BubbleTextView bubbleTextView = (BubbleTextView) v;
             bubbleTextView.setTextVisibility(!windowToIcon && ((BubbleTextView) v).shouldTextBeVisible());
             y = ((BubbleTextView) v).createTextAlphaAnimator(windowToIcon);
