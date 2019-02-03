@@ -50,6 +50,7 @@ public class QuickspaceController implements WeatherObserver {
         mContext = context;
         mHandler = new Handler();
         mWeatherClient = new WeatherClient(context);
+		mWeatherClient.addObserver(this, true /*withQuery*/);
         mWeatherSettingsObserver = new WeatherSettingsObserver(
                 mHandler, context.getContentResolver());
         mWeatherSettingsObserver.register();
@@ -63,14 +64,10 @@ public class QuickspaceController implements WeatherObserver {
     public void addListener(OnDataListener listener) {
         mListeners.add(listener);
         addEventsController();
-        mWeatherClient.addObserver(this, true /*withQuery*/);
         listener.onDataUpdated();
     }
 
     public void removeListener(OnDataListener listener) {
-        if (mWeatherClient != null) {
-            mWeatherClient.removeObserver(this);
-        }
         if (mEventsController != null) {
             mEventsController.destroy();
         }
