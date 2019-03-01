@@ -71,9 +71,6 @@ public class QuickspaceController implements WeatherObserver {
         if (mWeatherClient != null) {
             mWeatherClient.removeObserver(this);
         }
-        if (mEventsController != null) {
-            mEventsController.destroy();
-        }
         mListeners.remove(listener);
     }
 
