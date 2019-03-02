@@ -219,14 +219,6 @@ public class QuickSpaceView extends FrameLayout implements AnimatorUpdateListene
     }
 
     @Override
-    public void onDetachedFromWindow() {
-        super.onDetachedFromWindow();
-        if (mController != null) {
-            mController.removeListener(this);
-        }
-    }
-
-    @Override
     public void onFinishInflate() {
         super.onFinishInflate();
         loadViews();

@@ -20,6 +20,7 @@ import android.content.Context;
 import android.database.ContentObserver;
 import android.graphics.drawable.Icon;
 import android.os.Handler;
+import android.os.Looper;
 import android.provider.Settings;
 
 import com.android.internal.ambient.weather.WeatherClient;
@@ -48,10 +49,9 @@ public class QuickspaceController implements WeatherObserver {
 
     public QuickspaceController(Context context) {
         mContext = context;
-        mHandler = new Handler();
+        mHandler = new Handler(Looper.getMainLooper());
         mWeatherClient = new WeatherClient(context);
-        mWeatherSettingsObserver = new WeatherSettingsObserver(
-                mHandler, context.getContentResolver());
+        mWeatherSettingsObserver = new WeatherSettingsObserver(context.getContentResolver());
         mWeatherSettingsObserver.register();
         mWeatherSettingsObserver.updateLockscreenUnit();
     }
@@ -65,13 +65,6 @@ public class QuickspaceController implements WeatherObserver {
         addEventsController();
         mWeatherClient.addObserver(this, true /*withQuery*/);
         listener.onDataUpdated();
-    }
-
-    public void removeListener(OnDataListener listener) {
-        if (mWeatherClient != null) {
-            mWeatherClient.removeObserver(this);
-        }
-        mListeners.remove(listener);
     }
 
     public boolean isQuickEvent() {
@@ -109,21 +102,18 @@ public class QuickspaceController implements WeatherObserver {
         mHandler.post(new Runnable() {
             @Override
             public void run() {
-                for (OnDataListener list : mListeners) {
-                    list.onDataUpdated();
+                for (OnDataListener listener : mListeners) {
+                    listener.onDataUpdated();
                 }
             }
         });
     }
 
     private class WeatherSettingsObserver extends ContentObserver {
-
-        private Handler mHandler;
         private ContentResolver mResolver;
 
-        WeatherSettingsObserver(Handler handler, ContentResolver resolver) {
-            super(handler);
-            mHandler = handler;
+        WeatherSettingsObserver(ContentResolver resolver) {
+            super(null);
             mResolver = resolver;
         }
 
