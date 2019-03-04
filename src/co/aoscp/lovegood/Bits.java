@@ -17,6 +17,7 @@
 package co.aoscp.lovegood;
 
 import android.content.Context;
+import android.content.IntentFilter;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 
@@ -29,6 +30,16 @@ public class Bits {
         } catch (PackageManager.NameNotFoundException e) {
             return false;
         }
+    }
+
+    public static IntentFilter getPackageIntentInfo(String pkg, String... action) {
+        IntentFilter intentFilter = new IntentFilter();
+        for (String addAction : action) {
+            intentFilter.addAction(addAction);
+        }
+        intentFilter.addDataScheme("package");
+        intentFilter.addDataSchemeSpecificPart(pkg, 0);
+        return intentFilter;
     }
 
     public static <T> T notNullOrDefault(T value, T defValue) {
