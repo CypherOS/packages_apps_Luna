@@ -164,8 +164,10 @@ LOCAL_STATIC_JAVA_LIBRARIES := \
     libLunaShared
 LOCAL_STATIC_ANDROID_LIBRARIES := Launcher3CommonDepsLib
 
+LOCAL_AIDL_INCLUDES := $(LOCAL_PATH)/src/co
 LOCAL_SRC_FILES := \
     $(call all-java-files-under, src) \
+	$(call all-Iaidl-files-under, src/co) \
     $(call all-java-files-under, quickstep/src) \
     $(call all-java-files-under, src_flags)
 
