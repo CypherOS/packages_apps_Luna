@@ -15,6 +15,7 @@
 #
 
 LOCAL_PATH := $(call my-dir)
+Iaidl_includes := src/co/aoscp/lovegood/quickspace/IQuickspace.aidl
 
 #
 # Prebuilt Java Libraries
@@ -164,8 +165,10 @@ LOCAL_STATIC_JAVA_LIBRARIES := \
     libLunaShared
 LOCAL_STATIC_ANDROID_LIBRARIES := Launcher3CommonDepsLib
 
+LOCAL_AIDL_INCLUDES := src/co/aoscp/lovegood/quickspace
 LOCAL_SRC_FILES := \
     $(call all-java-files-under, src) \
+	src/co/aoscp/lovegood/quickspace/IQuickspace.aidl \
     $(call all-java-files-under, quickstep/src) \
     $(call all-java-files-under, src_flags)
 
