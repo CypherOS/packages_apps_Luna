@@ -28,7 +28,6 @@ import android.view.View;
 
 import co.aoscp.lovegood.logging.PredictionsDispatcher;
 import co.aoscp.lovegood.qsb.QsbAnimationController;
-import co.aoscp.lovegood.quickspace.QuickSpaceView;
 import co.aoscp.lovegood.util.ComponentKeyMapper;
 
 import com.android.launcher3.AppInfo;
@@ -71,7 +70,6 @@ public class LunaLauncher extends Launcher {
         public static final String SEARCH_PACKAGE = "com.google.android.googlequicksearchbox";
 
         private final LunaLauncher mLauncher;
-        private QuickSpaceView mQuickSpace;
 
         private SharedPreferences mPrefs;
         private OverlayCallbackImpl mOverlayCallbacks;
@@ -91,8 +89,6 @@ public class LunaLauncher extends Launcher {
 
         @Override
         public void onCreate(Bundle savedInstanceState) {
-            mQuickSpace = mLauncher.findViewById(R.id.reserved_container_workspace);
-
             mPrefs = Utilities.getPrefs(mLauncher);
             mOverlayCallbacks = new OverlayCallbackImpl(mLauncher);
             mLauncherClient = new LauncherClient(mLauncher, mOverlayCallbacks, new ClientOptions(((mPrefs.getBoolean(SettingsFragment.KEY_MINUS_ONE, true) ? 1 : 0) | 2 | 4 | 8)));
@@ -137,9 +133,6 @@ public class LunaLauncher extends Launcher {
 
         @Override
         public void onPause() {
-            if (mQuickSpace != null) {
-                mQuickSpace.onPause();
-            }
             mResumed = false;
             mLauncherClient.onPause();
         }
