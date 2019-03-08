@@ -84,6 +84,15 @@ public class QuickSpaceActionReceiver {
         }
     }
 
+	public void openQuickspaceTask(String action, View view) {
+		final Intent intent = new Intent(action)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
+        try {
+            Launcher.getLauncher(mContext).startActivitySafely(view, intent, null);
+        } catch (ActivityNotFoundException ex) {
+        }
+	}
+
     public OnClickListener getCalendarAction() {
         return mCalendarClickListener;
     }
