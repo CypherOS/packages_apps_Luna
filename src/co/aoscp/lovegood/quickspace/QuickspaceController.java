@@ -67,8 +67,7 @@ public class QuickspaceController implements Callback {
             "temperatureMetric",
             "temperatureImperial",
             "eventType",
-            "eventTitle",
-            "eventAction"
+            "eventTitle"
     };
 
     private static final int MSG_UPDATE_QUICKSPACE_CARD = 0;
@@ -110,7 +109,6 @@ public class QuickspaceController implements Callback {
         int temperatureImperial;
         int eventType;
         String eventTitle;
-        String eventAction;
 
         private CardData() {
         }
@@ -193,12 +191,11 @@ public class QuickspaceController implements Callback {
                             data.temperatureImperial = provider.getInt(3);
                             data.eventType = provider.getInt(4);
                             data.eventTitle = provider.getString(5);
-                            data.eventAction = provider.getString(6);
 
                             try {
                                 QuickspaceCard card = new QuickspaceCard(data.status, data.conditions,
                                         data.temperatureMetric, data.temperatureImperial,
-                                        data.eventType, data.eventTitle, data.eventAction);
+                                        data.eventType, data.eventTitle);
                                 mQuickspaceCard.add(card);
                             } catch (Throwable ignored) {
                                 Log.d(TAG, "Cannot create Quickspace card");

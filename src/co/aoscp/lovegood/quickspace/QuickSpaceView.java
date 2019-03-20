@@ -133,9 +133,9 @@ public class QuickSpaceView extends FrameLayout implements AnimatorUpdateListene
         setBackgroundResource(mQuickspaceBackgroundRes);
         mEventTitle.setText(mCardInfo.getEventTitle());
         mEventTitle.setEllipsize(TruncateAt.END);
-        mEventTitleSub.setText(mCardInfo.getEventAction());
+        mEventTitleSub.setText("");
         mEventTitleSub.setEllipsize(TruncateAt.END);
-        mEventTitleSub.setOnClickListener(isEventInteractive() ? mEventAction : null);
+        mEventTitleSub.setOnClickListener(null);
         mEventSubIcon.setImageTintList(mColorStateList);
         //mEventSubIcon.setImageResource();
         bindWeather(mWeatherContentSub, mWeatherTempSub, mWeatherIconSub);
