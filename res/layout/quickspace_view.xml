@@ -89,4 +89,6 @@
             launcher:keyShadowColor="?workspaceKeyShadowColor"
             launcher:keyShadowOffset="0.5dip" />
     </LinearLayout>
+
+	<include layout="@layout/quickspace_event_single" />
 </LinearLayout>
