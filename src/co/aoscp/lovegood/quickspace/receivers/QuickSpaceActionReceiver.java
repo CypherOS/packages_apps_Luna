@@ -15,6 +15,7 @@
  */
 package co.aoscp.lovegood.quickspace.receivers;
 
+import android.app.SearchManager;
 import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.ContentUris;
@@ -24,10 +25,12 @@ import android.net.Uri;
 import android.os.Process;
 import android.os.UserHandle;
 import android.provider.CalendarContract;
+import android.provider.Settings;
 import android.view.View;
 import android.view.View.OnClickListener;
 
 import co.aoscp.lovegood.LunaLauncher.LunaLauncherCallbacks;
+import co.aoscp.lovegood.quickspace.quickevents.QuickspaceEventController;
 
 import com.android.launcher3.Launcher;
 import com.android.launcher3.R;
@@ -38,7 +41,11 @@ public class QuickSpaceActionReceiver {
     private static Context mContext;
 
     public OnClickListener mCalendarClickListener;
+	public OnClickListener mEventClickListener;
     public OnClickListener mWeatherClickListener;
+
+    private int mEventType = QuickspaceEventController.EVENT_NONE;
+	private String mNowPlayingInfo;
 
     public QuickSpaceActionReceiver(Context context) {
         mContext = context;
@@ -54,6 +61,17 @@ public class QuickSpaceActionReceiver {
             @Override
             public void onClick(View view) {
                 openGoogleWeather(view);
+            }
+        };
+
+		mEventClickListener = new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+				if (mEventType == QuickspaceEventController.EVENT_FIRST_TIME) {
+					openEventFirstTime(view);
+		        } else if (mEventType == QuickspaceEventController.EVENT_AMBIENT_PLAY) {
+					openEventAmbientResult(view);
+		        }
             }
         };
     }
@@ -84,8 +102,17 @@ public class QuickSpaceActionReceiver {
         }
     }
 
-    public void openQuickspaceTask(String action, View view) {
-        final Intent intent = new Intent(action)
+	private void openEventAmbientResult(View view) {
+        final Intent query = new Intent(Intent.ACTION_WEB_SEARCH)
+                .putExtra(SearchManager.QUERY, mNowPlayingInfo);
+		try {
+            Launcher.getLauncher(mContext).startActivitySafely(view, query, null);
+        } catch (ActivityNotFoundException ex) {
+        }
+    }
+
+	public void openEventFirstTime(View view) {
+        final Intent intent = new Intent(Settings.ACTION_DEVICE_INTRODUCTION)
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
         try {
             Launcher.getLauncher(mContext).startActivitySafely(view, intent, null);
@@ -99,5 +126,11 @@ public class QuickSpaceActionReceiver {
 
     public OnClickListener getWeatherAction() {
         return mWeatherClickListener;
+    }
+
+	public OnClickListener getEventAction(String nowPlayingInfo, int eventType) {
+		mEventType = eventType;
+		mNowPlayingInfo = nowPlayingInfo;
+        return mEventClickListener;
     }
 }
