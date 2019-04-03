@@ -18,6 +18,7 @@
 
     <!-- QuickSpace -->
     <dimen name="quickspace_title_size">24dp</dimen>
+	<dimen name="quickspace_event_icon_size">20.0dip</dimen>
 
     <!-- QSB -->
     <dimen name="hotseat_qsb_scroll_key_shadow_offset">2.0dip</dimen>
