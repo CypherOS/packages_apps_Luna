@@ -25,6 +25,7 @@ import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.database.ContentObserver;
 import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
 import android.graphics.drawable.Icon;
 import android.provider.Settings;
 import android.text.TextPaint;
@@ -46,16 +47,20 @@ import com.android.launcher3.ItemInfo;
 import com.android.launcher3.Launcher;
 import com.android.launcher3.R;
 import com.android.launcher3.Utilities;
+import com.android.launcher3.anim.Interpolators;
 import com.android.launcher3.util.Themes;
 
 import co.aoscp.lovegood.Bits;
 import co.aoscp.lovegood.LunaLauncher.LunaLauncherCallbacks;
+import co.aoscp.lovegood.quickspace.quickevents.IEventInfo;
+import co.aoscp.lovegood.quickspace.quickevents.QuickspaceEventController;
 import co.aoscp.lovegood.quickspace.receivers.QuickSpaceActionReceiver;
 import co.aoscp.lovegood.views.DateTextView;
 
 import java.util.ArrayList;
+import java.util.Locale;
 
-public class QuickSpaceView extends FrameLayout implements AnimatorUpdateListener, IQuickspace {
+public class QuickSpaceView extends FrameLayout implements AnimatorUpdateListener, IQuickspace, IEventInfo {
 
     private static final String TAG = "QuickSpaceView";
     private static final String SETTING_WEATHER_LOCKSCREEN_UNIT = "weather_lockscreen_unit";
@@ -66,16 +71,17 @@ public class QuickSpaceView extends FrameLayout implements AnimatorUpdateListene
 
     private DateTextView mClockView;
     private ViewGroup mQuickspaceContent;
-    private ImageView mEventSubIcon;
-    private TextView mEventTitleSub;
     private ViewGroup mWeatherContentSub;
     private ImageView mWeatherIconSub;
-    private TextView mWeatherTempSub;
     private View mTitleSeparator;
-    private TextView mEventTitle;
     private ViewGroup mWeatherContent;
     private ImageView mWeatherIcon;
     private TextView mWeatherTemp;
+
+    private View mQuickEventContent;
+    private TextView mEventInfo;
+    private String mInfo;
+    private int mEventType = QuickspaceEventController.EVENT_NONE;
 
     private boolean mIsQuickEvent;
     private boolean mFinishedInflate;
@@ -84,21 +90,16 @@ public class QuickSpaceView extends FrameLayout implements AnimatorUpdateListene
 
     private QuickSpaceActionReceiver mActionReceiver;
     private QuickspaceController mController;
+    private QuickspaceEventController mEventController;
     private QuickspaceCard mCardInfo;
     private ArrayList<QuickspaceCard> mQuickspaceCard;
     private WeatherSettingsObserver mWeatherSettingsObserver;
-
-    private final OnClickListener mEventAction = new OnClickListener() {
-        @Override
-        public void onClick(View view) {
-            openTask(view);
-        }
-    };
 
     public QuickSpaceView(Context context, AttributeSet set) {
         super(context, set);
         mActionReceiver = new QuickSpaceActionReceiver(context);
         mController = QuickspaceController.get(context);
+        mEventController = QuickspaceEventController.get(context);
         mColorStateList = ColorStateList.valueOf(Themes.getAttrColor(getContext(), R.attr.workspaceTextColor));
         mQuickspaceBackgroundRes = R.drawable.bg_quickspace;
         setClipChildren(false);
@@ -119,26 +120,17 @@ public class QuickSpaceView extends FrameLayout implements AnimatorUpdateListene
             }
             mWeatherAvailable = mCardInfo != null && mCardInfo.getStatus() == 0;
             getQuickSpaceView();
-            if (mCardInfo != null && mIsQuickEvent) {
-                loadDoubleLine();
-            } else {
-                loadSingleLine();
-            }
+            loadSingleLine();
         } else {
             Log.d(TAG, "No card info");
         }
     }
 
-    private void loadDoubleLine() {
-        setBackgroundResource(mQuickspaceBackgroundRes);
-        mEventTitle.setText(mCardInfo.getEventTitle());
-        mEventTitle.setEllipsize(TruncateAt.END);
-        mEventTitleSub.setText(mCardInfo.getEventAction());
-        mEventTitleSub.setEllipsize(TruncateAt.END);
-        mEventTitleSub.setOnClickListener(isEventInteractive() ? mEventAction : null);
-        mEventSubIcon.setImageTintList(mColorStateList);
-        //mEventSubIcon.setImageResource();
-        bindWeather(mWeatherContentSub, mWeatherTempSub, mWeatherIconSub);
+    @Override
+    public void onNewEvent(String eventInfo, int eventType) {
+        mInfo = eventInfo;
+        mEventType = eventType;
+        updateEventView();
     }
 
     private void loadSingleLine() {
@@ -147,6 +139,36 @@ public class QuickSpaceView extends FrameLayout implements AnimatorUpdateListene
         setBackgroundResource(0);
         bindWeather(mWeatherContent, mWeatherTemp, mWeatherIcon);
         bindClockAndSeparator(false);
+    }
+
+    private void updateEventView() {
+        mQuickEventContent = findViewById(R.id.quickevent_content);
+        mEventInfo = (TextView) findViewById(R.id.quickevent_info);
+        updateEventChip();
+    }
+
+    private void updateEventChip() {
+        mEventInfo.setText(mIsQuickEvent ? mCardInfo.getEventTitle() : mInfo);
+        mEventInfo.setContentDescription(mIsQuickEvent ? mCardInfo.getEventTitle() : mInfo);
+        mEventInfo.setCompoundDrawablesWithIntrinsicBounds(getEventIcon(), 0, 0, 0);
+        if (mInfo == null && !mIsQuickEvent) {
+            Log.d(TAG, "No indication");
+            mEventInfo.animate().cancel();
+            mQuickEventContent.setVisibility(View.INVISIBLE);
+        } else {
+            mQuickEventContent.setVisibility(View.VISIBLE);
+            mEventInfo.setTranslationY((float) (mEventInfo.getHeight() / 2));
+            mEventInfo.setAlpha(0.0f);
+            mEventInfo.animate()
+                        .withLayer()
+                        .alpha(1.0f)
+                        .translationY(0.0f)
+                        .setStartDelay(150)
+                        .setDuration(100)
+                        .setInterpolator(Interpolators.DEACCEL_2_5)
+                        .start();
+            mQuickEventContent.setOnClickListener(mActionReceiver.getEventAction(mInfo, mEventType));
+        }
     }
 
     private void bindClockAndSeparator(boolean forced) {
@@ -187,19 +209,13 @@ public class QuickSpaceView extends FrameLayout implements AnimatorUpdateListene
     }
 
     private void loadViews() {
-        mEventTitle = (TextView) findViewById(R.id.quick_event_title);
-        mEventTitleSub = (TextView) findViewById(R.id.quick_event_title_sub);
-        mEventSubIcon = (ImageView) findViewById(R.id.quick_event_icon_sub);
         mWeatherIcon = (ImageView) findViewById(R.id.weather_icon);
-        mWeatherIconSub = (ImageView) findViewById(R.id.quick_event_weather_icon);
         mQuickspaceContent = (ViewGroup) findViewById(R.id.quickspace_content);
         mWeatherContent = (ViewGroup) findViewById(R.id.weather_content);
-        mWeatherContentSub = (ViewGroup) findViewById(R.id.quick_event_weather_content);
         mWeatherTemp = (TextView) findViewById(R.id.weather_temp);
-        mWeatherTempSub = (TextView) findViewById(R.id.quick_event_weather_temp);
         mClockView = (DateTextView) findViewById(R.id.clock_view);
         mTitleSeparator = findViewById(R.id.separator);
-        setTypeface(mEventTitle, mEventTitleSub, mWeatherTemp, mWeatherTempSub, mClockView);
+        setTypeface(mWeatherTemp, mClockView);
     }
 
     private void setTypeface(TextView... views) {
@@ -214,9 +230,8 @@ public class QuickSpaceView extends FrameLayout implements AnimatorUpdateListene
     private void prepareLayout() {
         int indexOfChild = indexOfChild(mQuickspaceContent);
         removeView(mQuickspaceContent);
-        addView(LayoutInflater.from(getContext()).inflate(mIsQuickEvent ?
-                R.layout.quickspace_doubleline :
-                R.layout.quickspace_singleline, this, false), indexOfChild);
+        addView(LayoutInflater.from(getContext()).inflate(
+                R.layout.quickspace_view, this, false), indexOfChild);
         loadViews();
     }
 
@@ -238,6 +253,9 @@ public class QuickSpaceView extends FrameLayout implements AnimatorUpdateListene
         super.onAttachedToWindow();
         if (mController != null && mFinishedInflate) {
             mController.setListener(this);
+        }
+        if (mEventController != null && mFinishedInflate) {
+            mEventController.setListener(this);
         }
     }
 
@@ -261,21 +279,12 @@ public class QuickSpaceView extends FrameLayout implements AnimatorUpdateListene
         }
     }
 
-    private boolean isEventInteractive() {
-        if (mCardInfo == null) return false;
-        return mCardInfo.getEventType() == 1;
-    }
-
-    private void openTask(View view) {
-        if (mCardInfo == null) return;
-        String action = null;
-        if (mCardInfo.getEventType() == 1) {
-            action = Settings.ACTION_DEVICE_INTRODUCTION;
+    private int getEventIcon() {
+        int eventIcon = R.drawable.ic_quick_event_default;
+        if (mEventType == QuickspaceEventController.EVENT_AMBIENT_PLAY) {
+            eventIcon = R.drawable.ic_quick_event_ambient;
         }
-        mActionReceiver.openQuickspaceTask(action, view);
-        if (mController != null) {
-            mController.broadcastInteracted();
-        }
+        return eventIcon;
     }
 
     private class WeatherSettingsObserver extends ContentObserver {
