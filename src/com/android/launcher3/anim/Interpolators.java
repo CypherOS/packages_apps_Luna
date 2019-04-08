@@ -27,8 +27,8 @@ import android.view.animation.LinearInterpolator;
 import android.view.animation.OvershootInterpolator;
 import android.view.animation.PathInterpolator;
 
-import co.aoscp.lovegood.micode.anim.ReverseInputInterpolator;
-import co.aoscp.lovegood.micode.anim.ReverseOutputInterpolator;
+import co.aoscp.lovegood.anim.ReverseInputInterpolator;
+import co.aoscp.lovegood.anim.ReverseOutputInterpolator;
 
 import com.android.launcher3.Utilities;
 
