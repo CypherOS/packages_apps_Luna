@@ -18,8 +18,6 @@ package com.android.quickstep.views;
 
 import static android.widget.Toast.LENGTH_SHORT;
 
-import static com.android.quickstep.views.TaskThumbnailView.DIM_ALPHA_MULTIPLIER;
-
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
@@ -40,13 +38,16 @@ import android.view.accessibility.AccessibilityNodeInfo;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
+import com.android.launcher3.anim.Interpolators;
 import com.android.launcher3.BaseActivity;
 import com.android.launcher3.BaseDraggingActivity;
 import com.android.launcher3.R;
 import com.android.launcher3.userevent.nano.LauncherLogProto.Action.Direction;
 import com.android.launcher3.userevent.nano.LauncherLogProto.Action.Touch;
+import com.android.launcher3.util.ViewPool.Reusable;
 import com.android.quickstep.TaskSystemShortcut;
 import com.android.quickstep.TaskUtils;
+import com.android.quickstep.WindowTransformSwipeHandler;
 import com.android.quickstep.views.RecentsView.PageCallbacks;
 import com.android.quickstep.views.RecentsView.ScrollState;
 import com.android.systemui.shared.recents.model.Task;
@@ -59,7 +60,7 @@ import java.util.function.Consumer;
 /**
  * A task in the Recents view.
  */
-public class TaskView extends FrameLayout implements TaskCallbacks, PageCallbacks {
+public class TaskView extends FrameLayout implements TaskCallbacks, PageCallbacks, Reusable {
 
     private static final String TAG = TaskView.class.getSimpleName();
 
@@ -81,6 +82,32 @@ public class TaskView extends FrameLayout implements TaskCallbacks, PageCallback
     public static final long SCALE_ICON_DURATION = 120;
     private static final long DIM_ANIM_DURATION = 700;
 
+	public static final FloatProperty FOCUS_TRANSITION = new FloatProperty("focusTransition") {
+
+		@Override
+        public Float get(TaskView taskView) {
+            return Float.valueOf(taskView.mFocusTransitionProgress);
+        }
+
+        @Override
+        public void setValue(TaskView taskView, float focusTransition) {
+            taskView.setIconAndDimTransitionProgress(focusTransition, false);
+        }
+    };
+
+	public static final FloatProperty FULLSCREEN_PROGRESS = new FloatProperty("fullscreenProgress") {
+
+		@Override
+        public Float get(TaskView taskView) {
+            return Float.valueOf(taskView.getFullscreenProgress());
+        }
+
+        @Override
+        public void setValue(TaskView taskView, float fProgress) {
+            taskView.setFullscreenProgress(fProgress);
+        }
+    };
+
     public static final Property<TaskView, Float> ZOOM_SCALE =
             new FloatProperty<TaskView>("zoomScale") {
                 @Override
@@ -99,6 +126,8 @@ public class TaskView extends FrameLayout implements TaskCallbacks, PageCallback
     private IconView mIconView;
     private float mCurveScale;
     private float mZoomScale;
+	private float mFullscreenProgress;
+	private float mFocusTransitionProgress;
     private Animator mDimAlphaAnim;
 
     public TaskView(Context context) {
@@ -111,6 +140,7 @@ public class TaskView extends FrameLayout implements TaskCallbacks, PageCallback
 
     public TaskView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+		mFocusTransitionProgress = 1.0f;
         setOnClickListener((view) -> {
             if (getTask() == null) {
                 return;
@@ -203,7 +233,7 @@ public class TaskView extends FrameLayout implements TaskCallbacks, PageCallback
 
     public void animateIconToScaleAndDim(float scale) {
         mIconView.animate().scaleX(scale).scaleY(scale).setDuration(SCALE_ICON_DURATION).start();
-        mDimAlphaAnim = ObjectAnimator.ofFloat(mSnapshotView, DIM_ALPHA_MULTIPLIER, 1 - scale,
+        mDimAlphaAnim = ObjectAnimator.ofFloat(mSnapshotView, FOCUS_TRANSITION, 1 - scale,
                 scale);
         mDimAlphaAnim.setDuration(DIM_ANIM_DURATION);
         mDimAlphaAnim.addListener(new AnimatorListenerAdapter() {
@@ -222,16 +252,31 @@ public class TaskView extends FrameLayout implements TaskCallbacks, PageCallback
         if (mDimAlphaAnim != null) {
             mDimAlphaAnim.cancel();
         }
-        mSnapshotView.setDimAlphaMultipler(iconScale);
+		setIconAndDimTransitionProgress(iconScale, false);
     }
 
     public void resetVisualProperties() {
         setZoomScale(1);
-        setTranslationX(0f);
-        setTranslationY(0f);
-        setTranslationZ(0);
+		setTranslationX(WindowTransformSwipeHandler.SWIPE_DURATION_MULTIPLIER);
+        setTranslationY(WindowTransformSwipeHandler.SWIPE_DURATION_MULTIPLIER);
+        setTranslationZ(WindowTransformSwipeHandler.SWIPE_DURATION_MULTIPLIER);
         setAlpha(1f);
-        setIconScaleAndDim(1);
+        setIconScaleAndDim(1f);
+    }
+
+	public void setFullscreenProgress(float progress) {
+        if (progress != mFullscreenProgress) {
+            mFullscreenProgress = progress;
+            boolean isFsProgress = mFullscreenProgress > WindowTransformSwipeHandler.SWIPE_DURATION_MULTIPLIER;
+            if (mDimAlphaAnim != null) {
+                mDimAlphaAnim.cancel();
+            }
+            setIconAndDimTransitionProgress(progress, true);
+            mIconView.setVisibility(progress >= 1.0f ? View.INVISIBLE : View.VISIBLE);
+            setClipChildren(isFsProgress);
+            setClipToPadding(isFsProgress);
+            getThumbnail().invalidate();
+        }
     }
 
     @Override
@@ -241,6 +286,12 @@ public class TaskView extends FrameLayout implements TaskCallbacks, PageCallback
 
         mSnapshotView.setDimAlpha(curveInterpolation * MAX_PAGE_SCRIM_ALPHA);
         setCurveScale(getCurveScaleForCurveInterpolation(curveInterpolation));
+    }
+
+	@Override
+	public void onRecycle() {
+        resetVisualProperties();
+        setFullscreenProgress(WindowTransformSwipeHandler.SWIPE_DURATION_MULTIPLIER);
     }
 
     @Override
@@ -264,8 +315,26 @@ public class TaskView extends FrameLayout implements TaskCallbacks, PageCallback
         onScaleChanged();
     }
 
+	private void setIconAndDimTransitionProgress(float iconScale, boolean isFsProgress) {
+        if (isFsProgress) {
+            iconScale = 1.0f - iconScale;
+        }
+        mFocusTransitionProgress = iconScale;
+        mSnapshotView.setDimAlphaMultipler(iconScale);
+        float lowerBound = isFsProgress ? 0.82857144f : WindowTransformSwipeHandler.SWIPE_DURATION_MULTIPLIER;
+		float upperBound = isFsProgress ? 1.0f : 0.67142856f;
+        iconScale = Interpolators.clampToProgress(Interpolators.FAST_OUT_SLOW_IN, 
+		        lowerBound, upperBound).getInterpolation(iconScale);
+        mIconView.setScaleX(iconScale);
+        mIconView.setScaleY(iconScale);
+    }
+
     public float getCurveScale() {
         return mCurveScale;
+    }
+
+	public float getFullscreenProgress() {
+        return mFullscreenProgress;
     }
 
     public void setZoomScale(float adjacentScale) {
