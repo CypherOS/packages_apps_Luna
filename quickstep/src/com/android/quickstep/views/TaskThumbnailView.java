@@ -43,6 +43,7 @@ import com.android.launcher3.util.SystemUiController;
 import com.android.launcher3.util.Themes;
 import com.android.quickstep.TaskOverlayFactory;
 import com.android.quickstep.TaskOverlayFactory.TaskOverlay;
+import com.android.quickstep.WindowTransformSwipeHandler;
 import com.android.systemui.shared.recents.model.Task;
 import com.android.systemui.shared.recents.model.ThumbnailData;
 
@@ -85,6 +86,7 @@ public class TaskThumbnailView extends View {
     private final BaseActivity mActivity;
     private final TaskOverlay mOverlay;
     private final boolean mIsDarkTextTheme;
+	private boolean mIsRotated;
     private final Paint mPaint = new Paint();
     private final Paint mBackgroundPaint = new Paint();
 
@@ -92,6 +94,7 @@ public class TaskThumbnailView extends View {
 
     private float mClipBottom = -1;
 
+    private Rect mScaledInsets;
     private Task mTask;
     private ThumbnailData mThumbnailData;
     protected BitmapShader mBitmapShader;
@@ -109,6 +112,7 @@ public class TaskThumbnailView extends View {
 
     public TaskThumbnailView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+		mScaledInsets = new Rect();
         mCornerRadius = getResources().getDimension(R.dimen.task_corner_radius);
         mOverlay = TaskOverlayFactory.get(context).createOverlay(this);
         mPaint.setFilterBitmap(true);
@@ -188,7 +192,20 @@ public class TaskThumbnailView extends View {
 
     @Override
     protected void onDraw(Canvas canvas) {
-        drawOnCanvas(canvas, 0, 0, getMeasuredWidth(), getMeasuredHeight(), mCornerRadius);
+		float fsProgress = ((TaskView) getParent()).getFullscreenProgress();
+        if (mIsRotated) {
+            fsProgress = WindowTransformSwipeHandler.SWIPE_DURATION_MULTIPLIER;
+        }
+        if (fsProgress > WindowTransformSwipeHandler.SWIPE_DURATION_MULTIPLIER) {
+            drawOnCanvas(canvas, ((float) (-mScaledInsets.left)) * fsProgress, 
+			        ((float) (-mScaledInsets.top)) * fsProgress, (((float) mScaledInsets.right) * fsProgress) 
+					+ (getMeasuredWidth()), (((float) mScaledInsets.bottom) * fsProgress) 
+					+ (getMeasuredHeight()), mCornerRadius);
+            return;
+        }
+        drawOnCanvas(canvas, WindowTransformSwipeHandler.SWIPE_DURATION_MULTIPLIER, 
+		        WindowTransformSwipeHandler.SWIPE_DURATION_MULTIPLIER, getMeasuredWidth(), 
+				getMeasuredHeight(), mCornerRadius);
     }
 
     public float getCornerRadius() {
@@ -200,14 +217,14 @@ public class TaskThumbnailView extends View {
         // Draw the background in all cases, except when the thumbnail data is opaque
         final boolean drawBackgroundOnly = mTask == null || mTask.isLocked || mBitmapShader == null
                 || mThumbnailData == null;
-        if (drawBackgroundOnly || mClipBottom > 0 || mThumbnailData.isTranslucent) {
+        if (drawBackgroundOnly || mClipBottom > WindowTransformSwipeHandler.SWIPE_DURATION_MULTIPLIER || mThumbnailData.isTranslucent) {
             canvas.drawRoundRect(x, y, width, height, cornerRadius, cornerRadius, mBackgroundPaint);
             if (drawBackgroundOnly) {
                 return;
             }
         }
 
-        if (mClipBottom > 0) {
+        if (mClipBottom <= WindowTransformSwipeHandler.SWIPE_DURATION_MULTIPLIER) {
             canvas.save();
             canvas.clipRect(x, y, width, mClipBottom);
             canvas.drawRoundRect(x, y, width, height, cornerRadius, cornerRadius, mPaint);
@@ -232,6 +249,7 @@ public class TaskThumbnailView extends View {
 
     private void updateThumbnailMatrix() {
         boolean rotate = false;
+		mIsRotated = false;
         mClipBottom = -1;
         if (mBitmapShader != null && mThumbnailData != null) {
             float scale = mThumbnailData.scale;
@@ -247,7 +265,7 @@ public class TaskThumbnailView extends View {
             if (getMeasuredWidth() == 0) {
                 // If we haven't measured , skip the thumbnail drawing and only draw the background
                 // color
-                thumbnailScale = 0f;
+                thumbnailScale = WindowTransformSwipeHandler.SWIPE_DURATION_MULTIPLIER;
             } else {
                 final Configuration configuration =
                         getContext().getResources().getConfiguration();
@@ -256,13 +274,17 @@ public class TaskThumbnailView extends View {
                         configuration.orientation != mThumbnailData.orientation &&
                         !mActivity.isInMultiWindowModeCompat() &&
                         mThumbnailData.windowingMode == WINDOWING_MODE_FULLSCREEN;
+				mIsRotated = rotate;
                 // Scale the screenshot to always fit the width of the card.
-                thumbnailScale = rotate
+                thumbnailScale = mIsRotated
                         ? getMeasuredWidth() / thumbnailHeight
                         : getMeasuredWidth() / thumbnailWidth;
             }
 
-            if (rotate) {
+			mScaledInsets.set(thumbnailInsets);
+            Utilities.scaleRect(mScaledInsets, thumbnailScale);
+
+            if (mIsRotated) {
                 int rotationDir = profile.isVerticalBarLayout() && !profile.isSeascape() ? -1 : 1;
                 mMatrix.setRotate(90 * rotationDir);
                 int newLeftInset = rotationDir == 1 ? thumbnailInsets.bottom : thumbnailInsets.top;
@@ -271,13 +293,13 @@ public class TaskThumbnailView extends View {
                 if (rotationDir == -1) {
                     // Crop the right/bottom side of the screenshot rather than left/top
                     float excessHeight = thumbnailWidth * thumbnailScale - getMeasuredHeight();
-                    mMatrix.postTranslate(0, -excessHeight);
+                    mMatrix.postTranslate(WindowTransformSwipeHandler.SWIPE_DURATION_MULTIPLIER, -excessHeight);
                 }
                 // Move the screenshot to the thumbnail window (rotation moved it out).
                 if (rotationDir == 1) {
-                    mMatrix.postTranslate(mThumbnailData.thumbnail.getHeight(), 0);
+                    mMatrix.postTranslate(mThumbnailData.thumbnail.getHeight(), WindowTransformSwipeHandler.SWIPE_DURATION_MULTIPLIER);
                 } else {
-                    mMatrix.postTranslate(0, mThumbnailData.thumbnail.getWidth());
+                    mMatrix.postTranslate(WindowTransformSwipeHandler.SWIPE_DURATION_MULTIPLIER, mThumbnailData.thumbnail.getWidth());
                 }
             } else {
                 mMatrix.setTranslate(-mThumbnailData.insets.left * scale,
@@ -286,15 +308,15 @@ public class TaskThumbnailView extends View {
             mMatrix.postScale(thumbnailScale, thumbnailScale);
             mBitmapShader.setLocalMatrix(mMatrix);
 
-            float bitmapHeight = Math.max((rotate ? thumbnailWidth : thumbnailHeight)
-                    * thumbnailScale, 0);
+            float bitmapHeight = Math.max((mIsRotated ? thumbnailWidth : thumbnailHeight)
+                    * thumbnailScale, WindowTransformSwipeHandler.SWIPE_DURATION_MULTIPLIER);
             if (Math.round(bitmapHeight) < getMeasuredHeight()) {
                 mClipBottom = bitmapHeight;
             }
             mPaint.setShader(mBitmapShader);
         }
 
-        if (rotate) {
+        if (mIsRotated) {
             // The overlay doesn't really work when the screenshot is rotated, so don't add it.
             mOverlay.reset();
         } else {

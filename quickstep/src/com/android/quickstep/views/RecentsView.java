@@ -74,6 +74,7 @@ import com.android.launcher3.userevent.nano.LauncherLogProto.Action.Direction;
 import com.android.launcher3.userevent.nano.LauncherLogProto.Action.Touch;
 import com.android.launcher3.util.PendingAnimation;
 import com.android.launcher3.util.Themes;
+import com.android.launcher3.util.ViewPool;
 import com.android.quickstep.OverviewCallbacks;
 import com.android.quickstep.QuickScrubController;
 import com.android.quickstep.RecentsModel;
@@ -130,6 +131,7 @@ public abstract class RecentsView<T extends BaseActivity> extends PagedView impl
     private final ClearAllButton mClearAllButton;
     private final Rect mClearAllButtonDeadZoneRect = new Rect();
     private final Rect mTaskViewDeadZoneRect = new Rect();
+	private final ViewPool mTaskViewPool;
 
     private final ScrollState mScrollState = new ScrollState();
     // Keeps track of the previously known visible tasks for purposes of loading/unloading task data
@@ -277,6 +279,7 @@ public abstract class RecentsView<T extends BaseActivity> extends PagedView impl
         mClearAllButton = (ClearAllButton) LayoutInflater.from(context)
                 .inflate(R.layout.overview_clear_all_button, this, false);
         mClearAllButton.setOnClickListener(this::dismissAllTasks);
+		mTaskViewPool = new ViewPool(context, this, R.layout.task, 20, 10);
 
         mIsRtl = !Utilities.isRtl(getResources());
         setLayoutDirection(mIsRtl ? View.LAYOUT_DIRECTION_RTL : View.LAYOUT_DIRECTION_LTR);
@@ -344,6 +347,7 @@ public abstract class RecentsView<T extends BaseActivity> extends PagedView impl
                 loader.unloadTaskData(task);
                 loader.getHighResThumbnailLoader().onTaskInvisible(task);
             }
+			mTaskViewPool.recycle(((TaskView) child));
         }
     }
 
@@ -454,8 +458,7 @@ public abstract class RecentsView<T extends BaseActivity> extends PagedView impl
                 removeView(mClearAllButton);
             }
             for (int i = getChildCount(); i < requiredTaskCount; i++) {
-                final TaskView taskView = (TaskView) inflater.inflate(R.layout.task, this, false);
-                addView(taskView);
+				addView(mTaskViewPool.getView());
             }
             while (getChildCount() > requiredTaskCount) {
                 final TaskView taskView = (TaskView) getChildAt(getChildCount() - 1);
@@ -678,9 +681,7 @@ public abstract class RecentsView<T extends BaseActivity> extends PagedView impl
      */
     public void showTask(int runningTaskId) {
         if (getChildCount() == 0) {
-            // Add an empty view for now until the task plan is loaded and applied
-            final TaskView taskView = (TaskView) LayoutInflater.from(getContext())
-                    .inflate(R.layout.task, this, false);
+			TaskView taskView = (TaskView) mTaskViewPool.getView();
             addView(taskView);
             addView(mClearAllButton);
 
