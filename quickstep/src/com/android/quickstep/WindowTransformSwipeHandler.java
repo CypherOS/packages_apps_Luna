@@ -167,7 +167,7 @@ public class WindowTransformSwipeHandler<T extends BaseDraggingActivity> {
     public static final long MIN_OVERSHOOT_DURATION = 120;
 
     public static final float MIN_PROGRESS_FOR_OVERVIEW = 0.5f;
-    private static final float SWIPE_DURATION_MULTIPLIER =
+    public static final float SWIPE_DURATION_MULTIPLIER =
             Math.min(1 / MIN_PROGRESS_FOR_OVERVIEW, 1 / (1 - MIN_PROGRESS_FOR_OVERVIEW));
 
     private final ClipAnimationHelper mClipAnimationHelper = new ClipAnimationHelper();
