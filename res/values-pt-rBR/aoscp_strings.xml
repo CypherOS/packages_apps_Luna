@@ -25,9 +25,7 @@
     <string name="abbrev_wday_month_day_no_year">EEEEMMMd</string>
     <!-- QuickSpace: QuickEvent: Device Intro Event -->
     <string name="quick_event_aoscp_intro_welcome">Bem vindo à CypherOS</string>
-    <string name="quick_event_aoscp_intro_learn">Toque para começar</string>
     <!-- QuickSpace: QuickEvent: Ambient Play -->
-    <string name="quick_event_ambient_now_playing">Tocando Agora</string>
     <string name="quick_event_ambient_song_artist">%1$s por %2$s</string>
 
     <!-- Settings title to show Google Now at -1 screen on launcher. [CHAR LIMIT=50] -->
@@ -55,6 +53,15 @@
     <string name="msg_disable_suggestions_prompt">"As sugestões não aparecerão no topo da sua lista de aplicativos, e os dados usados ​​para criá-las serão permanentemente apagados."</string>
     <string name="label_turn_off_suggestions">DESATIVAR</string>
     <string name="all_apps_label">Todos os aplicativos</string>
+
+    <!-- App lock -->
+    <string name="app_lock_title">Inicialização segura</string>
+    <string name="app_lock_summary">Aplicativos exigirão autenticação de impressão digital para abrir</string>
+    <string name="app_lock_disable_prompt">Verifique se é você</string>
+    <string name="app_lock_disable_prompt_desc">Por motivos de segurança, use sua impressão digital para desativar a inicialização segura</string>
+    <string name="app_lock_authentication_desc">Coloque o dedo no sensor</string>
+    <string name="app_lock_authentication_status_unrecognized">Não reconhecido</string>
+    <string name="app_lock_authentication_status_retry">Tente novamente</string>
 
 </resources>
 
