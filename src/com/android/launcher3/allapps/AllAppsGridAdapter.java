@@ -266,7 +266,7 @@ public class AllAppsGridAdapter extends RecyclerView.Adapter<AllAppsGridAdapter.
                 searchMarketView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        mLauncher.startActivitySafely(v, mMarketSearchIntent, null);
+                        mLauncher.startActivitySafely(v, mMarketSearchIntent, null, true);
                     }
                 });
                 return new ViewHolder(searchMarketView);

@@ -113,7 +113,7 @@ public class AllAppsSearchBarController
             return false;
         }
         return mLauncher.startActivitySafely(v,
-                PackageManagerHelper.getMarketSearchIntent(mLauncher, query), null);
+                PackageManagerHelper.getMarketSearchIntent(mLauncher, query), null, true);
     }
 
     @Override

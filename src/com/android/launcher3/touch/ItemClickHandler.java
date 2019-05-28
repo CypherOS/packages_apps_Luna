@@ -154,7 +154,7 @@ public class ItemClickHandler {
     private static void startMarketIntentForPackage(View v, Launcher launcher, String packageName) {
         ItemInfo item = (ItemInfo) v.getTag();
         Intent intent = new PackageManagerHelper(launcher).getMarketIntent(packageName);
-        launcher.startActivitySafely(v, intent, item);
+        launcher.startActivitySafely(v, intent, item, false);
     }
 
     /**
@@ -227,6 +227,6 @@ public class ItemClickHandler {
                 intent.setPackage(null);
             }
         }
-        launcher.startActivitySafely(v, intent, item);
+        launcher.startActivitySafely(v, intent, item, false);
     }
 }
