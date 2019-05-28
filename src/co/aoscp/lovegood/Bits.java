@@ -20,6 +20,7 @@ import android.content.Context;
 import android.content.IntentFilter;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.hardware.fingerprint.FingerprintManager;
 
 public class Bits {
 
@@ -45,4 +46,9 @@ public class Bits {
     public static <T> T notNullOrDefault(T value, T defValue) {
         return value == null ? defValue : value;
     }
+
+	public static boolean hasEnrolledFingerprints(Context context) {
+		FingerprintManager fpManager = (FingerprintManager) context.getSystemService(Context.FINGERPRINT_SERVICE);
+        return fpManager.hasEnrolledFingerprints();
+	}
 }
