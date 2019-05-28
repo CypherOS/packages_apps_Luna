@@ -85,7 +85,7 @@ public class QuickSpaceActionReceiver {
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
         try {
 			Launcher.getLauncher(mContext).setAuthorized(true);
-            Launcher.getLauncher(mContext).startActivitySafely(view, addFlags, null);
+            Launcher.getLauncher(mContext).startActivitySafely(view, addFlags, null, true);
         } catch (ActivityNotFoundException ex) {
             LauncherAppsCompat.getInstance(mContext).showAppDetailsForProfile(new ComponentName(LunaLauncherCallbacks.SEARCH_PACKAGE, ""), Process.myUserHandle());
         }
@@ -97,7 +97,7 @@ public class QuickSpaceActionReceiver {
         intent.setComponent(new ComponentName(LunaLauncherCallbacks.SEARCH_PACKAGE, "com.google.android.apps.gsa.velour.DynamicActivityTrampoline"));
         try {
 			Launcher.getLauncher(mContext).setAuthorized(true);
-            Launcher.getLauncher(mContext).startActivitySafely(view, intent, null);
+            Launcher.getLauncher(mContext).startActivitySafely(view, intent, null, true);
         } catch (ActivityNotFoundException ex) {
             LauncherAppsCompat.getInstance(mContext).showAppDetailsForProfile(new ComponentName(LunaLauncherCallbacks.SEARCH_PACKAGE, 
                     "com.google.android.apps.gsa.velour.DynamicActivityTrampoline"), Process.myUserHandle());
@@ -108,7 +108,7 @@ public class QuickSpaceActionReceiver {
         final Intent query = new Intent(Intent.ACTION_WEB_SEARCH)
                 .putExtra(SearchManager.QUERY, mNowPlayingInfo);
         try {
-            Launcher.getLauncher(mContext).startActivitySafely(view, query, null);
+            Launcher.getLauncher(mContext).startActivitySafely(view, query, null, true);
         } catch (ActivityNotFoundException ex) {
         }
     }
@@ -117,7 +117,7 @@ public class QuickSpaceActionReceiver {
         final Intent intent = new Intent(Settings.ACTION_DEVICE_INTRODUCTION)
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
         try {
-            Launcher.getLauncher(mContext).startActivitySafely(view, intent, null);
+            Launcher.getLauncher(mContext).startActivitySafely(view, intent, null, true);
         } catch (ActivityNotFoundException ex) {
         }
     }

@@ -200,7 +200,7 @@ public abstract class BaseDraggingActivity extends BaseActivity
 
     public abstract ActivityOptions getActivityLaunchOptions(View v);
 
-    public boolean startActivitySafely(View v, Intent intent, ItemInfo item) {
+    public boolean startActivitySafely(View v, Intent intent, ItemInfo item, boolean skipAuth) {
         if (mIsSafeModeEnabled && !Utilities.isSystemApp(this, intent)) {
             Toast.makeText(this, R.string.safemode_shortcut_error, Toast.LENGTH_SHORT).show();
             return false;
@@ -208,7 +208,7 @@ public abstract class BaseDraggingActivity extends BaseActivity
 
         boolean isAppLock = Utilities.getPrefs(getBaseContext()).getBoolean(SettingsFragment.KEY_APP_LOCK, false)
                 && MiBits.hasBiometricsSupport(getBaseContext());
-        if (!isAppLock || mIsAuthorized) {
+        if (!isAppLock || mIsAuthorized || skipAuth) {
             mIsAuthorized = false;
             // Only launch using the new animation if the shortcut has not opted out (this is a
             // private contract between launcher and may be ignored in the future).
@@ -314,7 +314,7 @@ public abstract class BaseDraggingActivity extends BaseActivity
             public void onAuthenticationSucceeded() {
                 mIsAuthorized = true;
                 manager.closePrompt();
-                startActivitySafely(mAuthView, mAuthIntent, mAuthItem);
+                startActivitySafely(mAuthView, mAuthIntent, mAuthItem, false);
             }
 
             @Override
