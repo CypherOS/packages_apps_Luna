@@ -39,7 +39,6 @@ import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
 
 import co.aoscp.lovegood.SettingsFragment;
-import co.aoscp.lovegood.shortcuts.ShortcutStore;
 import co.aoscp.lovegood.util.ComponentKeyMapper;
 
 import com.android.launcher3.AppInfo;
@@ -55,7 +54,6 @@ import com.android.launcher3.SettingsActivity;
 import com.android.launcher3.ShortcutInfo;
 import com.android.launcher3.Utilities;
 import com.android.launcher3.allapps.AllAppsStore;
-import com.android.launcher3.allapps.AllAppsStore.OnUpdateListener;
 import com.android.launcher3.anim.Interpolators;
 import com.android.launcher3.anim.PropertySetter;
 import com.android.launcher3.keyboard.FocusIndicatorHelper;
@@ -72,8 +70,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class PredictionRowView extends LinearLayout implements LogContainerProvider, OnUpdateListener, OnDeviceProfileChangeListener,
-            ShortcutStore.OnUpdateListener {
+public class PredictionRowView extends LinearLayout implements LogContainerProvider, OnDeviceProfileChangeListener {
 
     public static final Interpolator ALPHA_FACTOR_INTERPOLATOR = new Interpolator() {
         @Override
@@ -156,7 +153,7 @@ public class PredictionRowView extends LinearLayout implements LogContainerProvi
         mIconTextColor = Themes.getAttrColor(context, android.R.attr.textColorSecondary);
         mIconFullTextAlpha = Color.alpha(mIconTextColor);
         mIconCurrentTextAlpha = mIconFullTextAlpha;
-        mAllAppsLabelTextPaint.setColor(ContextCompat.getColor(context, isMainColorDark ? 
+        mAllAppsLabelTextPaint.setColor(ContextCompat.getColor(context, isMainColorDark ?
                R.color.all_apps_label_text_dark : R.color.all_apps_label_text));
         mAllAppsLabelTextColor = mAllAppsLabelTextPaint.getColor();
         mAllAppsLabelTextFullAlpha = Color.alpha(mAllAppsLabelTextColor);
@@ -164,26 +161,13 @@ public class PredictionRowView extends LinearLayout implements LogContainerProvi
         updateVisibility();
     }
 
-    @Override
-    public void onAttachedToWindow() {
-        super.onAttachedToWindow();
-        getAppsStore().addUpdateListener(this);
-        getAppsStore().registerIconContainer(this);
-    }
-
     public AllAppsStore getAppsStore() {
         return mLauncher.getAppsView().getAppsStore();
     }
 
-    @Override
-    public void onDetachedFromWindow() {
-        super.onDetachedFromWindow();
-        getAppsStore().removeUpdateListener(this);
-        getAppsStore().unregisterIconContainer(this);
-    }
-
     public void setup(PredictionsFloatingHeader predictionsHeader, boolean isPredictions) {
         mParent = predictionsHeader;
+		updatePredictedApps();
         setPredictionsEnabled(isPredictions);
     }
 
@@ -252,7 +236,7 @@ public class PredictionRowView extends LinearLayout implements LogContainerProvi
         setPredictionsEnabled(isPredictions);
         mPredictedAppComponents.clear();
         mPredictedAppComponents.addAll(list);
-        onAppsUpdated();
+        updatePredictedApps();
     }
 
     @Override
@@ -261,24 +245,17 @@ public class PredictionRowView extends LinearLayout implements LogContainerProvi
         applyPredictionApps();
     }
 
-    @Override
-    public void onAppsUpdated() {
-        mPredictedApps.clear();
-        mPredictedApps.addAll(processPredictedAppComponents(mPredictedAppComponents));
-        applyPredictionApps();
-    }
-
-    @Override
-    public void onShortcutsUpdated() {
-        mPredictedApps.clear();
-        mPredictedApps.addAll(processPredictedAppComponents(mPredictedAppComponents));
-        applyPredictionApps();
+    public void updatePredictedApps() {
+        if (mPredictedApps != null && getAppsStore() != null) {
+            mPredictedApps.clear();
+            mPredictedApps.addAll(processPredictedAppComponents(mPredictedAppComponents));
+            applyPredictionApps();
+        }
     }
 
     public void applyPredictionApps() {
-        View view = mLoadingProgress;
-        if (view != null) {
-            removeView(view);
+        if (mLoadingProgress != null) {
+            removeView(mLoadingProgress);
         }
         if (getChildCount() != mNumPredictedAppsPerRow) {
             while (getChildCount() > mNumPredictedAppsPerRow) {
@@ -290,28 +267,28 @@ public class PredictionRowView extends LinearLayout implements LogContainerProvi
                 predictionIcon.setOnLongClickListener(ItemLongClickListener.INSTANCE_ALL_APPS);
                 predictionIcon.setLongPressTimeout(ViewConfiguration.getLongPressTimeout());
                 predictionIcon.setOnFocusChangeListener(mFocusHelper);
-                LayoutParams layoutParams = (LayoutParams) predictionIcon.getLayoutParams();
-                layoutParams.height = getExpectedHeight();
-                layoutParams.width = 0;
-                layoutParams.weight = 1.0f;
+                LayoutParams params = (LayoutParams) predictionIcon.getLayoutParams();
+                params.height = getExpectedHeight();
+                params.width = 0;
+                params.weight = 1.0f;
                 addView(predictionIcon);
             }
         }
         int size = mPredictedApps.size();
         int alphaComponent = ColorUtils.setAlphaComponent(mIconTextColor, mIconCurrentTextAlpha);
         for (int i = 0; i < getChildCount(); i++) {
-            BubbleTextView predictionsView = (BubbleTextView) getChildAt(i);
-            predictionsView.reset();
+            BubbleTextView view = (BubbleTextView) getChildAt(i);
+            view.reset();
             if (size > i) {
-                predictionsView.setVisibility(View.VISIBLE);
+                view.setVisibility(View.VISIBLE);
                 if (mPredictedApps.get(i) instanceof AppInfo) {
-                    predictionsView.applyFromApplicationInfo((AppInfo) mPredictedApps.get(i));
+                    view.applyFromApplicationInfo((AppInfo) mPredictedApps.get(i));
                 } else if (mPredictedApps.get(i) instanceof ShortcutInfo) {
-                    predictionsView.applyFromShortcutInfo((ShortcutInfo) mPredictedApps.get(i));
+                    view.applyFromShortcutInfo((ShortcutInfo) mPredictedApps.get(i));
                 }
-                predictionsView.setTextColor(alphaComponent);
+                view.setTextColor(alphaComponent);
             } else {
-                predictionsView.setVisibility(size == 0 ? View.GONE : View.VISIBLE);
+                view.setVisibility(size == 0 ? View.GONE : View.VISIBLE);
             }
         }
         if (size == 0) {
@@ -344,12 +321,11 @@ public class PredictionRowView extends LinearLayout implements LogContainerProvi
 
     @Override
     public void onDraw(Canvas canvas) {
-        DividerType dividerType = mDividerType;
-        if (dividerType == DividerType.LINE) {
+        if (mDividerType == DividerType.LINE) {
             int dimensionPixelSize = getResources().getDimensionPixelSize(R.dimen.dynamic_grid_edge_margin);
             float height = (float) (getHeight() - (getPaddingBottom() / 2));
             canvas.drawLine((float) (getPaddingLeft() + dimensionPixelSize), height, (float) ((getWidth() - getPaddingRight()) - dimensionPixelSize), height, mPaint);
-        } else if (dividerType == DividerType.ALL_APPS_LABEL) {
+        } else if (mDividerType == DividerType.ALL_APPS_LABEL) {
             drawAllAppsHeader(canvas);
         }
     }
