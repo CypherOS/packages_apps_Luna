@@ -32,6 +32,7 @@ import com.android.launcher3.Launcher;
 import com.android.launcher3.R;
 import com.android.launcher3.Utilities;
 import com.android.launcher3.allapps.AllAppsContainerView.AdapterHolder;
+import com.android.launcher3.allapps.AllAppsStore;
 import com.android.launcher3.allapps.FloatingHeaderView;
 import com.android.launcher3.anim.PropertySetter;
 
@@ -49,7 +50,7 @@ public class PredictionsFloatingHeader extends FloatingHeaderView implements Ins
         }
     };
     public float mContentAlpha = 1.0f;
-    public final int mHeaderTopPadding;
+    public int mHeaderTopPadding;
     public boolean mIsCollapsed;
     public boolean mIsVerticalLayout;
     public PredictionRowView mPredictionRowView;
@@ -60,21 +61,22 @@ public class PredictionsFloatingHeader extends FloatingHeaderView implements Ins
         mHeaderTopPadding = context.getResources().getDimensionPixelSize(R.dimen.all_apps_header_top_padding);
     }
 
+    @Override
     public void onFinishInflate() {
         super.onFinishInflate();
         mPredictionRowView = (PredictionRowView) findViewById(R.id.predictions_row);
         setShowAllAppsLabel(true);
     }
 
-    public void setup(AdapterHolder[] adapterHolderArr, boolean tabsHidden) {
+    public void setup(AdapterHolder[] adapterHolderArr, boolean tabsHidden, AllAppsStore allAppsStore) {
         mPredictionRowView.setup(this, Utilities.getPrefs(Launcher.getLauncher(
-            getContext())).getBoolean(SettingsFragment.KEY_APP_SUGGESTIONS, true));
+            getContext())).getBoolean(SettingsFragment.KEY_APP_SUGGESTIONS, true), allAppsStore);
         mTabsHidden = tabsHidden;
         updateExpectedHeight();
         super.setup(adapterHolderArr, tabsHidden);
     }
 
-    public final void updateExpectedHeight() {
+    public void updateExpectedHeight() {
         mPredictionRowView.setDividerType(DividerType.ALL_APPS_LABEL);
         mMaxTranslation = mPredictionRowView.getExpectedHeight();
     }
@@ -97,11 +99,10 @@ public class PredictionsFloatingHeader extends FloatingHeaderView implements Ins
     }
 
     public void setInsets(Rect rect) {
-        DeviceProfile deviceProfile = Launcher.getLauncher(getContext()).getDeviceProfile();
-        int devicePadding = deviceProfile.desiredWorkspaceLeftRightMarginPx + deviceProfile.cellLayoutPaddingLeftRightPx;
-        PredictionRowView predictionRowView = mPredictionRowView;
-        predictionRowView.setPadding(devicePadding, predictionRowView.getPaddingTop(), devicePadding, mPredictionRowView.getPaddingBottom());
-        mIsVerticalLayout = deviceProfile.isVerticalBarLayout();
+        DeviceProfile dp = Launcher.getLauncher(getContext()).getDeviceProfile();
+        int padding = dp.desiredWorkspaceLeftRightMarginPx + dp.cellLayoutPaddingLeftRightPx;
+        mPredictionRowView.setPadding(padding, mPredictionRowView.getPaddingTop(), padding, mPredictionRowView.getPaddingBottom());
+        mIsVerticalLayout = dp.isVerticalBarLayout();
     }
 
     public void headerChanged() {
@@ -132,13 +133,13 @@ public class PredictionsFloatingHeader extends FloatingHeaderView implements Ins
     }
 
     public void setShowAllAppsLabel(boolean show) {
-        if (mShowAllAppsLabel != show) {
+        if (show != mShowAllAppsLabel) {
             mShowAllAppsLabel = show;
             headerChanged();
         }
     }
 
-    public final void setContentAlpha(float alpha) {
+    public void setContentAlpha(float alpha) {
         mContentAlpha = alpha;
         mTabLayout.setAlpha(alpha);
     }

@@ -413,7 +413,7 @@ public class AllAppsContainerView extends SpringRelativeLayout implements DragSo
 
     public void setupHeader() {
         mHeader.setVisibility(View.VISIBLE);
-        mHeader.setup(mAH, mAH[AllAppsContainerView.AdapterHolder.WORK].recyclerView == null);
+        mHeader.setup(mAH, mAH[AllAppsContainerView.AdapterHolder.WORK].recyclerView == null, mAllAppsStore);
 
         int padding = mHeader.getMaxTranslation();
         for (int i = 0; i < mAH.length; i++) {
