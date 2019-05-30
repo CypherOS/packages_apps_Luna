@@ -49,7 +49,7 @@ public class PredictionsFloatingHeader extends FloatingHeaderView implements Ins
         }
     };
     public float mContentAlpha = 1.0f;
-    public final int mHeaderTopPadding;
+    public int mHeaderTopPadding;
     public boolean mIsCollapsed;
     public boolean mIsVerticalLayout;
     public PredictionRowView mPredictionRowView;
@@ -60,6 +60,7 @@ public class PredictionsFloatingHeader extends FloatingHeaderView implements Ins
         mHeaderTopPadding = context.getResources().getDimensionPixelSize(R.dimen.all_apps_header_top_padding);
     }
 
+    @Override
     public void onFinishInflate() {
         super.onFinishInflate();
         mPredictionRowView = (PredictionRowView) findViewById(R.id.predictions_row);
@@ -74,7 +75,7 @@ public class PredictionsFloatingHeader extends FloatingHeaderView implements Ins
         super.setup(adapterHolderArr, tabsHidden);
     }
 
-    public final void updateExpectedHeight() {
+    public void updateExpectedHeight() {
         mPredictionRowView.setDividerType(DividerType.ALL_APPS_LABEL);
         mMaxTranslation = mPredictionRowView.getExpectedHeight();
     }
@@ -97,11 +98,10 @@ public class PredictionsFloatingHeader extends FloatingHeaderView implements Ins
     }
 
     public void setInsets(Rect rect) {
-        DeviceProfile deviceProfile = Launcher.getLauncher(getContext()).getDeviceProfile();
-        int devicePadding = deviceProfile.desiredWorkspaceLeftRightMarginPx + deviceProfile.cellLayoutPaddingLeftRightPx;
-        PredictionRowView predictionRowView = mPredictionRowView;
-        predictionRowView.setPadding(devicePadding, predictionRowView.getPaddingTop(), devicePadding, mPredictionRowView.getPaddingBottom());
-        mIsVerticalLayout = deviceProfile.isVerticalBarLayout();
+        DeviceProfile dp = Launcher.getLauncher(getContext()).getDeviceProfile();
+        int padding = dp.desiredWorkspaceLeftRightMarginPx + dp.cellLayoutPaddingLeftRightPx;
+        mPredictionRowView.setPadding(padding, mPredictionRowView.getPaddingTop(), padding, mPredictionRowView.getPaddingBottom());
+        mIsVerticalLayout = dp.isVerticalBarLayout();
     }
 
     public void headerChanged() {
@@ -132,13 +132,13 @@ public class PredictionsFloatingHeader extends FloatingHeaderView implements Ins
     }
 
     public void setShowAllAppsLabel(boolean show) {
-        if (mShowAllAppsLabel != show) {
+        if (show != mShowAllAppsLabel) {
             mShowAllAppsLabel = show;
             headerChanged();
         }
     }
 
-    public final void setContentAlpha(float alpha) {
+    public void setContentAlpha(float alpha) {
         mContentAlpha = alpha;
         mTabLayout.setAlpha(alpha);
     }
