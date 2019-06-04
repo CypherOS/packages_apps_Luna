@@ -31,6 +31,8 @@ import android.view.View;
 import android.view.ViewParent;
 
 import co.aoscp.lovegood.SettingsFragment;
+import co.aoscp.lovegood.allapps.Action;
+import co.aoscp.lovegood.allapps.ActionsController;
 import co.aoscp.lovegood.util.ComponentKeyMapper;
 
 import com.android.launcher3.AppFilter;
@@ -39,6 +41,7 @@ import com.android.launcher3.R;
 import com.android.launcher3.SettingsActivity;
 import com.android.launcher3.Utilities;
 import com.android.launcher3.allapps.AllAppsContainerView;
+import com.android.launcher3.userevent.nano.LauncherLogProto.LauncherEvent;
 import com.android.launcher3.util.ComponentKey;
 
 import com.android.quickstep.logging.UserEventDispatcherExtension;
@@ -164,6 +167,14 @@ public class PredictionsDispatcher extends UserEventDispatcherExtension implemen
 
             edit.putStringSet(PREDICTION_SET, predictionSet);
             edit.apply();
+        }
+    }
+
+    @Override
+    public void dispatchUserEvent(LauncherEvent ev, Intent intent) {
+        super.dispatchUserEvent(ev, intent);
+		if (ev.action.command == 0 && ev.destTarget.length > 0 && ev.destTarget[0].containerType == 4) {
+            ActionsController.get(mContext).getLogger().logImpression();
         }
     }
 
