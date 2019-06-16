@@ -27,6 +27,8 @@ import android.database.ContentObserver;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.Icon;
+import android.os.Handler;
+import android.os.Looper;
 import android.provider.Settings;
 import android.text.TextPaint;
 import android.text.TextUtils;
@@ -144,7 +146,13 @@ public class QuickSpaceView extends FrameLayout implements AnimatorUpdateListene
     private void updateEventView() {
         mQuickEventContent = findViewById(R.id.quickevent_content);
         mEventInfo = (TextView) findViewById(R.id.quickevent_info);
-        updateEventChip();
+        Handler uiThread = new Handler(Looper.getMainLooper());
+        uiThread.post(new Runnable() {
+            @Override
+            public void run() {
+                updateEventChip();
+            }
+        });
     }
 
     private void updateEventChip() {
