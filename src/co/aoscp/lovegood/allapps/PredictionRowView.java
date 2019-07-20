@@ -161,25 +161,14 @@ public class PredictionRowView extends LinearLayout implements LogContainerProvi
         mAllAppsLabelTextColor = mAllAppsLabelTextPaint.getColor();
         mAllAppsLabelTextFullAlpha = Color.alpha(mAllAppsLabelTextColor);
         mAllAppsLabelTextCurrentAlpha = mAllAppsLabelTextFullAlpha;
+		
+		getAppsStore().addUpdateListener(this);
+		getAppsStore().registerIconContainer(this);
         updateVisibility();
-    }
-
-    @Override
-    public void onAttachedToWindow() {
-        super.onAttachedToWindow();
-        getAppsStore().addUpdateListener(this);
-        getAppsStore().registerIconContainer(this);
     }
 
     public AllAppsStore getAppsStore() {
         return mLauncher.getAppsView().getAppsStore();
-    }
-
-    @Override
-    public void onDetachedFromWindow() {
-        super.onDetachedFromWindow();
-        getAppsStore().removeUpdateListener(this);
-        getAppsStore().unregisterIconContainer(this);
     }
 
     public void setup(PredictionsFloatingHeader predictionsHeader, boolean isPredictions) {
