@@ -164,26 +164,14 @@ public class PredictionRowView extends LinearLayout implements LogContainerProvi
         updateVisibility();
     }
 
-    @Override
-    public void onAttachedToWindow() {
-        super.onAttachedToWindow();
-        getAppsStore().addUpdateListener(this);
-        getAppsStore().registerIconContainer(this);
-    }
-
     public AllAppsStore getAppsStore() {
         return mLauncher.getAppsView().getAppsStore();
     }
 
-    @Override
-    public void onDetachedFromWindow() {
-        super.onDetachedFromWindow();
-        getAppsStore().removeUpdateListener(this);
-        getAppsStore().unregisterIconContainer(this);
-    }
-
     public void setup(PredictionsFloatingHeader predictionsHeader, boolean isPredictions) {
         mParent = predictionsHeader;
+		getAppsStore().addUpdateListener(this);
+        getAppsStore().registerIconContainer(this);
         setPredictionsEnabled(isPredictions);
     }
 
