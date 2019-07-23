@@ -18,8 +18,6 @@ package co.aoscp.lovegood.util;
 
 import android.content.Context;
 
-import co.aoscp.lovegood.shortcuts.ShortcutStore;
-
 import com.android.launcher3.AppInfo;
 import com.android.launcher3.ItemInfoWithIcon;
 import com.android.launcher3.ShortcutInfo;
@@ -57,9 +55,6 @@ public class ComponentKeyMapper {
         AppInfo app = allAppsStore.getApp(mComponentKey);
         if (app != null) {
             return app;
-        }
-        if (mComponentKey instanceof ShortcutKey) {
-            return (ShortcutInfo) ShortcutStore.getInstance(mContext).mComponentToShortcutMap.get((ShortcutKey) mComponentKey);
         }
         return null;
     }

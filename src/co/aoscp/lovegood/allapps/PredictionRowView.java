@@ -39,7 +39,6 @@ import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
 
 import co.aoscp.lovegood.SettingsFragment;
-import co.aoscp.lovegood.shortcuts.ShortcutStore;
 import co.aoscp.lovegood.util.ComponentKeyMapper;
 
 import com.android.launcher3.AppInfo;
@@ -55,7 +54,6 @@ import com.android.launcher3.SettingsActivity;
 import com.android.launcher3.ShortcutInfo;
 import com.android.launcher3.Utilities;
 import com.android.launcher3.allapps.AllAppsStore;
-import com.android.launcher3.allapps.AllAppsStore.OnUpdateListener;
 import com.android.launcher3.anim.Interpolators;
 import com.android.launcher3.anim.PropertySetter;
 import com.android.launcher3.keyboard.FocusIndicatorHelper;
@@ -72,8 +70,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class PredictionRowView extends LinearLayout implements LogContainerProvider, OnUpdateListener, OnDeviceProfileChangeListener,
-            ShortcutStore.OnUpdateListener {
+public class PredictionRowView extends LinearLayout implements LogContainerProvider, OnDeviceProfileChangeListener {
 
     public static final Interpolator ALPHA_FACTOR_INTERPOLATOR = new Interpolator() {
         @Override
@@ -161,25 +158,12 @@ public class PredictionRowView extends LinearLayout implements LogContainerProvi
         mAllAppsLabelTextColor = mAllAppsLabelTextPaint.getColor();
         mAllAppsLabelTextFullAlpha = Color.alpha(mAllAppsLabelTextColor);
         mAllAppsLabelTextCurrentAlpha = mAllAppsLabelTextFullAlpha;
+        updatePredictedApps();
         updateVisibility();
-    }
-
-    @Override
-    public void onAttachedToWindow() {
-        super.onAttachedToWindow();
-        getAppsStore().addUpdateListener(this);
-        getAppsStore().registerIconContainer(this);
     }
 
     public AllAppsStore getAppsStore() {
         return mLauncher.getAppsView().getAppsStore();
-    }
-
-    @Override
-    public void onDetachedFromWindow() {
-        super.onDetachedFromWindow();
-        getAppsStore().removeUpdateListener(this);
-        getAppsStore().unregisterIconContainer(this);
     }
 
     public void setup(PredictionsFloatingHeader predictionsHeader, boolean isPredictions) {
@@ -252,7 +236,7 @@ public class PredictionRowView extends LinearLayout implements LogContainerProvi
         setPredictionsEnabled(isPredictions);
         mPredictedAppComponents.clear();
         mPredictedAppComponents.addAll(list);
-        onAppsUpdated();
+        updatePredictedApps();
     }
 
     @Override
@@ -261,15 +245,7 @@ public class PredictionRowView extends LinearLayout implements LogContainerProvi
         applyPredictionApps();
     }
 
-    @Override
-    public void onAppsUpdated() {
-        mPredictedApps.clear();
-        mPredictedApps.addAll(processPredictedAppComponents(mPredictedAppComponents));
-        applyPredictionApps();
-    }
-
-    @Override
-    public void onShortcutsUpdated() {
+    private void updatePredictedApps() {
         mPredictedApps.clear();
         mPredictedApps.addAll(processPredictedAppComponents(mPredictedAppComponents));
         applyPredictionApps();
