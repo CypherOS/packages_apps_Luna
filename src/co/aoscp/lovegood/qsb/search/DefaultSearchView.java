@@ -45,18 +45,7 @@ public class DefaultSearchView extends ExtendedEditText implements OnUpdateListe
     public DefaultSearchView(Context context, AttributeSet attributeSet, int i) {
         super(context, attributeSet, i);
         mController = new AllAppsSearchBarController();
-    }
-
-    @Override
-    public void onAttachedToWindow() {
-        super.onAttachedToWindow();
-        Launcher.getLauncher(getContext()).getAppsView().getAppsStore().addUpdateListener(this);
-    }
-
-    @Override
-    public void onDetachedFromWindow() {
-        super.onDetachedFromWindow();
-        Launcher.getLauncher(getContext()).getAppsView().getAppsStore().removeUpdateListener(this);
+		Launcher.getLauncher(getContext()).getAppsView().getAppsStore().addUpdateListener(this);
     }
 
     @Override
