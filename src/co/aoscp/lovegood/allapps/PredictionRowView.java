@@ -39,7 +39,6 @@ import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
 
 import co.aoscp.lovegood.SettingsFragment;
-import co.aoscp.lovegood.shortcuts.ShortcutStore;
 import co.aoscp.lovegood.util.ComponentKeyMapper;
 
 import com.android.launcher3.AppInfo;
@@ -72,8 +71,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class PredictionRowView extends LinearLayout implements LogContainerProvider, OnUpdateListener, OnDeviceProfileChangeListener,
-            ShortcutStore.OnUpdateListener {
+public class PredictionRowView extends LinearLayout implements LogContainerProvider, OnUpdateListener, OnDeviceProfileChangeListener {
 
     public static final Interpolator ALPHA_FACTOR_INTERPOLATOR = new Interpolator() {
         @Override
@@ -263,13 +261,6 @@ public class PredictionRowView extends LinearLayout implements LogContainerProvi
 
     @Override
     public void onAppsUpdated() {
-        mPredictedApps.clear();
-        mPredictedApps.addAll(processPredictedAppComponents(mPredictedAppComponents));
-        applyPredictionApps();
-    }
-
-    @Override
-    public void onShortcutsUpdated() {
         mPredictedApps.clear();
         mPredictedApps.addAll(processPredictedAppComponents(mPredictedAppComponents));
         applyPredictionApps();
