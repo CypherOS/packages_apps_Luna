@@ -341,6 +341,7 @@ public class AllAppsContainerView extends SpringRelativeLayout implements DragSo
         } else {
             mAH[AdapterHolder.MAIN].setup(findViewById(R.id.apps_list_view), null);
             mAH[AdapterHolder.WORK].recyclerView = null;
+			reset(true /* animate */);
         }
         setupHeader();
 
