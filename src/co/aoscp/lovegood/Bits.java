@@ -49,6 +49,9 @@ public class Bits {
 
     public static boolean hasEnrolledFingerprints(Context context) {
         FingerprintManager fpManager = (FingerprintManager) context.getSystemService(Context.FINGERPRINT_SERVICE);
-        return fpManager.hasEnrolledFingerprints();
+        if(fpManager != null) {
+           return fpManager.hasEnrolledFingerprints();
+        }
+        return false;
     }
 }
