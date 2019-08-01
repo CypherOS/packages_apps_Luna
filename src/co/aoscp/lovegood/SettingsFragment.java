@@ -114,7 +114,7 @@ public class SettingsFragment extends SettingsActivity implements OnPreferenceSt
                 if (((Boolean) newValue).booleanValue()) {
                     return true;
                 }
-                if (MiBits.hasBiometricsSupport(getContext()) && Bits.hasEnrolledFingerprints(getContext())) {
+                if (MiBits.hasBiometricsSupport(getContext())) {
                     SettingsFragment.AppLockSecureDisable secureDisable = new SettingsFragment.AppLockSecureDisable();
                     secureDisable.setTargetFragment(this, 0);
                     secureDisable.show(getFragmentManager(), preference.getKey());
@@ -126,7 +126,7 @@ public class SettingsFragment extends SettingsActivity implements OnPreferenceSt
 
         private void checkAppLockState() {
             // Check to ensure the preference is removed on any state
-            if (!MiBits.hasBiometricsSupport(getContext()) && !Bits.hasEnrolledFingerprints(getContext())) {
+            if (!MiBits.hasBiometricsSupport(getContext())) {
                 getPreferenceScreen().removePreference(mAppLock);
             } else {
                 mAppLock.setOnPreferenceChangeListener(this);

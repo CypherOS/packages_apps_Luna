@@ -207,7 +207,7 @@ public abstract class BaseDraggingActivity extends BaseActivity
         }
 
         boolean isAppLock = Utilities.getPrefs(getBaseContext()).getBoolean(SettingsFragment.KEY_APP_LOCK, false)
-                && MiBits.hasBiometricsSupport(getBaseContext()) && Bits.hasEnrolledFingerprints(getBaseContext());
+                && MiBits.hasBiometricsSupport(getBaseContext());
         if (!isAppLock || mIsAuthorized || skipAuth) {
             mIsAuthorized = false;
             // Only launch using the new animation if the shortcut has not opted out (this is a
